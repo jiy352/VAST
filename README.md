@@ -4,7 +4,6 @@
 [![Pypi](https://img.shields.io/pypi/v/lsdo_project_template)](https://pypi.org/project/lsdo_project_template/)
 [![Forks](https://img.shields.io/github/forks/LSDOlab/lsdo_project_template.svg)](https://github.com/LSDOlab/lsdo_project_template/network)
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/LSDOlab/lsdo_project_template/issues)
-[![Action](https://github.com/jiy352/VAST/blob/main/.github/workflows/actions.yml)
 
 [![GitHub Actions Test Badge][1]][2]
 
