@@ -32,6 +32,8 @@ setup(
         'setuptools',
         'wheel',
         'twine',
+        'python_csdl_backend @ git+https://github.com/LSDOlab/python_csdl_backend',
+        'csdl, @ git+https://github.com/LSDOlab/csdl',
     ],
     classifiers=[
         'Programming Language :: Python',
