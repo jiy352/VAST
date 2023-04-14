@@ -2,10 +2,7 @@
 from csdl import Model
 import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
-# from UVLM_package.VLM_system.solve_circulations.biot_savart_comp_org import BiotSavartComp
-from VLM_package.VLM_system.solve_circulations.biot_savart_vc_comp import BiotSavartComp
-
+from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp import BiotSavartComp
 
 class AssembleAic(Model):
     """

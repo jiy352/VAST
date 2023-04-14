@@ -4,13 +4,14 @@ import csdl
 import numpy as np
 from numpy.core.fromnumeric import size
 
-from VLM_package.VLM_system.solve_circulations.kinematic_velocity_comp import KinematicVelocityComp
-from VLM_package.VLM_system.solve_circulations.assemble_aic import AssembleAic
-from VLM_package.VLM_system.solve_circulations.compute_normal_comp import ComputeNormal
-from VLM_package.VLM_system.solve_circulations.projection_comp import Projection
-from VLM_package.VLM_system.solve_circulations.utils.compute_sprs import compute_spars
-from VLM_package.VLM_system.solve_circulations.utils.custom_explicit_mat_sprsmat import Explicit
 
+from VAST.utils.compute_sprs import compute_spars
+from VAST.utils.custom_explicit_mat_sprsmat import Explicit
+
+from VAST.core.submodels.aerodynamic_submodels.kinematic_velocity_comp import KinematicVelocityComp
+from VAST.core.submodels.aerodynamic_submodels.assemble_aic import AssembleAic
+from VAST.core.submodels.aerodynamic_submodels.compute_normal_comp import ComputeNormal
+from VAST.core.submodels.aerodynamic_submodels.projection_comp import Projection
 
 class RHS(Model):
     """

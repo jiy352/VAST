@@ -6,10 +6,9 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 from scipy.sparse import csc_matrix
-from VLM_package.VLM_system.solve_circulations.combine_bd_wake_comp import BdnWakeCombine
-from VLM_package.VLM_system.solve_circulations.biot_savart_vc_comp import BiotSavartComp
-from VLM_package.VLM_system.solve_circulations.induced_velocity_comp import InducedVelocity
-
+from VAST.core.submodels.aerodynamic_submodels.combine_bd_wake_comp import BdnWakeCombine
+from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp import BiotSavartComp
+from VAST.core.submodels.aerodynamic_submodels.induced_velocity_comp import InducedVelocity
 
 class EvalPtsVel(Model):
     """

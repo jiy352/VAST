@@ -1,8 +1,8 @@
 from VAST.core.vlm_llt.vlm_system import VLMSystem
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_outputs_group import Outputs
 import numpy as np
-
-from VLM_package.VLM_preprocessing.utils.generate_simple_mesh import *
+import csdl
+# from VLM_package.VLM_preprocessing.utils.generate_simple_mesh import *
 
 # Here n_wake_pts_chord is just a dummy variable that always equal to 2. since we are using a long wake panel,
 # we can just make n_wake_pts_chord=2 and delta_t a large number.

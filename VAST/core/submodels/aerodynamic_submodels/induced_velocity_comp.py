@@ -13,8 +13,7 @@ from numpy.core.fromnumeric import size
 # cannot reshape chords
 # prjected vs wetted s_ref?
 # line 153 why cannot put 0.5 outside the ()
-from VLM_package.VLM_system.solve_circulations.utils.einsum_lijk_lj_lik import EinsumLijkLjLik
-
+from VAST.utils.einsum_lijk_lj_lik import EinsumLijkLjLik
 
 class InducedVelocity(Model):
     """

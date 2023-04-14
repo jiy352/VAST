@@ -3,10 +3,9 @@ import numpy as np
 from csdl_om import Simulator
 import csdl
 
-from VLM_package.VLM_system.solve_circulations.rhs_group import RHS
-from VLM_package.VLM_system.solve_circulations.assemble_aic import AssembleAic
-from VLM_package.VLM_system.solve_circulations.projection_comp import Projection
-
+from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
+from VAST.core.submodels.aerodynamic_submodels.assemble_aic import AssembleAic
+from VAST.core.submodels.aerodynamic_submodels.projection_comp import Projection
 
 class ComputeResidual(Model):
     """

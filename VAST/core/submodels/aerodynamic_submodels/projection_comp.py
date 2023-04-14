@@ -4,9 +4,8 @@ import csdl
 import numpy as np
 from numpy.core.fromnumeric import size
 import random
-from VLM_package.VLM_system.solve_circulations.utils.einsum_kij_kij_ki import EinsumKijKijKi
-from VLM_package.VLM_system.solve_circulations.utils.einsum_lijk_lik_lij import EinsumLijkLikLij
-
+from VAST.utils.einsum_kij_kij_ki import EinsumKijKijKi
+from VAST.utils.einsum_lijk_lik_lij import EinsumLijkLikLij
 
 class Projection(Model):
     """

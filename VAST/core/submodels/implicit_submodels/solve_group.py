@@ -3,8 +3,7 @@ import numpy as np
 from csdl_om import Simulator
 import csdl
 
-from VLM_package.VLM_system.solve_circulations.rhs_group import RHS
-
+from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
 
 class SolveMatrix(Model):
     """

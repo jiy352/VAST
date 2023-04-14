@@ -2,9 +2,7 @@ from csdl_om import Simulator
 from csdl import Model
 import csdl
 import numpy as np
-from VLM_package.VLM_system.solve_circulations.utils.einsum_kij_kij_ki import EinsumKijKijKi
-
-
+from VAST.utils.einsum_kij_kij_ki import EinsumKijKijKi
 class BiotSavartComp(Model):
     """
     Compute AIC.

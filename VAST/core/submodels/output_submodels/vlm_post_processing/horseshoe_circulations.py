@@ -6,10 +6,10 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 from scipy.sparse import csc_matrix
-from VLM_package.VLM_system.solve_circulations.utils.einsum_ij_kj_ki import EinsumIjKjKi
+from VAST.utils.einsum_ij_kj_ki import EinsumIjKjKi
 
 class HorseshoeCirculations(Model):
-    """
+    """ 
     Compute horseshoe circulation for all the panels for all the surfaces
     horseshoe_circulation = csdl.dot(mtx, gamma_b)
     parameters
