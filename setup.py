@@ -34,7 +34,8 @@ setup(
         'twine',
         'VLM_package @ git+https://github.com/jiy352/lsdo_VLM',
         'python_csdl_backend @ git+https://github.com/LSDOlab/python_csdl_backend',
-        'csdl @ git+https://github.com/LSDOlab/csdl',      
+        'csdl @ git+https://github.com/LSDOlab/csdl',  
+        'csdl_om @ git+https://github.com/LSDOlab/csdl_om',    
     ],
     classifiers=[
         'Programming Language :: Python',
