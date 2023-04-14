@@ -9,7 +9,7 @@ import pytest
 
 '''
 This example demonstrates the basic VLM simulation 
-with a single lifting surface with internal function to generate evaluation pts
+with a single lifting surface
 Please see vlm_scipt_mls.py for how to use user defined evaluation pts
 '''
 solver_option = 'VLM'
