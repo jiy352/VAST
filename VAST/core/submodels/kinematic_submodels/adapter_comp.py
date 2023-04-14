@@ -3,7 +3,7 @@ from csdl import Model
 import csdl
 import numpy as np
 # from fluids import atmosphere as atmosphere
-from lsdo_atmos.atmosphere_model import AtmosphereModel
+# from lsdo_atmos.atmosphere_model import AtmosphereModel
 
 class AdapterComp(Model):
     """
