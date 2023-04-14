@@ -4,15 +4,15 @@ with open("README.md", "r") as fh:
     long_description = fh.read()
 
 setup(
-    name='lsdo_project_template',
+    name='VAST',
     version='0.1.0',
-    author='Author name',
-    author_email='author@gmail.com',
+    author='Jiayao Yan',
+    author_email='jiy352@ucsd.edu',
     license='LGPLv3+',
-    keywords='python project template repository package',
-    url='http://github.com/LSDOlab/lsdo_project_template',
+    keywords='vortex-based aerodynamic solver toolkit',
+    url='http://github.com/jiy352/vast',
     download_url='http://pypi.python.org/pypi/lsdo_project_template',
-    description='A template repository/package for LSDOlab projects',
+    description='vortex-based aerodynamic solver toolkit',
     long_description=long_description,
     long_description_content_type='text/markdown',
     packages=find_packages(),
