@@ -1,8 +1,7 @@
 # lsdo_project_template
 
 
-[![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/issues)
-[![Actions passed](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/actions)
+[![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/blob/main/.github/workflows/actions)
 
 
 A template repository for LSDOlab projects
