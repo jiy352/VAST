@@ -1,8 +1,6 @@
 # lsdo_project_template
 
-[![GitHub Actions Test Badge][17]][18]
-[17]: https://github.com/OpenMDAO/OpenMDAO/actions/workflows/openmdao_test_workflow.yml/badge.svg "Github Actions Badge"
-[18]: https://github.com/jiy352/VAST/actions "Github Actions"
+[![GitHub Actions Test Badge][1]][2]
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/blob/main/.github/workflows/actions)
 
 
@@ -38,6 +36,10 @@ pip install -e ./lsdo_project_template
 For details on documentation, refer to the README in `docs` directory.
 
 For details on testing/pull requests, refer to the README in `tests` directory.
+
+
+[1]: https://github.com/OpenMDAO/OpenMDAO/actions/workflows/openmdao_test_workflow.yml/badge.svg "Github Actions Badge"
+[2]: https://github.com/jiy352/VAST/actions "Github Actions"
 
 
 [1]: https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg
