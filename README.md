@@ -1,6 +1,8 @@
 # lsdo_project_template
 
-
+[![GitHub Actions Test Badge][17]][18]
+[17]: https://github.com/OpenMDAO/OpenMDAO/actions/workflows/openmdao_test_workflow.yml/badge.svg "Github Actions Badge"
+[18]: https://github.com/jiy352/VAST/actions "Github Actions"
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/blob/main/.github/workflows/actions)
 
 
