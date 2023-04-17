@@ -8,7 +8,7 @@
 [![PyPI Monthly Downloads][12]][11]
 -->
 
-[![GitHub Actions Test Badge](https://github.com/LSDOlab/lsdo_project_template/actions/workflows/actions.yml/badge.svg)](https://github.com/jiy352/VAST/blob/main/.github/workflows/actions)
+[![GitHub Actions Test Badge](https://github.com/LSDOlab/lsdo_project_template/actions/workflows/actions.yml/badge.svg)](https://github.com/jiy352/VAST/actions)
 [![Forks](https://img.shields.io/github/forks/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/network)
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/issues)
 
