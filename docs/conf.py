@@ -16,9 +16,9 @@
 
 # -- Project information -----------------------------------------------------
 
-project = 'lsdo_project_template'
-copyright = '2023, Anugrah'
-author = 'Anugrah'
+project = 'VAST'
+copyright = '2023, Jiayao Yan'
+author = 'Jiayao'
 version = '0.1'
 # release = 0.1.0rtc
 
@@ -50,7 +50,7 @@ nb_execution_mode = 'off'
 # autodoc_typehints = 'description'
 
 # autoapi options
-autoapi_dirs = ["../lsdo_project_template/core"]
+autoapi_dirs = ["../VAST/core"]
 autoapi_root = 'src/autoapi'
 autoapi_type = 'python'
 autoapi_file_patterns = ['*.py', '*.pyi']

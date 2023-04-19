@@ -1,11 +1,8 @@
-# Welcome to lsdo_project_template
+# Welcome to VAST
 
 ![alt text](/src/images/lsdolab.png "Title displayed")
 
-This page describes conceptually the purpose of your package at a high-level.
-Start with a one sentence description of your package.
-For example, "This repository serves as a template for all LSDOlab projects with regard to documentation, testing and hosting of open-source code."
-Include figures from the relevant paper and citation.
+vortex-based aerodynamic solver toolkit
 
 # Cite us
 ```none
