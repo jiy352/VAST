@@ -82,6 +82,9 @@ class Explicit(csdl.CustomExplicitOperation):
         num_bd_panel = self.parameters['num_bd_panel']
         num_wake_panel = self.parameters['num_wake_panel']
 
+        print('sprs-----------------------------', sprs.shape)
+        print('inputs[M_mat]-----------------------------', inputs['M_mat'].shape)
+
         outputs['M_reshaped'] = np.einsum('ijk,kl->ijl', inputs['M_mat'],
                                           sprs.todense())
 

@@ -122,12 +122,13 @@ class AdapterComp(Model):
         # TODO:fix this
         ################################################################################
 
+
         frame_vel = self.create_output('frame_vel', shape=(num_nodes, 3))
 
         frame_vel[:, 0] = -v_inf * csdl.cos(beta) * csdl.cos(alpha)
         frame_vel[:, 1] = v_inf * csdl.sin(beta)
-        frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
 
+        frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
         ################################################################################
         # compute the output: 5. rho
         # TODO: replace this hard coding
@@ -140,7 +141,7 @@ class AdapterComp(Model):
         #     shape=(num_nodes,1),
         # ),name='atmosphere_model')
 
-        self.create_input('density', val=0.38)
+        self.create_input('density', val=1.*np.ones((num_nodes,1)))
 
         # self.create_input('rho', val=(num_nodes, 1))
 

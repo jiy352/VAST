@@ -23,19 +23,11 @@ class RHS(Model):
     A \gamma_b + b + M \gamma_w = 0
     parameters
     ----------
-
-    collocation_pts[num_vortex_panel_x*num_vortex_panel_y] : csdl array
-        all the bd vertices collocation_pts     
-    wake_pts[num_vortex_panel_x*num_vortex_panel_y] : csdl array
-        all the wake panel collcation pts 
-    wake_circulations[num_wake_panel] : csdl array
-        a concatenate vector of the wake circulation strength
     Returns
     -------
-    vel_col_w[num_evel_pts_x*num_vortex_panel_x* num_evel_pts_y*num_vortex_panel_y,3]
-    csdl array
-        the velocities computed using the aic_col_w from biot svart's law
-        on bound vertices collcation pts induces by the wakes
+    rhs[num_nodes, system_size] : csdl array
+    M[num_nodes, system_size, system_size] : csdl array
+
     """
     def initialize(self):
         self.parameters.declare('n_wake_pts_chord', default=5)
@@ -67,16 +59,9 @@ class RHS(Model):
             for item in bd_vortex_shapes
         ]
 
-        # for i in range(len(bd_vortex_shapes)):
-        #     nx = bd_vortex_shapes[i][1]
-        #     ny = bd_vortex_shapes[i][2]
-        # method = self.parameters['method']
+
         '''1. project the kinematic velocity on to the bd_vertices'''
         frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
-        # bd_vortex_coords = self.declare_variable('bd_vortex_coords',
-        #                                          shape=(nx, ny, 3))
-        # coll_coords = self.declare_variable('coll_coords',
-        #                                     shape=((nx - 1), (ny - 1), 3))
 
         m = KinematicVelocityComp(
             surface_names=surface_names,
@@ -111,23 +96,6 @@ class RHS(Model):
         self.add(m, name='Projection_k_vel')
         '''2. compute M (bk_euler) or M\gamma_w (fw_euler)'''
 
-        # wake_coords_reshaped_names = [
-        #     x + '_wake_coords_reshaped' for x in surface_names
-        # ]
-        # for i in range(len(surface_names)):
-        #     wake_coords_reshaped_name = wake_coords_reshaped_names[i]
-        #     ny = bd_vortex_shapes[i][1]
-        #     wake_coords = self.declare_variable(wake_coords_names[i],
-        #                                         shape=(1, n_wake_pts_chord, ny, 3))
-        #     wake_coords_reshaped = csdl.reshape(wake_coords, (n_wake_pts_chord, ny, 3))
-        #     self.register_output(wake_coords_reshaped_name,
-        #                          wake_coords_reshaped)
-        # print('rhs_group.py line 122 bd_coll_pts_names', coll_pts_coords_names)
-        # print('rhs_group.py line 123 wake_vortex_pts_names', wake_coords_names)
-        # print('rhs_group.py line 124 bd_coll_pts_shapes', bd_coll_pts_shapes)
-        # print('rhs_group.py line 125 wake_vortex_pts_shapes',
-        #       wake_vortex_pts_shapes)
-
         m = AssembleAic(
             bd_coll_pts_names=coll_pts_coords_names,
             wake_vortex_pts_names=wake_coords_names,
@@ -146,8 +114,6 @@ class RHS(Model):
                               bd_coll_pts_shapes[i][2])
             aic_shape_col += ((wake_vortex_pts_shapes[i][1] - 1) *
                               (wake_vortex_pts_shapes[i][2] - 1))
-
-        # print('aic_M-----------', (aic_shape_row, aic_shape_col, 3))
         '''3. project the aic on to the bd_vertices'''
         m = Projection(
             input_vel_names=['aic_M'],
@@ -162,13 +128,6 @@ class RHS(Model):
                                   shape=(num_nodes, aic_shape_row,
                                          aic_shape_col))
         sprs = compute_spars(bd_vortex_shapes)
-
-        # print('rhs group sprs shape', sprs.shape)
-        # print('rhs group bd_vortex_shapes shape', bd_vortex_shapes)
-
-        # M_1 = csdl.reshape(M, (1, ) + M.shape)
-        # self.register_output('M_1', M_1)
-        # print('M_1 shape', M_1.shape)
         M_reshaped = csdl.custom(M,
                                  op=Explicit(
                                      num_nodes=num_nodes,
@@ -176,14 +135,6 @@ class RHS(Model):
                                      num_bd_panel=aic_shape_row,
                                      num_wake_panel=aic_shape_col,
                                  ))
-        # print('rhs group M_reshaped shape', M_reshaped.shape)
-
-        # self.register_output(
-        #     'M_reshaped_final',
-        #     csdl.reshape(
-        #         M_reshaped,
-        #         (aic_shape_row, aic_shape_row),
-        #     ))
         '''2. compute A_mtx'''
         m = AssembleAic(
             bd_coll_pts_names=coll_pts_coords_names,

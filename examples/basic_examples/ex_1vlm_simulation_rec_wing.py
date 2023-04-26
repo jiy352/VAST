@@ -50,7 +50,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
     model_1.add(submodel, 'VLMSolverModel')
     ####################################################################
-
+    
     sim = Simulator(model_1) # add simulator
     return sim
 
