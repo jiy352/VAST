@@ -73,8 +73,8 @@ class ODEProblemTest(ODEProblem):
             surface_shape = surface_shapes[i]
             nx = surface_shape[0]
             ny = surface_shape[1]
-            print('surface_name', surface_name)
-            print('surface_shape', nx, ny)
+            # print('surface_name', surface_name)
+            # print('surface_shape', nx, ny)
             self.add_parameter(surface_name,
                                dynamic=True,
                                shape=(self.num_times, nx, ny, 3))

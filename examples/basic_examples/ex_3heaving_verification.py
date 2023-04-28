@@ -24,8 +24,8 @@ alpha = - np.deg2rad(5)
 
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
 
-u_val = np.ones(num_nodes) * np.cos(alpha)
-w_vel = np.ones(num_nodes) * np.sin(alpha) - h * np.cos(omg*t_vec)
+u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1))
+w_vel = np.ones((num_nodes,1)) * np.sin(alpha) - h * np.cos(omg*t_vec)
 
 alpha_equ = np.arctan2(w_vel, u_val)
 
@@ -78,10 +78,8 @@ if plot_cl == 1:
     plt.plot(t_vec,sim['wing_C_L'],'.-')
     plt.gca().invert_yaxis()
     plt.show()
-
-    cl = sim['wing_C_L'][-int(num_nodes/4):]
+    cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1]
     cl_ref = np.loadtxt('data.txt')
-
     plt.plot(np.linspace(0, np.pi*2,cl.shape[0]),cl,'.-')
     plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
     plt.legend(['VAST','BYU_UVLM'])
