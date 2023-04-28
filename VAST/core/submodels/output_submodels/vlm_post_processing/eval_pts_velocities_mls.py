@@ -117,28 +117,28 @@ class EvalPtsVel(Model):
         # !fixed!: defining the eval_pts
 
 
-        if self.parameters['eval_pts_option'] == 'auto':
-            for i in range(len(surface_shapes)):
-                if mesh_unit == 'm':
-                    mesh = self.declare_variable(surface_names[i],
-                                                shape=surface_shapes[i])
-                elif mesh_unit == 'ft':
-                    mesh_ft = self.declare_variable(surface_names[i],
-                                                    shape=surface_shapes[i])
-                    mesh = mesh_ft * 0.3048
+        # if self.parameters['eval_pts_option'] == 'auto':
+        #     for i in range(len(surface_shapes)):
+        #         if mesh_unit == 'm':
+        #             mesh = self.declare_variable(surface_names[i],
+        #                                         shape=surface_shapes[i])
+        #         elif mesh_unit == 'ft':
+        #             mesh_ft = self.declare_variable(surface_names[i],
+        #                                             shape=surface_shapes[i])
+        #             mesh = mesh_ft * 0.3048
 
-                eval_pts_coords = (
-                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 0:-1, :] +
-                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 1:, :] +
-                    eval_pts_location * 0.5 * mesh[:, 1:, 0:-1, :] +
-                    eval_pts_location * 0.5 * mesh[:, 1:, 1:, :])
+        #         eval_pts_coords = (
+        #             (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 0:-1, :] +
+        #             (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 1:, :] +
+        #             eval_pts_location * 0.5 * mesh[:, 1:, 0:-1, :] +
+        #             eval_pts_location * 0.5 * mesh[:, 1:, 1:, :])
 
-                self.register_output(eval_pts_names[i], eval_pts_coords)
+        #         self.register_output(eval_pts_names[i], eval_pts_coords)
 
-        elif self.parameters['eval_pts_option'] == 'user_defined':
-            for i in range(len(eval_pts_shapes)):
-                eval_pts_coords = self.declare_variable(
-                    eval_pts_names[i], shape=(eval_pts_shapes[i]))
+        # elif self.parameters['eval_pts_option'] == 'user_defined':
+        #     for i in range(len(eval_pts_shapes)):
+        #         eval_pts_coords = self.declare_variable(
+        #             eval_pts_names[i], shape=(eval_pts_shapes[i]))
 
         self.add(BdnWakeCombine(
             surface_names=surface_names,

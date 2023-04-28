@@ -24,6 +24,8 @@ class VLMSystem(csdl.Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('delta_t', default=100)
         self.parameters.declare('mesh_unit', default='m')
+        self.parameters.declare('eval_pts_option')
+        self.parameters.declare('eval_pts_location', default=0.25)
 
         self.parameters.declare('AcStates', default=None)
 
@@ -44,6 +46,8 @@ class VLMSystem(csdl.Model):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         mesh_unit = self.parameters['mesh_unit']
+        eval_pts_option = self.parameters['eval_pts_option']
+        eval_pts_location = self.parameters['eval_pts_location']
 
         wake_coords_names = [x + '_wake_coords' for x in surface_names]
 
@@ -60,7 +64,10 @@ class VLMSystem(csdl.Model):
 
         self.add(MeshPreprocessingComp(surface_names=surface_names,
                                        surface_shapes=surface_shapes,
-                                       mesh_unit=mesh_unit),
+                                       mesh_unit=mesh_unit,
+                                       eval_pts_option=eval_pts_option,
+                                       eval_pts_location=eval_pts_location,
+                                       ),
                  name='MeshPreprocessing_comp')
         AcStates = self.parameters["AcStates"]
         if AcStates != None:

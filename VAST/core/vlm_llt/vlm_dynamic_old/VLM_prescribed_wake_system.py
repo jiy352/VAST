@@ -63,7 +63,9 @@ class ODESystemModel(csdl.Model):
         # 1.1.2 from the declared surface mesh, compute 6 preprocessing outputs
         # surface_bd_vtx_coords,coll_pts,l_span,l_chord,s_panel,bd_vec_all
         self.add(MeshPreprocessingComp(surface_names=surface_names,
-                                       surface_shapes=ode_surface_shapes),
+                                       surface_shapes=ode_surface_shapes,
+                                       eval_pts_location=0.25,
+                                       eval_pts_option='auto'),
                  name='MeshPreprocessing_comp')
         # 1.2.1 declare the ode parameter AcStates for the current time step
         u = self.declare_variable('u',  shape=(n,1))

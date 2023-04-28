@@ -16,8 +16,8 @@ plot_cl = 1
 ########################################
 nx = 15; ny = 5
 chord = 1; span = 4
-num_nodes = 3;  nt = num_nodes
-n_period = 1
+num_nodes = 99;  nt = num_nodes
+n_period = 4
 omg=1
 h=0.1
 alpha = - np.deg2rad(5)
@@ -56,7 +56,8 @@ h_stepsize = delta_t = 1
 
 if be == 'csdl_om':
     import csdl_om
-    sim = csdl_om.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize), mode='rev')
+    sim = csdl_om.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+                                        surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
 if be == 'python_csdl_backend':
     import python_csdl_backend
     sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
@@ -65,7 +66,7 @@ if be == 'python_csdl_backend':
 t_start = time.time()
 sim.run()
 print('simulation time is', time.time() - t_start)
-np.savetxt('cl12full',sim['wing_C_L'])
+# np.savetxt('cl12full',sim['wing_C_L'])
 ######################################################
 # make video
 ######################################################
@@ -96,3 +97,5 @@ if plot_cl == 1:
 # sim.visualize_implementation()
 # partials = sim.check_partials(compact_print=True)
 # sim.prob.check_totals(compact_print=True)
+
+# sim.check_totals(compact_print=True)

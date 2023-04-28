@@ -63,6 +63,8 @@ class VLMSolverModel(csdl.Model):
                 solve_option=self.parameters['solve_option'],
                 TE_idx=self.parameters['TE_idx'],
                 mesh_unit=mesh_unit,
+                eval_pts_option=eval_pts_option,
+                eval_pts_location=eval_pts_location,
             ), 'VLM_system')
         if eval_pts_option=='auto':
             eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]

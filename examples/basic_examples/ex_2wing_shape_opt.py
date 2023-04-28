@@ -31,7 +31,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     submodel = CreateACSatesModule(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
     model_1.add(submodel, 'InputsModule')
 
-    theta = model_1.create_input('theta',val=theta)
+    # theta = model_1.create_input('theta',val=theta)
 
     chord = 1.49352
     span = 16.2 / chord
@@ -80,7 +80,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
 
     model_1.add_design_variable("wing_chord_l", lower=2, upper=10.0)
     model_1.add_design_variable("wing_span_l", lower=3, upper=20.0)
-    model_1.add_design_variable("theta", lower=np.deg2rad(-10), upper=np.deg2rad(10.0))
+    # model_1.add_design_variable("theta", lower=np.deg2rad(-10), upper=np.deg2rad(10.0))
     model_1.add_design_variable("taper_ratio", lower=0.3, upper=1.0)
 
     model_1.add_constraint("wing_area",equals=20)

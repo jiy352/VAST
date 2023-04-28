@@ -17,6 +17,16 @@ from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 
+from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
+from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW
+from lsdo_uvlm.uvlm_system.solve_circulations.solve_group import SolveMatrix
+from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
+from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
+from lsdo_uvlm.uvlm_outputs.compute_force.horseshoe_circulations import HorseshoeCirculations
+from lsdo_uvlm.uvlm_outputs.compute_force.eval_pts_velocities_mls import EvalPtsVel
+# from lsdo_uvlm.uvlm_outputs.compute_force.compute_lift_drag import LiftDrag
+from lsdo_uvlm.uvlm_outputs.compute_force.compute_net_thrust import ThrustDrag
+
 class ODEProblemTest(ODEProblem):
     def setup(self):
 
@@ -26,14 +36,14 @@ class ODEProblemTest(ODEProblem):
         surface_names = list(self.dictionary_inputs.keys())
         surface_shapes = list(self.dictionary_inputs.values())
 
-        self.add_profile_output('density')
-        self.add_profile_output('alpha')
-        self.add_profile_output('beta')
-        self.add_profile_output('frame_vel',shape=(3,))
+        # self.add_profile_output('density')
+        # self.add_profile_output('alpha')
+        # self.add_profile_output('beta')
+        # self.add_profile_output('frame_vel',shape=(3,))
         # self.add_profile_output('evaluation_pt')
         # self.add_profile_output('bd_vec', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),3))
 
-        self.add_profile_output('horseshoe_circulation', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
+        # self.add_profile_output('horseshoe_circulation', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
 
         ####################################
         # ode parameter names
@@ -89,8 +99,8 @@ class ODEProblemTest(ODEProblem):
             ####################################
             # states and outputs names
             ####################################
-            gamma_w_int_name = surface_name + '_gamma_w_int'
-            wake_coords_int_name = surface_name + '_wake_coords_int'
+            gamma_w_int_name = 'op_'+ surface_name + '_gamma_w'
+            wake_coords_int_name = 'op_' + surface_name + '_wake_coords'
             self.add_state(gamma_w_name,
                            dgammaw_dt_name,
                            shape=(nt - 1, ny - 1),
@@ -102,10 +112,11 @@ class ODEProblemTest(ODEProblem):
                            initial_condition_name=wake_coords_0_name,
                            output=wake_coords_int_name)
 
-            self.add_profile_output(surface_name+'_gamma_b', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
-            self.add_profile_output(surface_name+'_eval_pts_coords', shape=((surface_shapes[0][0]-1),(surface_shapes[0][1]-1),3))
-            self.add_profile_output(surface_name+'_s_panel', shape=((surface_shapes[0][0]-1),(surface_shapes[0][1]-1)))
-            self.add_profile_output(surface_name+'_eval_total_vel', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),3))
+            # self.add_profile_output(surface_name+'_gamma_b', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
+            '''TODO: uncomment this'''
+            # self.add_profile_output(surface_name+'_eval_pts_coords', shape=((surface_shapes[0][0]-1),(surface_shapes[0][1]-1),3))
+            # self.add_profile_output(surface_name+'_s_panel', shape=((surface_shapes[0][0]-1),(surface_shapes[0][1]-1)))
+            # self.add_profile_output(surface_name+'_eval_total_vel', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),3))
 
             ####################################
             # profile outputs
@@ -117,7 +128,7 @@ class ODEProblemTest(ODEProblem):
 
         # Define ODE and Profile Output systems (Either CSDL Model or Native System)
         self.set_ode_system(ODESystemModel)
-        self.set_profile_system(ProfileOpModel)
+        # self.set_profile_system(ProfileOpModel)
 
 
 
@@ -202,8 +213,8 @@ class RunModel(csdl.Model):
         # self.add(ActuationModel(surface_names=surface_names, surface_shapes=surface_shapes, num_nodes=nt-1),'actuation_temp')
 
         # Create Model containing integrator
-        # ODEProblem = ODEProblemTest('ForwardEuler', 'time-marching checkpointing', num_times, display='default', visualization='None',dictionary_inputs=surface_properties_dict)
-        ODEProblem = ODEProblemTest('ForwardEuler', 'time-marching', num_times, display='default', visualization='None',dictionary_inputs=surface_properties_dict)
+        ODEProblem = ODEProblemTest('ForwardEuler', 'time-marching checkpointing', num_times, display='default', visualization='None',dictionary_inputs=surface_properties_dict)
+        # ODEProblem = ODEProblemTest('ForwardEuler', 'time-marching', num_times, display='default', visualization='None',dictionary_inputs=surface_properties_dict)
 
         self.add(ODEProblem.create_solver_model(ODE_parameters=params_dict,
                                                 profile_parameters=profile_params_dict), 'subgroup')
@@ -212,10 +223,60 @@ class RunModel(csdl.Model):
         # self.add_objective('res')
         eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
+        op_surface_names = ['op_' + x for x in surface_names]
         eval_pts_shapes =        [
             tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
             for item in ode_surface_shapes
         ]
+        self.add(MeshPreprocessingComp(surface_names=surface_names,
+                                       surface_shapes=ode_surface_shapes,
+                                       eval_pts_location=0.25,
+                                       eval_pts_option='auto'),
+                 name='MeshPreprocessing_comp')
+
+        m = AdapterComp(
+            surface_names=surface_names,
+            surface_shapes=ode_surface_shapes,
+        )
+        self.add(m, name='adapter_comp')
+
+        self.add(CombineGammaW(surface_names=op_surface_names, surface_shapes=ode_surface_shapes, n_wake_pts_chord=num_times-1),
+            name='combine_gamma_w')
+
+        self.add(SolveMatrix(n_wake_pts_chord=num_times-1,
+                                surface_names=surface_names,
+                                bd_vortex_shapes=ode_surface_shapes,
+                                delta_t=h_stepsize),
+                    name='solve_gamma_b_group')
+        self.add(SeperateGammab(surface_names=surface_names,
+                                surface_shapes=ode_surface_shapes),
+                 name='seperate_gamma_b')
+
+        eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
+        eval_pts_shapes =        [
+            tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
+            for item in ode_surface_shapes
+        ]
+
+        # compute lift and drag
+        submodel = HorseshoeCirculations(
+            surface_names=surface_names,
+            surface_shapes=ode_surface_shapes,
+        )
+        self.add(submodel, name='compute_horseshoe_circulation')
+
+        submodel = EvalPtsVel(
+            eval_pts_names=eval_pts_names,
+            eval_pts_shapes=eval_pts_shapes,
+            eval_pts_option='auto',
+            eval_pts_location=0.25,
+            surface_names=surface_names,
+            surface_shapes=ode_surface_shapes,
+            n_wake_pts_chord=num_times-1,
+            delta_t=h_stepsize,
+        )
+        self.add(submodel, name='EvalPtsVel')
+
         submodel = ThrustDrag(
             surface_names=surface_names,
             surface_shapes=ode_surface_shapes,

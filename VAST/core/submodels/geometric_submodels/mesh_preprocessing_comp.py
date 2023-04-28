@@ -31,6 +31,8 @@ class MeshPreprocessingComp(Model):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('mesh_unit', default='m')
+        self.parameters.declare('eval_pts_option', default='auto')
+        self.parameters.declare('eval_pts_location')
 
     def define(self):
         # load options
@@ -38,9 +40,18 @@ class MeshPreprocessingComp(Model):
         surface_shapes = self.parameters['surface_shapes']
         mesh_unit = self.parameters['mesh_unit']
         num_nodes = surface_shapes[0][0]
+        eval_pts_option = self.parameters['eval_pts_option']
+        eval_pts_location = self.parameters['eval_pts_location']
 
         system_size = sum((i[1] - 1) * (i[2] - 1) for i in surface_shapes)
         def_mesh_list = []
+
+        if eval_pts_option=='auto':
+            eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
+
+        else:
+            eval_pts_names=self.parameters['eval_pts_names']
+
 
         # loop through lifting surfaces to compute outputs
         start = 0
@@ -165,6 +176,29 @@ class MeshPreprocessingComp(Model):
             bd_vec_all[:, start:start + delta, :] = bound_vecs
             start += delta
         del def_mesh_list
+        ################################################################################
+        if self.parameters['eval_pts_option'] == 'auto':
+            for i in range(len(surface_shapes)):
+                if mesh_unit == 'm':
+                    mesh = self.declare_variable(surface_names[i],
+                                                shape=surface_shapes[i])
+                elif mesh_unit == 'ft':
+                    mesh_ft = self.declare_variable(surface_names[i],
+                                                    shape=surface_shapes[i])
+                    mesh = mesh_ft * 0.3048
+
+                eval_pts_coords = (
+                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 0:-1, :] +
+                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 1:, :] +
+                    eval_pts_location * 0.5 * mesh[:, 1:, 0:-1, :] +
+                    eval_pts_location * 0.5 * mesh[:, 1:, 1:, :])
+
+                self.register_output(eval_pts_names[i], eval_pts_coords)
+
+        elif self.parameters['eval_pts_option'] == 'user_defined':
+            for i in range(len(eval_pts_shapes)):
+                eval_pts_coords = self.declare_variable(
+                    eval_pts_names[i], shape=(eval_pts_shapes[i]))
 
 
 if __name__ == "__main__":
