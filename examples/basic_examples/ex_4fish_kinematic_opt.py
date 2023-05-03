@@ -10,7 +10,7 @@ import numpy as np
 
 be = 'python_csdl_backend'
 make_video = 0
-plot_cl = 0
+plot_ct = 1
 
 
 ########################################
@@ -19,22 +19,22 @@ plot_cl = 0
 nx = 15; ny = 5
 # nx = 5; ny = 3
 # chord = 1; span = 4
-num_nodes = 30;  nt = num_nodes
+num_nodes = 99;  nt = num_nodes
 # n_period = 2
 # omg=1
 # h=0.1
 # alpha = - np.deg2rad(0)
-v_inf = 0.4
+v_inf = 0.3
 lambda_ = 1
-N_period= 1         
+N_period= 4         
 st = 0.15
 A = 0.125
-f = st*v_inf/A 
+# f = st*v_inf/A 
+f = 0.48
 surface_properties_dict = {'wing':(nx,ny,3)}
-N_period = 1
 # t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
 
-u_val = (np.ones(num_nodes)).reshape((num_nodes,1)) * 0.4
+u_val = (np.ones(num_nodes)).reshape((num_nodes,1)) * v_inf
 w_vel = np.zeros((num_nodes, 1))
 
 alpha_equ = np.arctan2(w_vel, u_val)
@@ -46,8 +46,8 @@ states_dict = {
     'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
-t_temp_val = np.linspace(0,N_period/f,num_nodes)
-h_stepsize = t_temp_val[1]
+t_vec = np.linspace(0,N_period/f,num_nodes)
+h_stepsize = t_vec[1]
 
 ########################################
 # generate mesh here
@@ -64,7 +64,9 @@ if be == 'python_csdl_backend':
     
 t_start = time.time()
 sim.run()
-
+thrust = sim['thrust']
+thrust_coeff = thrust/(0.5*sim['density']*sim['u'][0]**2*0.13826040386294708)
+thrust_coeff_avr = np.average(thrust_coeff)
 exit()
 
 from modopt.csdl_library import CSDLProblem
@@ -89,21 +91,20 @@ print('simulation time is', time.time() - t_start)
 
 if make_video == 1:
     make_video_vedo(surface_properties_dict,num_nodes,sim)
-if plot_cl == 1:
+if plot_ct == 1:
     import matplotlib.pyplot as plt
-    plt.plot(t_vec,sim['wing_C_L'],'.-')
-    plt.gca().invert_yaxis()
+    plt.plot(t_vec,thrust_coeff,'.-')
+    # plt.gca().invert_yaxis()
     plt.show()
-    cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1]
-    cl_ref = np.loadtxt('data.txt')
-    plt.plot(np.linspace(0, np.pi*2,cl.shape[0]),cl,'.-')
-    plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
-    plt.legend(['VAST','BYU_UVLM'])
-    plt.gca().invert_yaxis()
-    plt.show()
+    # cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1]
+    # cl_ref = np.loadtxt('data.txt')
+    # plt.plot(np.linspace(0, np.pi*2,cl.shape[0]),cl,'.-')
+    # plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
+    # plt.legend(['VAST','BYU_UVLM'])
+    # plt.gca().invert_yaxis()
+    # plt.show()
 
-thrust = sim['thrust']
-thrust_coeff = thrust/(0.5*sim['density']*0.4**2*0.13826040386294708)
+
 # sim.compute_totals(of='',wrt='*')
 ######################################################
 # end make video
@@ -133,10 +134,10 @@ import pyvista as pv
 
 import pyvista as pv
 
-for i in range(num_nodes):
-    wake_mesh = sim["op_wing_wake_coords"][i].reshape(-1,3,3)
-    grid = pv.StructuredGrid(wake_mesh[:,:,0], wake_mesh[:,:,1], wake_mesh[:,:,2])
-    bd_vtx_mesh = sim["wing_bd_vtx_coords"][i]
-    grid_mesh = pv.StructuredGrid(bd_vtx_mesh[:,:,0], bd_vtx_mesh[:,:,1], bd_vtx_mesh[:,:,2])
-    grid.save(f"wake_mesh_{i}.vtk")
-    grid_mesh.save(f"grid_mesh_{i}.vtk")
+# for i in range(num_nodes):
+#     wake_mesh = sim["op_wing_wake_coords"][i].reshape(-1,3,3)
+#     grid = pv.StructuredGrid(wake_mesh[:,:,0], wake_mesh[:,:,1], wake_mesh[:,:,2])
+#     bd_vtx_mesh = sim["wing_bd_vtx_coords"][i]
+#     grid_mesh = pv.StructuredGrid(bd_vtx_mesh[:,:,0], bd_vtx_mesh[:,:,1], bd_vtx_mesh[:,:,2])
+#     grid.save(f"wake_mesh_{i}.vtk")
+#     grid_mesh.save(f"grid_mesh_{i}.vtk")

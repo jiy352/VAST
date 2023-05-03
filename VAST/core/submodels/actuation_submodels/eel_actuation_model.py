@@ -37,7 +37,7 @@ class EelActuationModel(csdl.Model):
 
         v_inf = 0.4
         lambda_ = 1
-        N_period= 1          
+        N_period= 4          
         st = 0.15
         A = 0.125
         f = st*v_inf/A 
@@ -46,7 +46,7 @@ class EelActuationModel(csdl.Model):
         tail_amplitude = self.declare_variable('tail_amplitude', val=A)
         tail_frequency = self.declare_variable('tail_frequency', val=f)
         wave_number = self.declare_variable('wave_number', val=lambda_)
-        v_x = self.declare_variable('v_x', val=v_inf)
+
         t_temp_val = np.linspace(0,N_period,num_nodes)
         t_temp = self.create_input('t_temp',val = t_temp_val)
         # print()
