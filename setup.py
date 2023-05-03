@@ -36,7 +36,7 @@ setup(
         'python_csdl_backend @ git+https://github.com/LSDOlab/python_csdl_backend',
         'csdl @ git+https://github.com/LSDOlab/csdl',  
         'csdl_om @ git+https://github.com/LSDOlab/csdl_om', 
-        'VAST @ git+https://github.com/jiy352/VAST',
+        # 'VAST @ git+https://github.com/jiy352/VAST',
     ],
     classifiers=[
         'Programming Language :: Python',

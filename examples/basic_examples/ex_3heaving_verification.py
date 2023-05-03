@@ -25,7 +25,7 @@ alpha = - np.deg2rad(5)
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
 
 u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1))
-w_vel = np.ones((num_nodes,1)) * np.sin(alpha) - h * np.cos(omg*t_vec)
+w_vel = np.ones((num_nodes,1)) * np.sin(alpha) - h * np.cos(omg*t_vec).reshape((num_nodes,1))
 
 alpha_equ = np.arctan2(w_vel, u_val)
 
@@ -66,7 +66,8 @@ if be == 'python_csdl_backend':
 t_start = time.time()
 sim.run()
 print('simulation time is', time.time() - t_start)
-# np.savetxt('cl12full',sim['wing_C_L'])
+# print('theta',sim['theta'])
+
 ######################################################
 # make video
 ######################################################
@@ -84,9 +85,11 @@ if plot_cl == 1:
     plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
     plt.legend(['VAST','BYU_UVLM'])
     plt.gca().invert_yaxis()
-    plt.show()
+    # plt.show()
 
-
+cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
+cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
+print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
 # sim.compute_totals(of='',wrt='*')
 ######################################################
 # end make video
