@@ -20,12 +20,14 @@ class EelActuationModel(csdl.Model):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('mesh_unit', default='m')
+        self.parameters.declare('n_period')
 
 
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         mesh_unit = self.parameters['mesh_unit']
+        N_period = self.parameters['n_period']
 
 
         num_surface = len(surface_names)
@@ -37,7 +39,6 @@ class EelActuationModel(csdl.Model):
 
         v_inf = 0.4
         lambda_ = 1
-        N_period= 4          
         st = 0.15
         A = 0.125
         f = st*v_inf/A 

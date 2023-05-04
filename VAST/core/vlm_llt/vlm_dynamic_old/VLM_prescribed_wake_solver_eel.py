@@ -13,7 +13,7 @@ import csdl
 import numpy as np
 
 
-from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
+# from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
@@ -145,6 +145,7 @@ class RunModel(csdl.Model):
         self.parameters.declare('num_times')
         self.parameters.declare('h_stepsize')
         self.parameters.declare('states_dict')
+        self.parameters.declare('n_period')
         self.parameters.declare('surface_properties_dict')
         # self.parameters.declare('mesh_val')
 
@@ -152,6 +153,7 @@ class RunModel(csdl.Model):
         num_times = self.parameters['num_times']
 
         h_stepsize = self.parameters['h_stepsize']
+        n_period = self.parameters['n_period']
         # mesh_val = self.parameters['mesh_val']
 
         AcStates_val_dict = self.parameters['states_dict']
@@ -166,7 +168,8 @@ class RunModel(csdl.Model):
         self.add(EelViscousModel(),name='EelViscousModel')
 
         self.add(EelActuationModel(surface_names=surface_names,
-                                    surface_shapes=ode_surface_shapes),name='EelActuationModel')
+                                    surface_shapes=ode_surface_shapes,
+                                    n_period=n_period),name='EelActuationModel')
 
         ####################################
         # Create parameters
