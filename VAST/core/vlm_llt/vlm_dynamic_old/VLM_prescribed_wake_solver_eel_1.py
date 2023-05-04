@@ -318,7 +318,7 @@ class RunModel(csdl.Model):
         self.register_output('thrust_coeff_avr', thrust_coeff_avr)
         self.add_constraint('thrust_coeff_avr',equals=0.0)
         self.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
-        self.add_design_variable('tail_frequency',upper=0.2,lower=0.6)
+        self.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
         panel_power = self.declare_variable('panel_power',shape=(num_times,))
         efficiency = csdl.sum(thrust,axes=(0,))*v_x/csdl.sum(panel_power,axes=(0,))
         self.register_output('efficiency', -efficiency)

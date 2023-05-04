@@ -9,10 +9,14 @@ import resource
 ########################################
 # define mesh resolution and num_nodes
 ########################################
-before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-nx = 15; ny = 5
-num_nodes = 10;  
+profile_opt = False
+compute_totals = True
+before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+t_start = time.time()
+
+nx = 15; ny = 3
+num_nodes = 30
 nt = num_nodes
 
 # kinematics variables
@@ -46,49 +50,61 @@ import python_csdl_backend
 sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), mode='rev')
     
-t_start = time.time()
-sim.run()
+if profile_opt==True:
+    sim.run()
 
-#####################
-# optimizaton
-#####################
-from modopt.csdl_library import CSDLProblem
+    #####################
+    # optimizaton
+    #####################
+    from modopt.csdl_library import CSDLProblem
 
-from modopt.scipy_library import SLSQP
-from modopt.snopt_library import SNOPT
-# Define problem for the optimization
-prob = CSDLProblem(
-    problem_name='eel_kinematic_opt',
-    simulator=sim,
-)
-optimizer = SLSQP(prob, maxiter=1)
-# optimizer = SNOPT(
-#     prob, 
-#     Major_iterations=100,
-#     Major_optimality=1e-6,
-#     Major_feasibility=1e-4,
-#     append2file=True,
-#     # Major_step_limit=.25,
-# )
+    from modopt.scipy_library import SLSQP
+    from modopt.snopt_library import SNOPT
+    # Define problem for the optimization
+    prob = CSDLProblem(
+        problem_name='eel_kinematic_opt',
+        simulator=sim,
+    )
+    # optimizer = SLSQP(prob, maxiter=1)
+    optimizer = SNOPT(
+        prob, 
+        Major_iterations=1,
+        Major_optimality=1e-6,
+        Major_feasibility=1e-4,
+        append2file=True,
+        # Major_step_limit=.25,
+    )
 
-optimizer.solve()
-optimizer.print_results(summary_table=True)
-print('total time is', time.time() - t_start)
+    optimizer.solve()
+    optimizer.print_results(summary_table=True)
+    print('total time is', time.time() - t_start)
 
-#####################
-# memory usage
-#####################
-after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    #####################
+    # memory usage
+    #####################
+    after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
-# ALLOCATED_MEMORY = (after_mem - before_mem)*1e-6 # for linux
+    # ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
+    ALLOCATED_MEMORY = (after_mem - before_mem)*1e-6 # for linux
 
-print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
+    print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
+elif profile_opt==False:
 
+    sim.run()
+    print('simulation time is', time.time() - t_start)
+    aft_simulation = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    ALLOCATED_MEMORY_simulation = (aft_simulation - before_mem)*1e-6 # for linux
 
-thrust = np.sum(sim['thrust'])
-v_x = sim['v_x']
+    print('Allocated memory for simulations: ', ALLOCATED_MEMORY_simulation, 'Gib')
 
-# Force_sum = thrust
+    if compute_totals==True:
+        t_start = time.time()
+        bf = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        sim.compute_total_derivatives()
+        print('total time is', time.time() - t_start)
+        aft_total = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+        ALLOCATED_MEMORY_total = (aft_total - bf)*1e-6
+        print('Allocated memory for total derivatives: ', ALLOCATED_MEMORY_total, 'Gib')
 
-effi = thrust*v_x/np.sum(sim['panel_power'])
+# np.average(sim['thrust']/(0.5*1*sim['v_x']**2*0.13826040386294708))
+# np.average(sim['thrust']/(0.5*1*sim['v_x']**2*0.13826040386294708))

@@ -1,4 +1,4 @@
-'''Example 4 : fish trim optimization'''
+'''Example 5 : fish kinematic optimization'''
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import RunModel
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
@@ -12,7 +12,7 @@ import resource
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 nx = 15; ny = 5
-num_nodes = 30;  
+num_nodes = 40;  
 nt = num_nodes
 
 # kinematics variables
@@ -52,28 +52,28 @@ sim.run()
 #####################
 # optimizaton
 #####################
-# from modopt.csdl_library import CSDLProblem
+from modopt.csdl_library import CSDLProblem
 
-# from modopt.scipy_library import SLSQP
-# from modopt.snopt_library import SNOPT
-# # Define problem for the optimization
-# prob = CSDLProblem(
-#     problem_name='eel_kinematic_opt',
-#     simulator=sim,
-# )
+from modopt.scipy_library import SLSQP
+from modopt.snopt_library import SNOPT
+# Define problem for the optimization
+prob = CSDLProblem(
+    problem_name='eel_kinematic_opt',
+    simulator=sim,
+)
 # optimizer = SLSQP(prob, maxiter=1)
-# # optimizer = SNOPT(
-# #     prob, 
-# #     Major_iterations=100,
-# #     Major_optimality=1e-6,
-# #     Major_feasibility=1e-4,
-# #     append2file=True,
-# #     # Major_step_limit=.25,
-# # )
+optimizer = SNOPT(
+    prob, 
+    Major_iterations=100,
+    Major_optimality=1e-6,
+    Major_feasibility=1e-6,
+    append2file=True,
+    # Major_step_limit=.25,
+)
 
-# optimizer.solve()
-# optimizer.print_results(summary_table=True)
-# print('total time is', time.time() - t_start)
+optimizer.solve()
+optimizer.print_results(summary_table=True)
+print('total time is', time.time() - t_start)
 
 #####################
 # memory usage
