@@ -1,29 +1,16 @@
-'''Example 2 : verification of prescibed vlm with Katz and Plotkin 1991'''
+'''Example 4 : fish trim optimization'''
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel import RunModel
-
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
 import resource
 
-
-
-
-
-
-
+########################################
+# define mesh resolution and num_nodes
+########################################
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-
-
-
-
-# Script to create optimization problem
-
-########################################
-# define actuations here
-########################################
 nx = 15; ny = 5
 num_nodes = 50;  
 nt = num_nodes
@@ -52,21 +39,19 @@ states_dict = {
 t_vec = np.linspace(0,N_period/f,num_nodes)
 h_stepsize = t_vec[1]
 
-########################################
-# generate mesh here
-########################################
-
-
+#####################
+# define the problem
+#####################
 import python_csdl_backend
 sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), mode='rev')
     
 t_start = time.time()
 sim.run()
-thrust = sim['thrust']
-thrust_coeff = thrust/(0.5*sim['density']*sim['u'][0]**2*0.13826040386294708)
-thrust_coeff_avr = np.average(thrust_coeff)
 
+#####################
+# optimizaton
+#####################
 from modopt.csdl_library import CSDLProblem
 
 from modopt.scipy_library import SLSQP
@@ -88,9 +73,11 @@ optimizer = SNOPT(
 
 optimizer.solve()
 optimizer.print_results(summary_table=True)
+print('total time is', time.time() - t_start)
 
-print('simulation time is', time.time() - t_start)
-
+#####################
+# memory usage
+#####################
 after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
