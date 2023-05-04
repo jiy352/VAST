@@ -163,6 +163,8 @@ class RunModel(csdl.Model):
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
 
         v_x = self.create_input('v_x', val=0.35)
+        tail_frequency = self.create_input('tail_frequency', val=0.48)
+        tail_amplitude = self.create_input('tail_amplitude', val=0.125)
         u = self.register_output('u', csdl.expand(v_x,shape=(num_times,1)))
 
         self.add(EelViscousModel(),name='EelViscousModel')
@@ -314,4 +316,11 @@ class RunModel(csdl.Model):
 
         thrust_coeff_avr = (csdl.sum(thrust)/num_times/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*0.13826040386294708) - C_F)**2
         self.register_output('thrust_coeff_avr', thrust_coeff_avr)
-        self.add_objective('thrust_coeff_avr')
+        self.add_constraint('thrust_coeff_avr',equals=0.0)
+        self.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+        self.add_design_variable('tail_frequency',upper=0.2,lower=0.6)
+        panel_power = self.declare_variable('panel_power',shape=(num_times,))
+        efficiency = csdl.sum(thrust,axes=(0,))*v_x/csdl.sum(panel_power,axes=(0,))
+        self.register_output('efficiency', -efficiency)
+        self.add_objective('efficiency')
+

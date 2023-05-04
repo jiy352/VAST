@@ -289,6 +289,11 @@ class ThrustDrag(Model):
 
             panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
                 velocities, bd_vec, axis=2)
+
+            panel_forces_all = panel_forces + panel_forces_dynamic
+            panel_power = csdl.sum(csdl.dot(panel_forces_all,velocities,axis=2),axes=1)
+            self.register_output('panel_power',panel_power)
+
             total_forces_temp_dynamic = csdl.sum(panel_forces_dynamic, axes=(1, ))
             self.register_output('rho_expand',rho_expand)
             # self.register_output('dcirculation_repeat_dt',dcirculation_repeat_dt)
