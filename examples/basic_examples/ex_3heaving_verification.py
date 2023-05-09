@@ -85,7 +85,7 @@ if plot_cl == 1:
     plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
     plt.legend(['VAST','BYU_UVLM'])
     plt.gca().invert_yaxis()
-    # plt.show()
+    plt.show()
 
 cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
 cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()

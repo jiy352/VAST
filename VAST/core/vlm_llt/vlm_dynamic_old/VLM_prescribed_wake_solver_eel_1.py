@@ -5,7 +5,7 @@ import openmdao.api as om
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_profile_op import ProfileOpModel
-from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
+# from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
 from ozone.api import ODEProblem
 import csdl
@@ -162,7 +162,7 @@ class RunModel(csdl.Model):
         surface_shapes = list(surface_properties_dict.values())
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
 
-        v_x = self.create_input('v_x', val=0.35)
+        v_x = self.create_input('v_x', val=0.38467351)
         tail_frequency = self.create_input('tail_frequency', val=0.48)
         tail_amplitude = self.create_input('tail_amplitude', val=0.125)
         u = self.register_output('u', csdl.expand(v_x,shape=(num_times,1)))
