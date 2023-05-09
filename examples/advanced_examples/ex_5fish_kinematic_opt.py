@@ -16,7 +16,7 @@ num_nodes = 40;
 nt = num_nodes
 
 # kinematics variables
-v_inf = 0.3
+v_inf = 0.38467351
 lambda_ = 1
 N_period= 2         
 st = 0.15
@@ -49,6 +49,14 @@ sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,
 t_start = time.time()
 sim.run()
 
+
+panel_forces = sim['panel_forces_all']
+
+
+
+
+exit()
+
 #####################
 # optimizaton
 #####################
@@ -65,7 +73,7 @@ prob = CSDLProblem(
 optimizer = SNOPT(
     prob, 
     Major_iterations=100,
-    Major_optimality=1e-6,
+    Major_optimality=1e-5,
     Major_feasibility=1e-6,
     append2file=True,
     # Major_step_limit=.25,

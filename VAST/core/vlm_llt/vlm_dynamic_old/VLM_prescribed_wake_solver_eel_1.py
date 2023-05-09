@@ -6,7 +6,7 @@ import openmdao.api as om
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_profile_op import ProfileOpModel
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
-
+from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
 from ozone.api import ODEProblem
 import csdl
 
@@ -307,7 +307,7 @@ class RunModel(csdl.Model):
             coeffs_cd=None,
         )
         self.add(submodel, name='ThrustDrag')
-
+        self.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')
         self.add_design_variable('v_x',upper=1.5,lower=0.1)
         thrust = self.declare_variable('thrust',shape=(num_times,1))
         C_F = self.declare_variable('C_F')
@@ -315,12 +315,54 @@ class RunModel(csdl.Model):
         # print('shapes',csdl.sum(thrust).shape,density[0,0].shape,v_x.shape)
 
         thrust_coeff_avr = (csdl.sum(thrust)/num_times/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*0.13826040386294708) - C_F)**2
+        # self.register_output('thrust_coeff_avr', thrust_coeff_avr)
+        # self.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+        # self.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
+        # panel_power = self.declare_variable('panel_power',shape=(num_times,))
+        # efficiency = csdl.sum(thrust,axes=(0,))*v_x/csdl.sum(panel_power,axes=(0,))
+        # self.register_output('efficiency', -efficiency)
+        # self.add_objective('efficiency')
+
+
         self.register_output('thrust_coeff_avr', thrust_coeff_avr)
         self.add_constraint('thrust_coeff_avr',equals=0.0)
         self.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
         self.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
-        panel_power = self.declare_variable('panel_power',shape=(num_times,))
-        efficiency = csdl.sum(thrust,axes=(0,))*v_x/csdl.sum(panel_power,axes=(0,))
-        self.register_output('efficiency', -efficiency)
+        # panel_power = self.declare_variable('panel_power',shape=(num_times,))
+        # efficiency = csdl.sum(thrust,axes=(0,))*v_x/csdl.sum(panel_power,axes=(0,))
+        efficiency = self.declare_variable('efficiency')
+        # self.register_output('efficiency', -efficiency)
         self.add_objective('efficiency')
+# >>> sim['tail_amplitude']
+# array([0.0746311])
+# >>> sim['tail_frequency']
+# array([0.46347104])
+# >>> sim['C_F']
+# array([0.01326015])
+# >>> 
+# >>> 
+# >>> no.
+#   File "<stdin>", line 1
+#     no.
+#        ^
+# SyntaxError: invalid syntax
+# >>> np.average(sim['thrust']/(0.5*1*sim['v_x']**2*0.13826040386294708))
+# 0.013273264779642252
+# >>> sim['v_x']
+# array([0.34551325])
 
+
+# total time is 13190.686831951141
+# Allocated memory:  0.026797723025083542 Gib
+# >>> 
+# >>> 
+# >>> sim['v_x']
+# array([0.34550904])
+# >>> sim['C_F']
+# array([0.01326023])
+# >>> np.average(sim['thrust']/(0.5*1*sim['v_x']**2*0.13826040386294708))
+# 0.013327844817830628
+# >>> sim['tail_amplitude']
+# array([0.07479225])
+# >>> sim['tail_frequency']
+# array([0.46353258])
