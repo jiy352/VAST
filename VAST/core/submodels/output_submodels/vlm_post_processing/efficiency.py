@@ -31,23 +31,30 @@ class EfficiencyModel(csdl.Model):
         # N_period = self.parameters['n_period']
 
         panel_forces_all = self.declare_variable('panel_forces_all',shape=(surface_shapes[0][0],int(surface_shapes[0][1]-1)*int(surface_shapes[0][2]-1),3))
-        velocities = self.declare_variable('eval_total_vel',shape=panel_forces_all.shape)
+        velocities = self.declare_variable('eel_kinematic_vel',shape=panel_forces_all.shape)
         v_x = self.declare_variable('v_x')
         thrust = self.declare_variable('thrust',shape=(num_nodes,1))
         panel_forces_all_x = panel_forces_all[:,:,0]
         velocities_x = self.create_output('velocities_x',shape=velocities.shape,val=0)
+        velocities_x[:,:,0] = velocities[:,:,0] - csdl.expand(v_x,shape=velocities[:,:,0].shape)
         velocities_x[:,:,1] = velocities[:,:,1]
         velocities_x[:,:,2] = velocities[:,:,2]
 
 
         panel_thrust_power = csdl.sum(csdl.dot(panel_forces_all,velocities_x,axis=2))
-        thrust_power = -csdl.sum(csdl.sum(thrust,axes=(1,))*csdl.expand(v_x,shape=(num_nodes,)))
+        thrust_power = csdl.sum(csdl.sum(thrust,axes=(1,))*csdl.expand(v_x,shape=(num_nodes,)))
 
-        self.print_var(panel_thrust_power)
-        self.print_var(thrust_power)
+        # self.print_var(panel_thrust_power)
+        # self.print_var(thrust_power)
 
         efficiency = thrust_power/(panel_thrust_power+thrust_power)
+        self.print_var(efficiency)
         self.register_output('efficiency',efficiency)
+
+
+
+        # compute energy efficiency here
+        
 
 
 

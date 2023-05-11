@@ -12,13 +12,13 @@ import resource
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 nx = 15; ny = 5
-num_nodes = 40;  
+num_nodes = 20;  
 nt = num_nodes
 
 # kinematics variables
 v_inf = 0.38467351
 lambda_ = 1
-N_period= 2         
+N_period= 1         
 st = 0.15
 A = 0.125
 f = 0.48
@@ -55,7 +55,7 @@ panel_forces = sim['panel_forces_all']
 
 
 
-exit()
+# exit()
 
 #####################
 # optimizaton
@@ -73,8 +73,9 @@ prob = CSDLProblem(
 optimizer = SNOPT(
     prob, 
     Major_iterations=100,
-    Major_optimality=1e-5,
-    Major_feasibility=1e-6,
+    # Major_optimality=1e-6,
+    Major_optimality=1e-9,
+    Major_feasibility=1e-9,
     append2file=True,
     # Major_step_limit=.25,
 )
