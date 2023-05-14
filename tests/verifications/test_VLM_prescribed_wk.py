@@ -4,7 +4,6 @@ from VAST.core.fluid_problem import FluidProblem
 from VAST.utils.generate_mesh import *
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
-import pytest
 
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
@@ -75,7 +74,7 @@ def test_generate_model_vlm_fixed_wake():
     sim.run()
     
     cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
-    cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
+    cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
 
     np.testing.assert_array_almost_equal(np.linalg.norm(
             (cl-cl_ref)) / np.linalg.norm(cl_ref),

@@ -13,7 +13,6 @@ import csdl
 import numpy as np
 
 
-from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 

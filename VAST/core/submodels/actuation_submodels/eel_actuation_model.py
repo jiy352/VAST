@@ -21,6 +21,8 @@ class EelActuationModel(csdl.Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('n_period')
+        self.parameters.declare('s_1_ind',default=3)
+        self.parameters.declare('s_2_ind',default=None)
 
 
     def define(self):
@@ -28,7 +30,10 @@ class EelActuationModel(csdl.Model):
         surface_shapes = self.parameters['surface_shapes']
         mesh_unit = self.parameters['mesh_unit']
         N_period = self.parameters['n_period']
-
+        s_1_ind = self.parameters['s_1_ind'] # head region
+        s_2_ind = self.parameters['s_2_ind'] # tail region
+        if s_2_ind==None:
+            s_2_ind = int(surface_shapes[0][1]-2)
 
         num_surface = len(surface_names)
         num_nodes = surface_shapes[0][0]
@@ -62,8 +67,8 @@ class EelActuationModel(csdl.Model):
             L = 1.0
             # s_1_ind = 5 # head region
             # s_2_ind = int(nx-3) # tail region
-            s_1_ind = 3 # head region
-            s_2_ind = int(nx-2) # tail region            
+            # s_1_ind = 3 # head region
+            # s_2_ind = int(nx-2) # tail region            
             s1 = 0.04 * L
             s2 = 0.95 * L
             x_1 = (1-np.cos(np.linspace(0, np.pi/2,s_1_ind,endpoint=False)))/1*s1
