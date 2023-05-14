@@ -26,7 +26,7 @@ def make_video(surface_properties_dict,num_nodes, sim):
                         c='red')
             vp += vps
             vp += __doc__
-            vps = Points(np.reshape(sim[surface_name+'_wake_coords_int'][i, 0:i, :, :],
+            vps = Points(np.reshape(sim['op_'+surface_name+'_wake_coords'][i, 0:i, :, :],
                                     (-1, 3)),
                         r=8,
                         c='blue')

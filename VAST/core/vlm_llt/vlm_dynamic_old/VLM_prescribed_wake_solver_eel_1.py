@@ -38,15 +38,6 @@ class ODEProblemTest(ODEProblem):
         surface_names = list(self.dictionary_inputs.keys())
         surface_shapes = list(self.dictionary_inputs.values())
 
-        # self.add_profile_output('density')
-        # self.add_profile_output('alpha')
-        # self.add_profile_output('beta')
-        # self.add_profile_output('frame_vel',shape=(3,))
-        # self.add_profile_output('evaluation_pt')
-        # self.add_profile_output('bd_vec', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),3))
-
-        # self.add_profile_output('horseshoe_circulation', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
-
         ####################################
         # ode parameter names
         ####################################        
@@ -147,6 +138,8 @@ class RunModel(csdl.Model):
         self.parameters.declare('states_dict')
         self.parameters.declare('n_period')
         self.parameters.declare('surface_properties_dict')
+        self.parameters.declare('s_1_ind',default=3)
+        self.parameters.declare('s_2_ind',default=None)
         # self.parameters.declare('mesh_val')
 
     def define(self):
@@ -162,16 +155,19 @@ class RunModel(csdl.Model):
         surface_shapes = list(surface_properties_dict.values())
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
 
-        v_x = self.create_input('v_x', val=0.38467351)
-        tail_frequency = self.create_input('tail_frequency', val=0.48)
-        tail_amplitude = self.create_input('tail_amplitude', val=0.125)
-        u = self.register_output('u', csdl.expand(v_x,shape=(num_times,1)))
+        s_1_ind = self.parameters['s_1_ind'] # head region
+        s_2_ind = self.parameters['s_2_ind'] # tail region
+        if s_2_ind==None:
+            s_2_ind = int(ode_surface_shapes[0][1]-2)
+        
 
         self.add(EelViscousModel(),name='EelViscousModel')
 
         self.add(EelActuationModel(surface_names=surface_names,
                                     surface_shapes=ode_surface_shapes,
-                                    n_period=n_period),name='EelActuationModel')
+                                    n_period=n_period,
+                                    s_1_ind=s_1_ind,
+                                    s_2_ind=s_2_ind),name='EelActuationModel')
 
         ####################################
         # Create parameters
@@ -308,16 +304,7 @@ class RunModel(csdl.Model):
         )
         self.add(submodel, name='ThrustDrag')
         self.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')
-        self.add_design_variable('v_x',upper=0.6,lower=0.1)
-        thrust = self.declare_variable('thrust',shape=(num_times,1))
-        C_F = self.declare_variable('C_F')
-        density = self.declare_variable('density',shape=(num_times,1))
 
-        thrust_coeff_avr = (csdl.sum(thrust)/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*0.13826040386294708)/num_times - C_F)**2
-
-
-        self.register_output('thrust_coeff_avr', thrust_coeff_avr)
-        self.add_objective('thrust_coeff_avr')
 
         '''
         self.add_constraint('thrust_coeff_avr',equals=0.0)

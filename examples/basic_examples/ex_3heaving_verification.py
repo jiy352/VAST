@@ -1,4 +1,4 @@
-'''Example 2 : verification of prescibed vlm with Katz and Plotkin 1991'''
+'''Example 3 : verification of prescibed vlm with Katz and Plotkin 1991'''
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
 
@@ -71,7 +71,8 @@ print('simulation time is', time.time() - t_start)
 ######################################################
 # make video
 ######################################################
-
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
 if make_video == 1:
     make_video_vedo(surface_properties_dict,num_nodes,sim)
 if plot_cl == 1:
@@ -87,7 +88,7 @@ if plot_cl == 1:
     plt.gca().invert_yaxis()
     plt.show()
 
-cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
+cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
 cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
 print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
 # sim.compute_totals(of='',wrt='*')

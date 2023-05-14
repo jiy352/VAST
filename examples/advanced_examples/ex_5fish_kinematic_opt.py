@@ -5,6 +5,7 @@ from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
 import resource
+import csdl
 
 ########################################
 # define mesh resolution and num_nodes
@@ -30,7 +31,7 @@ w_vel = np.zeros((num_nodes, 1))
 alpha_equ = np.arctan2(w_vel, u_val)
 
 states_dict = {
-    'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
+    'v': np.zeros((num_nodes, 1)), 'w': w_vel,
     'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
     'theta': alpha_equ, 'psi': np.zeros((num_nodes, 1)),
     'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
@@ -43,14 +44,32 @@ h_stepsize = t_vec[1]
 # define the problem
 #####################
 import python_csdl_backend
-sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
-                                    surface_properties_dict=surface_properties_dict), mode='rev')
+model = csdl.Model()
+v_x = model.create_input('v_x', val=0.35)
+# v_x = model.create_input('v_x', val=0.8467351)
+u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
+
+model.add(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
+                                    surface_properties_dict=surface_properties_dict), 'fish_model')
+
+model.add_design_variable('v_x',upper=0.6,lower=0.1)
+thrust = model.declare_variable('thrust',shape=(num_nodes,1))
+C_F = model.declare_variable('C_F')
+density = model.declare_variable('density',shape=(num_nodes,1))
+
+thrust_coeff_avr = (csdl.sum(thrust)/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*0.13826040386294708)/num_nodes - C_F)**2
+
+
+model.register_output('thrust_coeff_avr', thrust_coeff_avr)
+model.add_objective('thrust_coeff_avr')
+
+sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
-sim.run()
+# sim.run()
+# exit()
 
-
-panel_forces = sim['panel_forces_all']
+# panel_forces = sim['panel_forces_all']
 
 
 
