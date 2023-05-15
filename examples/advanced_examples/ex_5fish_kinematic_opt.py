@@ -66,8 +66,8 @@ model.add_objective('thrust_coeff_avr')
 sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
-# sim.run()
-# exit()
+sim.run()
+exit()
 
 # panel_forces = sim['panel_forces_all']
 

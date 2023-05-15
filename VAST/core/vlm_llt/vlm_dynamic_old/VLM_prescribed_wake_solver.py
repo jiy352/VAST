@@ -4,7 +4,6 @@ import matplotlib.pyplot as plt
 import openmdao.api as om
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_profile_op import ProfileOpModel
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
 
 from ozone.api import ODEProblem
@@ -18,13 +17,11 @@ from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW
-from lsdo_uvlm.uvlm_system.solve_circulations.solve_group import SolveMatrix
+from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
 from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
-from lsdo_uvlm.uvlm_outputs.compute_force.horseshoe_circulations import HorseshoeCirculations
-from lsdo_uvlm.uvlm_outputs.compute_force.eval_pts_velocities_mls import EvalPtsVel
-# from lsdo_uvlm.uvlm_outputs.compute_force.compute_lift_drag import LiftDrag
-from lsdo_uvlm.uvlm_outputs.compute_force.compute_net_thrust import ThrustDrag
+from VAST.core.submodels.output_submodels.vlm_post_processing.horseshoe_circulations import HorseshoeCirculations
+from VAST.core.submodels.output_submodels.vlm_post_processing.eval_pts_velocities_mls import EvalPtsVel
 
 class ODEProblemTest(ODEProblem):
     def setup(self):
@@ -141,6 +138,7 @@ class RunModel(csdl.Model):
         self.parameters.declare('states_dict')
         self.parameters.declare('surface_properties_dict')
         self.parameters.declare('mesh_val')
+        self.parameters.declare('problem_type',default='fixed_wake')
 
     def define(self):
         num_times = self.parameters['num_times']
@@ -245,7 +243,8 @@ class RunModel(csdl.Model):
         self.add(SolveMatrix(n_wake_pts_chord=num_times-1,
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
-                                delta_t=h_stepsize),
+                                delta_t=h_stepsize,
+                                problem_type='prescribed_wake'),
                     name='solve_gamma_b_group')
         self.add(SeperateGammab(surface_names=surface_names,
                                 surface_shapes=ode_surface_shapes),
@@ -273,6 +272,8 @@ class RunModel(csdl.Model):
             surface_shapes=ode_surface_shapes,
             n_wake_pts_chord=num_times-1,
             delta_t=h_stepsize,
+            problem_type='prescribed_wake',
+            eps=4e-5,
         )
         self.add(submodel, name='EvalPtsVel')
 

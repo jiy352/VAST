@@ -68,21 +68,16 @@ class KinematicVelocityComp(Model):
                          3)
 
             coll_pts_coords_name = surface_name + '_coll_pts_coords'
+            rot_ref_name = surface_name + '_rot_ref'
 
             coll_pts = self.declare_variable(coll_pts_coords_name,
                                              shape=(num_nodes,
                                                     num_pts_chord - 1,
                                                     num_pts_span - 1, 3))
-
-            evaluation_pt = self.declare_variable('evaluation_pt',
-                                                  val=np.zeros(3, ))
-            evaluation_pt_exp = csdl.expand(
-                evaluation_pt,
-                (coll_pts.shape),
-                'i->ljki',
-            )
-
-            r_vec = coll_pts - evaluation_pt_exp
+            rot_ref = self.declare_variable(rot_ref_name,
+                                             np.zeros((num_nodes, 3)))
+            rot_ref_exp = csdl.expand(rot_ref,shape=(coll_pts.shape),indices='il->ijkl')
+            r_vec = coll_pts - rot_ref_exp
             ang_vel_exp = csdl.expand(
                 ang_vel, (num_nodes, num_pts_chord - 1, num_pts_span - 1, 3),
                 indices='il->ijkl')
@@ -91,10 +86,9 @@ class KinematicVelocityComp(Model):
             frame_vel_expand = csdl.expand(frame_vel,
                                            out_shape,
                                            indices='ij->ikj')
+            coll_vel = self.declare_variable(surface_name+'_coll_vel',val=np.zeros((num_nodes,num_pts_chord-1,num_pts_span-1,3)))
             # print('rot_vel shape', rot_vel.shape)
             # print('frame_vel_expand shape', frame_vel_expand.shape)
 
-            kinematic_vel = -(rot_vel + frame_vel_expand)
+            kinematic_vel = -(rot_vel + frame_vel_expand + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3)))
             self.register_output(kinematic_vel_name, kinematic_vel)
-
-

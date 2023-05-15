@@ -58,7 +58,7 @@ class ThrustDrag(Model):
             ny = surface_shapes[i][2]
             system_size += (nx - 1) * (ny - 1)
 
-        rho = self.declare_variable('density', shape=(num_nodes, 1))
+        rho = self.declare_variable('rho', shape=(num_nodes, 1))
         rho_expand = csdl.expand(csdl.reshape(rho, (num_nodes, )),
                                  (num_nodes, system_size, 3), 'k->kij')
         alpha = self.declare_variable('alpha', shape=(num_nodes, 1))
@@ -153,7 +153,7 @@ class ThrustDrag(Model):
             c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,0,0,0]
             c_bar_exp = csdl.reshape(csdl.expand(csdl.reshape(c_bar,(1,)), (num_nodes*system_size*3,1),'i->ji'),(num_nodes,system_size,3))
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
-            # print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
+            print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
             dcirculation_repeat_dt[0,:,:] = (circulation_repeat[1,:,:]-circulation_repeat[0,:,:])/delta_t
             dcirculation_repeat_dt[1:num_nodes-1,:,:] = (circulation_repeat[2:num_nodes,:,:]-circulation_repeat[0:num_nodes-2,:,:])/(delta_t*2)
             dcirculation_repeat_dt[num_nodes-1,:,:] = (circulation_repeat[num_nodes-1,:,:]-circulation_repeat[num_nodes-2,:,:])/delta_t
@@ -182,6 +182,17 @@ class ThrustDrag(Model):
                 nx = surface_shapes[i][1]
                 ny = surface_shapes[i][2]
 
+                # s_panels = self.declare_variable(surface_names[i] + '_s_panel',
+                #                                  shape=(num_nodes, nx - 1,
+                #                                         ny - 1))
+
+                # nx = surface_shapes[i][1]
+                # ny = surface_shapes[i][2]
+                #!TODO: need to fix for uniformed mesh - should we take an average?
+                # chord = csdl.reshape(mesh[:, nx - 1, 0, 0] - mesh[:, 0, 0, 0],
+                #                      (num_nodes, 1))
+                # span = csdl.reshape(mesh[:, 0, ny - 1, 1] - mesh[:, 0, 0, 1],
+                #                     (num_nodes, 1))
                 L_panel_name = surface_names[i] + '_L_panel'
                 D_panel_name = surface_names[i] + '_D_panel'
                 traction_surfaces_name = surface_names[i] + '_traction_surfaces'
@@ -289,11 +300,6 @@ class ThrustDrag(Model):
 
             panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
                 velocities, bd_vec, axis=2)
-
-            panel_forces_all = panel_forces + panel_forces_dynamic
-            panel_power = csdl.sum(csdl.dot(panel_forces_all,velocities,axis=2),axes=1)
-            self.register_output('panel_power',panel_power)
-
             total_forces_temp_dynamic = csdl.sum(panel_forces_dynamic, axes=(1, ))
             self.register_output('rho_expand',rho_expand)
             # self.register_output('dcirculation_repeat_dt',dcirculation_repeat_dt)
@@ -301,6 +307,17 @@ class ThrustDrag(Model):
             self.register_output('total_forces_temp_dynamic',total_forces_temp_dynamic)
             self.register_output('crosspd',csdl.cross(
                 velocities, bd_vec, axis=2))
+
+            panel_forces_all = panel_forces + panel_forces_dynamic
+            self.register_output('panel_forces_all', panel_forces_all)
+            self.register_output('panel_forces_dynamic', panel_forces_dynamic)
+            panel_forces_all_mag = csdl.sum(panel_forces_all**2,axes=(2,))**0.5
+            velocities_mag = csdl.sum(velocities**2,axes=(2,))**0.5
+            panel_power = csdl.sum(panel_forces_all_mag*velocities_mag,axes=(1,))
+
+            # panel_power = csdl.sum(csdl.dot(panel_forces_all,velocities,axis=2),axes=(1,))
+            # panel_power = csdl.dot(panel_forces_all,velocities,axis=2)
+            self.register_output('panel_power',panel_power)
 
             F = self.create_output('F', shape=(num_nodes, 3))
             F[:, 0] = total_forces_temp[:, 0] + total_forces_temp_dynamic[:, 0]
@@ -311,7 +328,7 @@ class ThrustDrag(Model):
             F_s[:, 0] = total_forces_temp[:, 0] 
             F_s[:, 1] = total_forces_temp[:, 1] 
             F_s[:, 2] = -total_forces_temp[:, 2] 
-            self.register_output('thrust',F[:,0])
+            self.register_output('thrust',-F[:,0]) # thurst is negative x force
 
             CD_0 = 0.1936
             CD_1 = 0.1412

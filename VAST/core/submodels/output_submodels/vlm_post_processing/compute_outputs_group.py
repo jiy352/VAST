@@ -82,6 +82,7 @@ class Outputs(csdl.Model):
                               n_wake_pts_chord=n_wake_pts_chord,
                               delta_t=delta_t,
                               mesh_unit=mesh_unit,
+                            #   problem_type='prescribed_wake',
                               )
         self.add(submodel, name='EvalPtsVel')
 

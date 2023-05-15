@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setup(
     name='VAST',
-    version='0.1.0',
+    # version='',
     author='Jiayao Yan',
     author_email='jiy352@ucsd.edu',
     license='LGPLv3+',

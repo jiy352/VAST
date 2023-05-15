@@ -1,6 +1,5 @@
 import matplotlib.pyplot as plt
 import openmdao.api as om
-from lsdo_uvlm.uvlm_system.uvlm_system import UVLMSystem
 import csdl_om
 import numpy as np
 import csdl
@@ -9,10 +8,9 @@ from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGam
 from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 
-# from lsdo_uvlm.uvlm_preprocessing.utils.enum import *
-from lsdo_uvlm.uvlm_system.solve_circulations.solve_group import SolveMatrix
+from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
-from lsdo_uvlm.uvlm_system.wake_rollup.compute_wake_total_vel import ComputeWakeTotalVel
+from VAST.core.submodels.wake_submodels.compute_wake_total_vel import ComputeWakeTotalVel
 
 class ODESystemModel(csdl.Model):
     '''
@@ -98,7 +96,8 @@ class ODESystemModel(csdl.Model):
         self.add(SolveMatrix(n_wake_pts_chord=nt-1,
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
-                                delta_t=delta_t),
+                                delta_t=delta_t,
+                                problem_type='prescribed_wake'),
                     name='solve_gamma_b_group')
 
         self.add(SeperateGammab(surface_names=surface_names,
@@ -202,7 +201,6 @@ class ODESystemModel(csdl.Model):
 
 
 if __name__ == "__main__":
-    # from lsdo_uvlm.uvlm_preprocessing.utils.enum import *
     import enum
     from csdl_om import Simulator
     import csdl_lite

@@ -37,13 +37,13 @@ class AssembleAic(Model):
         self.parameters.declare('wake_vortex_pts_shapes', types=list)
         self.parameters.declare('full_aic_name', types=str)
 
-        self.parameters.declare('delta_t')
+        self.parameters.declare('delta_t',default=None)
 
     def define(self):
         # add_input
         bd_coll_pts_names = self.parameters['bd_coll_pts_names']
         wake_vortex_pts_names = self.parameters['wake_vortex_pts_names']
-        delta_t = self.parameters['delta_t']
+        # delta_t = self.parameters['delta_t']
 
         bd_coll_pts_shapes = self.parameters['bd_coll_pts_shapes']
         wake_vortex_pts_shapes = self.parameters['wake_vortex_pts_shapes']

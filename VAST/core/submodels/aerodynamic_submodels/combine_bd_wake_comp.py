@@ -27,6 +27,7 @@ S
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('n_wake_pts_chord')
+        self.parameters.declare('problem_type',default='fixed_wake')
 
     def define(self):
         surface_names = self.parameters['surface_names']
@@ -38,11 +39,9 @@ S
 
         for i in range(len(surface_shapes)):
             bd_vxt_coords_name = surface_names[i] + '_bd_vtx_coords'
-            wake_coords_name = surface_names[i] + '_wake_coords'
             bd_n_wake_coords_name = surface_names[i] + '_bdnwake_coords'
 
             surface_gamma_b_name = surface_names[i] + '_gamma_b'
-            surface_gamma_w_name = surface_names[i] + '_gamma_w'
             bd_n_wake_circulation_name = surface_names[i] + '_bdnwake_gamma'
 
             surface_shape = surface_shapes[i]
@@ -52,8 +51,15 @@ S
 
             wake_shape = (num_nodes, n_wake_pts_chord, ny, 3)
             surface_gamma_b_shape = (num_nodes, (nx - 1) * (ny - 1))
-            surface_gamma_w_shape = (num_nodes, (n_wake_pts_chord - 1),
-                                     (ny - 1))
+            if self.parameters['problem_type'] == 'fixed_wake':
+                wake_coords_name = surface_names[i] + '_wake_coords'
+                surface_gamma_w_name = surface_names[i] + '_gamma_w'
+            elif self.parameters['problem_type'] == 'prescribed_wake':
+                wake_coords_name = 'op_'+surface_names[i] + '_wake_coords'
+                surface_gamma_w_name = 'op_'+surface_names[i] + '_gamma_w'
+
+                surface_gamma_w_shape = (num_nodes, (n_wake_pts_chord),
+                                        (ny - 1))
 
             # add_input name and shapes
             bd_vxt_coords = self.declare_variable(bd_vxt_coords_name,
@@ -63,26 +69,50 @@ S
             # add_input name and shapes
             surface_gamma_b = self.declare_variable(
                 surface_gamma_b_name, shape=surface_gamma_b_shape)
-            surface_gamma_w = surface_gamma_b[:,
-                                              (nx - 1) * (ny - 1) - (ny - 1):]
-            # compute output bd_n_wake_coords
-            bd_n_wake_coords = self.create_output(
-                bd_n_wake_coords_name,
-                shape=(num_nodes, nx + n_wake_pts_chord - 1, ny, 3))
-            bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
-            bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, 1:, :, :]
+            if self.parameters['problem_type'] == 'fixed_wake':
+                surface_gamma_w = surface_gamma_b[:,
+                                                (nx - 1) * (ny - 1) - (ny - 1):]
+                # compute output bd_n_wake_coords
+                bd_n_wake_coords = self.create_output(
+                    bd_n_wake_coords_name,
+                    shape=(num_nodes, nx + n_wake_pts_chord - 1, ny, 3))
+                bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
+                bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, 1:, :, :]
 
-            # compute output bd_n_wake_gamma
-            bd_n_wake_gamma = self.create_output(
-                bd_n_wake_circulation_name,
-                shape=(num_nodes, surface_gamma_b_shape[1] +
-                       (n_wake_pts_chord - 1) * (ny - 1)))
-            # print('combine bd wake surface_gamma_b shape',
-            #       surface_gamma_b.shape)
-            # print('combine bd wake surface_gamma_w shape',
-            #       surface_gamma_w.shape)
-            bd_n_wake_gamma[:, :surface_gamma_b_shape[1]] = surface_gamma_b
-            bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = surface_gamma_w
+                # compute output bd_n_wake_gamma
+                bd_n_wake_gamma = self.create_output(
+                    bd_n_wake_circulation_name,
+                    shape=(num_nodes, surface_gamma_b_shape[1] +
+                        (n_wake_pts_chord - 1) * (ny - 1)))
+                # print('combine bd wake surface_gamma_b shape',
+                #       surface_gamma_b.shape)
+                # print('combine bd wake surface_gamma_w shape',
+                #       surface_gamma_w.shape)
+                bd_n_wake_gamma[:, :surface_gamma_b_shape[1]] = surface_gamma_b
+                bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = surface_gamma_w                    
+            elif self.parameters['problem_type'] == 'prescribed_wake':
+                surface_gamma_w = self.declare_variable(
+                    surface_gamma_w_name, shape=surface_gamma_w_shape)
+                # compute output bd_n_wake_coords
+                bd_n_wake_coords = self.create_output(
+                    bd_n_wake_coords_name,
+                    shape=(num_nodes, nx + n_wake_pts_chord, ny, 3))
+                bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
+                bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, :, :, :]
+
+                # compute output bd_n_wake_gamma
+                bd_n_wake_gamma = self.create_output(
+                    bd_n_wake_circulation_name,
+                    shape=(num_nodes, surface_gamma_b_shape[1] +
+                        (n_wake_pts_chord ) * (ny - 1)))
+                print('bd_n_wake_gamma shape',bd_n_wake_circulation_name,(num_nodes, surface_gamma_b_shape[1] +
+                        (n_wake_pts_chord ) * (ny - 1)))
+                # print('combine bd wake surface_gamma_b shape',
+                #       surface_gamma_b.shape)
+                # print('combine bd wake surface_gamma_w shape',
+                #       surface_gamma_w.shape)
+                bd_n_wake_gamma[:, :surface_gamma_b_shape[1]] = surface_gamma_b
+                bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = csdl.reshape(surface_gamma_w,(num_nodes,(n_wake_pts_chord ) * (ny - 1)))
 
 
 if __name__ == "__main__":
@@ -139,6 +169,8 @@ if __name__ == "__main__":
         surface_names=surface_names,
         surface_shapes=surface_shapes,
         n_wake_pts_chord=n_wake_pts_chord,
+        problem_type=self.parameters['problem_type'],
+
     ),
                 name='BdnWakeCombine')
     sim = Simulator(model_1)

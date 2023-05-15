@@ -91,26 +91,26 @@ def run(i):
     model.add_objective('thrust_coeff_avr')
 
     sim = python_csdl_backend.Simulator(model)
-    # sim.run()
+    sim.run()
 
     # # Define problem for the optimization
-    prob = CSDLProblem(
-        problem_name='sweep_trim',
-        simulator=sim,
-    )
-    # optimizer = SLSQP(prob, maxiter=1)
-    optimizer = SNOPT(
-        prob, 
-        Major_iterations=100,
-        # Major_optimality=1e-6,
-        Major_optimality=1e-9,
-        Major_feasibility=1e-9,
-        append2file=True,
-        # Major_step_limit=.25,
-    )
+    # prob = CSDLProblem(
+    #     problem_name='sweep_trim',
+    #     simulator=sim,
+    # )
+    # # optimizer = SLSQP(prob, maxiter=1)
+    # optimizer = SNOPT(
+    #     prob, 
+    #     Major_iterations=100,
+    #     # Major_optimality=1e-6,
+    #     Major_optimality=1e-9,
+    #     Major_feasibility=1e-9,
+    #     append2file=True,
+    #     # Major_step_limit=.25,
+    # )
 
-    optimizer.solve()
-    optimizer.print_results(summary_table=True)
+    # optimizer.solve()
+    # optimizer.print_results(summary_table=True)
 
     thrust = sim['thrust']
     thrust_coeff = thrust/(0.5*sim['density'][0,0]*sim['v_x']**2*0.13826040386294708)
