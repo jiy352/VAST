@@ -22,9 +22,8 @@ from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGam
 from lsdo_uvlm.uvlm_system.solve_circulations.solve_group import SolveMatrix
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
 from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
-from lsdo_uvlm.uvlm_outputs.compute_force.horseshoe_circulations import HorseshoeCirculations
+from VAST.core.submodels.output_submodels.vlm_post_processing.horseshoe_circulations import HorseshoeCirculations
 from lsdo_uvlm.uvlm_outputs.compute_force.eval_pts_velocities_mls import EvalPtsVel
-# from lsdo_uvlm.uvlm_outputs.compute_force.compute_lift_drag import LiftDrag
 from lsdo_uvlm.uvlm_outputs.compute_force.compute_net_thrust import ThrustDrag
 
 from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel

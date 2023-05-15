@@ -3,16 +3,6 @@ from csdl import Model
 import csdl
 import numpy as np
 from numpy.core.fromnumeric import size
-# how to declare.options[]? Since I need 'if' statement
-# how to set values of the variables outside the class (Indep_var comp?)
-# why do we need a create input-how to set its value outside the class
-# How to use the same input
-# name of the comps, can it be something meaningful
-# size differnet than actual python code
-# what is the rule for registering outputs
-# cannot reshape chords
-# prjected vs wetted s_ref?
-# line 153 why cannot put 0.5 outside the ()
 from VAST.utils.einsum_lijk_lj_lik import EinsumLijkLjLik
 
 class InducedVelocity(Model):

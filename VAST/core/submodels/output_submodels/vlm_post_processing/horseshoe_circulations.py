@@ -1,7 +1,6 @@
 # from csdl_om import Simulator
 from csdl import Model
 import csdl
-from matplotlib.pyplot import clabel
 import numpy as np
 from numpy.core.fromnumeric import size
 
@@ -14,10 +13,8 @@ class HorseshoeCirculations(Model):
     horseshoe_circulation = csdl.dot(mtx, gamma_b)
     parameters
     ----------
-
     gamma_b : csdl array
         all the circulations   
-
     Returns
     -------
     horseshoe_circulation
