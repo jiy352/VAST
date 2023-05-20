@@ -1,6 +1,6 @@
 '''Example 3 : verification of prescibed vlm with Katz and Plotkin 1991'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 
 from VAST.utils.generate_mesh import *
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
@@ -9,15 +9,15 @@ import numpy as np
 # Script to create optimization problem
 
 be = 'python_csdl_backend'
-make_video = 0
+make_video = 1
 plot_cl = 1
 ########################################
 # define mesh here
 ########################################
 nx = 15; ny = 5
 chord = 1; span = 4
-num_nodes = 99;  nt = num_nodes
-n_period = 4
+num_nodes = 40;  nt = num_nodes
+n_period = 2
 omg=1
 h=0.1
 alpha = - np.deg2rad(5)
@@ -60,7 +60,7 @@ if be == 'csdl_om':
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
 if be == 'python_csdl_backend':
     import python_csdl_backend
-    sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+    sim = python_csdl_backend.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
     
 t_start = time.time()

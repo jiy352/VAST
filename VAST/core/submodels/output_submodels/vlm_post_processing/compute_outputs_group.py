@@ -6,8 +6,10 @@ from VAST.core.submodels.output_submodels.vlm_post_processing.horseshoe_circulat
 from VAST.core.submodels.output_submodels.vlm_post_processing.eval_pts_velocities_mls import EvalPtsVel
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_lift_drag import LiftDrag
 
+from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-class Outputs(csdl.Model):
+
+class Outputs(ModuleCSDL):
     """
     Compute various geometric properties for VLM analysis.
     These are used primarily to help compute postprocessing quantities,

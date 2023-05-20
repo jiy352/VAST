@@ -1,14 +1,14 @@
 from vedo import dataurl, Plotter, Mesh, Video, Points, Axes, show
 import numpy as np
 
-def make_video(surface_properties_dict,num_nodes, sim):    
+def make_video(surface_properties_dict,num_nodes, sim, xrange=(0, 35), yrange=(-10, 10), zrange=(-3, 0.5)):    
     surface_names = list(surface_properties_dict.keys())
     nt = num_nodes - 1 
     
     axs = Axes(
-        xrange=(0, 35),
-        yrange=(-10, 10),
-        zrange=(-3, 0.5),
+        xrange=xrange,
+        yrange=yrange,
+        zrange=zrange,
     )
     video = Video("spider.gif", duration=10, backend='ffmpeg')
     for i in range(nt - 1):
@@ -32,8 +32,6 @@ def make_video(surface_properties_dict,num_nodes, sim):
                         c='blue')
             vp += vps
             vp += __doc__
-        # cam1 = dict(focalPoint=(3.133, 1.506, -3.132))
-        # video.action(cameras=[cam1, cam1])
         vp.show(axs, elevation=-60, azimuth=-0,
                 axes=False)  # render the scene
         video.addFrame()  # add individual frame

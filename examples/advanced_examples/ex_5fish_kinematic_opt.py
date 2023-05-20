@@ -1,6 +1,6 @@
 '''Example 5 : fish kinematic optimization'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import UVLMSolver
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
@@ -49,7 +49,7 @@ v_x = model.create_input('v_x', val=0.35)
 # v_x = model.create_input('v_x', val=0.8467351)
 u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
 
-model.add(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
+model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
 
 model.add_design_variable('v_x',upper=0.6,lower=0.1)
@@ -67,6 +67,8 @@ sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
 sim.run()
+# make_video_vedo(surface_properties_dict, num_nodes, sim,xrange=(-0.5,3),yrange=(-0.3,0.3),zrange=(-0.5,0.5))
+
 exit()
 
 # panel_forces = sim['panel_forces_all']
@@ -88,16 +90,16 @@ prob = CSDLProblem(
     problem_name='eel_kinematic_opt',
     simulator=sim,
 )
-# optimizer = SLSQP(prob, maxiter=1)
-optimizer = SNOPT(
-    prob, 
-    Major_iterations=100,
-    # Major_optimality=1e-6,
-    Major_optimality=1e-9,
-    Major_feasibility=1e-9,
-    append2file=True,
-    # Major_step_limit=.25,
-)
+optimizer = SLSQP(prob, maxiter=1)
+# optimizer = SNOPT(
+#     prob, 
+#     Major_iterations=100,
+#     # Major_optimality=1e-6,
+#     Major_optimality=1e-9,
+#     Major_feasibility=1e-9,
+#     append2file=True,
+#     # Major_step_limit=.25,
+# )
 
 optimizer.solve()
 optimizer.print_results(summary_table=True)

@@ -3,7 +3,7 @@ import csdl
 import numpy as np
 from VAST.core.fluid_problem import FluidProblem
 from VAST.utils.generate_mesh import *
-from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
+from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 
@@ -17,7 +17,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     v_inf = np.ones((num_nodes,1))*248.136
     theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
 
-    submodel = CreateACSatesModule(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
+    submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
     model_1.add(submodel, 'InputsModule')
     ####################################################################
     # 2. add VLM meshes
@@ -44,7 +44,6 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             surface_shapes=surface_shapes,
             num_nodes=num_nodes,
             eval_pts_shapes=eval_pts_shapes,
-            AcStates='dummy',
         )
     # wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))

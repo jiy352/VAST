@@ -14,7 +14,6 @@ class VLMSolverModel(csdl.Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('num_nodes', types=int)
 
-        self.parameters.declare('AcStates', default=None)
 
         self.parameters.declare('free_stream_velocities', default=None)
 
@@ -49,17 +48,13 @@ class VLMSolverModel(csdl.Model):
         coeffs_aoa = self.parameters['coeffs_aoa']
         coeffs_cd = self.parameters['coeffs_cd']
         mesh_unit = self.parameters['mesh_unit']
-        if self.parameters['AcStates'] == None:
-            frame_vel_val = -free_stream_velocities
 
-            frame_vel = self.create_input('frame_vel', val=frame_vel_val)
 
         self.add(
             VLMSystem(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,
                 num_nodes=num_nodes,
-                AcStates=self.parameters['AcStates'],
                 solve_option=self.parameters['solve_option'],
                 TE_idx=self.parameters['TE_idx'],
                 mesh_unit=mesh_unit,

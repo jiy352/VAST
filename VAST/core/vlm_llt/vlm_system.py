@@ -2,14 +2,17 @@ import numpy as np
 import csdl
 
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
+from VAST.core.submodels.kinematic_submodels.adapter_module import AdapterModule
+
 from VAST.core.submodels.geometric_submodels.wake_coords_comp import WakeCoords
 from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
 from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix
 from VAST.core.submodels.implicit_submodels.compute_residual import ComputeResidual
 
+from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-class VLMSystem(csdl.Model):
+class VLMSystem(ModuleCSDL):
     '''
     contains
     1. MeshPreprocessing_comp
@@ -24,10 +27,9 @@ class VLMSystem(csdl.Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('delta_t', default=100)
         self.parameters.declare('mesh_unit', default='m')
-        self.parameters.declare('eval_pts_option')
+        self.parameters.declare('eval_pts_option', default='auto')
         self.parameters.declare('eval_pts_location', default=0.25)
 
-        self.parameters.declare('AcStates', default=None)
 
         # We also passed in parameters to this ODE model in ODEproblem.create_model() in 'run.py' which we can access here.
         # for now, we just make frame_vel an option, bd_vortex_coords, as static parameters
@@ -38,6 +40,7 @@ class VLMSystem(csdl.Model):
                                 default='direct',
                                 values=['direct', 'optimization'])
         self.parameters.declare('TE_idx', default='last')
+        self.parameters.declare('module_opt', default=False)
 
     def define(self):
         # rename parameters
@@ -62,26 +65,37 @@ class VLMSystem(csdl.Model):
         ]
         wake_vel_shapes = [(x[0] * x[1], 3) for x in wake_vortex_pts_shapes]
 
-        self.add(MeshPreprocessingComp(surface_names=surface_names,
-                                       surface_shapes=surface_shapes,
-                                       mesh_unit=mesh_unit,
-                                       eval_pts_option=eval_pts_option,
-                                       eval_pts_location=eval_pts_location,
-                                       ),
-                 name='MeshPreprocessing_comp')
-        AcStates = self.parameters["AcStates"]
-        if AcStates != None:
-            add_adapter = True
-        else:
-            add_adapter = False
 
-        if add_adapter == True:
+
+
+        if self.parameters['module_opt'] == True:
+            m = AdapterModule(
+                surface_names=surface_names,
+                surface_shapes=surface_shapes,
+            )   
+            self.add_module(m, name='adapter_comp')
+            self.add_module(MeshPreprocessingComp(surface_names=surface_names,
+                                        surface_shapes=surface_shapes,
+                                        mesh_unit=mesh_unit,
+                                        eval_pts_option=eval_pts_option,
+                                        eval_pts_location=eval_pts_location,
+                                        ),
+                    name='MeshPreprocessing_comp')
+        else:
             m = AdapterComp(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,
             )
             # m.optimize_ir(False)
             self.add(m, name='adapter_comp')
+            self.add(MeshPreprocessingComp(surface_names=surface_names,
+                                        surface_shapes=surface_shapes,
+                                        mesh_unit=mesh_unit,
+                                        eval_pts_option=eval_pts_option,
+                                        eval_pts_location=eval_pts_location,
+                                        ),
+                    name='MeshPreprocessing_comp')
+            
 
         m = WakeCoords(surface_names=surface_names,
                        surface_shapes=surface_shapes,
