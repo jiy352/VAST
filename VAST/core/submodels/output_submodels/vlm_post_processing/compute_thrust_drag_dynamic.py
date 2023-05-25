@@ -58,7 +58,7 @@ class ThrustDrag(Model):
             ny = surface_shapes[i][2]
             system_size += (nx - 1) * (ny - 1)
 
-        rho = self.declare_variable('rho', shape=(num_nodes, 1))
+        rho = self.declare_variable('density', shape=(num_nodes, 1))
         rho_expand = csdl.expand(csdl.reshape(rho, (num_nodes, )),
                                  (num_nodes, system_size, 3), 'k->kij')
         alpha = self.declare_variable('alpha', shape=(num_nodes, 1))
@@ -101,6 +101,8 @@ class ThrustDrag(Model):
                 nx = surface_shapes[i][1]
                 ny = surface_shapes[i][2]
                 delta = (nx - 1) * (ny - 1)
+                # print('v_total_wake_names-----------------------', v_total_wake_names[i])
+
                 vel_surface = self.declare_variable(v_total_wake_names[i],
                                                     shape=(num_nodes, delta,
                                                            3))
@@ -328,7 +330,7 @@ class ThrustDrag(Model):
             F_s[:, 0] = total_forces_temp[:, 0] 
             F_s[:, 1] = total_forces_temp[:, 1] 
             F_s[:, 2] = -total_forces_temp[:, 2] 
-            self.register_output('thrust',-F[:,0]) # thurst is negative x force
+            self.register_output('thrust',F[:,0]) # thurst is negative x force
 
             CD_0 = 0.1936
             CD_1 = 0.1412

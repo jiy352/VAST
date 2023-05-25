@@ -14,7 +14,7 @@ plot_cl = 1
 ########################################
 # define mesh here
 ########################################
-nx = 15; ny = 5
+nx = 7; ny = 5
 chord = 1; span = 4
 num_nodes = 99;  nt = num_nodes
 n_period = 4
@@ -52,7 +52,7 @@ for i in range(num_nodes):
     mesh_val[i, :, :, 1] = mesh.copy()[:, :, 1] 
     mesh_val[i, :, :, 2] += z_offset[i]
 
-h_stepsize = delta_t = 1 
+h_stepsize = t_vec[1] 
 
 if be == 'csdl_om':
     import csdl_om
@@ -101,3 +101,69 @@ print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
 # sim.prob.check_totals(compact_print=True)
 
 # sim.check_totals(compact_print=True)
+
+shape = (num_nodes, nx - 1, ny - 1,)
+
+# using bernoulli equation to compute the pressure, and compare with the result from Kutta-joukowski theorem
+# \Nabla p = p_l - p_u = \rho [(Q_t ^ 2 / 2)_u - (Q_t ^ 2 / 2)_l + (\partial \PHI /\partial t)_u - (\partial \PHI /\partial t)_l]
+gamma_ij = sim['gamma_b'].reshape(shape)
+mesh = sim['wing_bd_vtx_coords']
+
+rho = 997
+# delta_c_ij = mesh[:,1:,:,:] - mesh[:,:-1,:,:]
+delta_c_ij = 0.16666667 # hardcode for now as we use uniform mesh
+delta_b_ij =1 # hardcode for now as we use uniform mesh
+dgamma_di = np.zeros(shape)
+dgamma_di[:,0,:] = gamma_ij[:,0,:]
+dgamma_di[:,1:,:] = gamma_ij[:,1:,:] - gamma_ij[:,:-1,:]
+
+dgamma_dj = np.zeros(shape)
+dgamma_dj[:,:,0] = gamma_ij[:,:,0]
+dgamma_dj[:,:,1:] = gamma_ij[:,:,1:] - gamma_ij[:,:,:-1]
+
+pphi_ptau_i_upper = dgamma_di/(delta_c_ij*2)
+pphi_ptau_i_lower = -dgamma_di/(delta_c_ij*2)
+
+pphi_ptau_j_upper = dgamma_dj/(delta_b_ij*2)
+pphi_ptau_j_lower = -dgamma_dj/(delta_b_ij*2)
+
+pphi_ptime_upper = np.zeros((num_nodes, nx-1, ny-1))
+pphi_ptime_upper[1:,:,:] = (gamma_ij[1:,:,:] - gamma_ij[:-1,:,:])/(t_vec[1]*2)
+
+pphi_ptime_lower = -pphi_ptime_upper
+
+# delta_p_ij = rho( (u_total . \tau_i) pphi_ptau_i_upper*2 +\
+#                   (u_total . \tau_j) pphi_ptau_j_upper*2 +\      
+#                    pphi_ptime_upper*2
+# )
+
+tau_i = np.zeros(shape+(3,))
+tai_i = (mesh[:,1:,:,:] - mesh[:,:-1,:,:])[:,:,1:,:]
+
+tau_j = np.zeros(shape+(3,))
+tau_j = (mesh[:,:,1:,:] - mesh[:,:,:-1,:])[:,1:,:,:]
+
+v_total = sim['wing_eval_total_vel'].reshape(shape+(3,))
+
+delta_p_ij = rho*(np.einsum('ijkl,ijkl->ijk',v_total,tau_i))*pphi_ptau_i_upper*2 +\
+                rho*(np.einsum('ijkl,ijkl->ijk',v_total,tau_j))*pphi_ptau_j_upper*2 +\
+                rho*pphi_ptime_upper*2
+
+# s_panel = sim['wing_s_panel'] 
+s_panel = 1/6 # hardcode for now as we use uniform mesh
+
+
+from scipy.spatial.transform import Rotation as R
+
+r = R.from_euler('y', np.rad2deg(sim['theta'].flatten()), degrees=True)
+
+Rot_mat = r.as_matrix()
+
+wing_bd_vtx_normals = sim['wing_bd_vtx_normals'].reshape((num_nodes, nx-1, ny-1,3))
+
+rot_normals= np.einsum('ijk,iopk->iopj',Rot_mat, wing_bd_vtx_normals)
+
+F = - np.einsum('ijk,ijkl->ijkl',delta_p_ij,rot_normals)*s_panel
+
+
+F_total = np.sum(F,axis=(1,2))

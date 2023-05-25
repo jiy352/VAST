@@ -3,6 +3,9 @@ from csdl import Model
 import csdl
 import numpy as np
 from VAST.utils.einsum_kij_kij_ki import EinsumKijKijKi
+from VAST.utils.expand_ijk_ijlk import ExpandIjkIjlk
+from VAST.utils.expand_ijk_iljk import ExpandIjkIljk
+
 class BiotSavartComp(Model):
     """
     Compute AIC.
@@ -35,8 +38,8 @@ class BiotSavartComp(Model):
 
         # whether to enable the fixed vortex core model
         self.parameters.declare('vc', default=True)
-        # self.parameters.declare('eps', default=5e-4)
-        self.parameters.declare('eps', default=1e-8)
+        self.parameters.declare('eps', default=5e-4)
+        # self.parameters.declare('eps', default=1e-8)
 
         self.parameters.declare('circulation_names', default=None)
 
@@ -139,8 +142,6 @@ class BiotSavartComp(Model):
                        eval_pts.shape[1] * eval_pts.shape[2] * num_repeat_eval,
                        3))
 
-
-
         p_1_expand = csdl.reshape(\
             csdl.expand(
                 csdl.reshape(p_1,
@@ -152,7 +153,7 @@ class BiotSavartComp(Model):
                                     p_1.shape[1] *p_1.shape[2] * num_repeat_p,
                                     3))
 
-        p_2_expand = csdl.reshape(\
+        p_2_expand = csdl.reshape(
             csdl.expand(
                 csdl.reshape(p_2,
                             new_shape=(num_nodes, (p_2.shape[1] * p_2.shape[2]),
@@ -162,11 +163,54 @@ class BiotSavartComp(Model):
                             new_shape=(num_nodes,
                                         p_2.shape[1] *p_2.shape[2] * num_repeat_p,
                                         3))
-        # print('BScomp l154 eval_pts_expand shape', eval_pts_expand.shape)
-        # print('BScomp l155 p_1_expand shape', p_1_expand.shape)
-        # print('BScomp l156 p_2_expand shape', p_2_expand.shape)
-        # print('BScomp l156 p_1 shape', p_1.shape)
-        # print('BScomp l156 p_2 shape', p_2.shape)
+
+        # eval_pt_reshaped = csdl.reshape(eval_pts,
+        #                      new_shape=(num_nodes, (eval_pts.shape[1] *
+        #                                             eval_pts.shape[2]), 3))
+
+        # eval_pts_expand_temp = csdl.custom(eval_pt_reshaped,
+        #                          op=ExpandIjkIjlk(in_name_1=eval_pt_reshaped.name,
+        #                                            in_shape=eval_pt_reshaped.shape,
+        #                                            out_name=eval_pt_reshaped.name + '_expand_temp',
+        #                                            out_shape=(num_nodes, eval_pts.shape[1] * eval_pts.shape[2], num_repeat_eval, 3)))
+        # eval_pts_expand = csdl.reshape(
+        #     eval_pts_expand_temp,
+        #     new_shape=(num_nodes,
+        #                eval_pts.shape[1] * eval_pts.shape[2] * num_repeat_eval,
+        #                3))
+
+        # p_1_reshaped = csdl.reshape(p_1,
+        #                  new_shape=(num_nodes, (p_1.shape[1] * p_1.shape[2]),
+        #                             3))
+
+        # p_1_expand_temp = csdl.custom(p_1_reshaped,
+        #                          op=ExpandIjkIljk(in_name_1=p_1_reshaped.name,
+        #                                            in_shape=p_1_reshaped.shape,
+        #                                            out_name=p_1_reshaped.name + '_expand_temp',
+        #                                            out_shape=(num_nodes, num_repeat_p, p_1.shape[1] * p_1.shape[2], 3)))
+        # p_1_expand = csdl.reshape(
+        #     p_1_expand_temp,
+        #     new_shape=(num_nodes,
+        #                   p_1.shape[1] * p_1.shape[2] * num_repeat_p,
+        #                     3))
+
+
+
+        # p_2_reshaped = csdl.reshape(p_2,
+        #                     new_shape=(num_nodes, (p_2.shape[1] * p_2.shape[2]),
+        #                                 3))
+        # p_2_expand_temp = csdl.custom(p_2_reshaped,
+        #                          op=ExpandIjkIljk(in_name_1=p_2_reshaped.name,
+        #                                            in_shape=p_2_reshaped.shape,
+        #                                            out_name=p_2_reshaped.name + '_expand_temp',
+        #                                            out_shape=(num_nodes, num_repeat_p, p_2.shape[1] * p_2.shape[2], 3)))
+        # p_2_expand = csdl.reshape(
+        #     p_2_expand_temp,
+        #     new_shape=(num_nodes,
+        #                   p_2.shape[1] * p_2.shape[2] * num_repeat_p,
+        #                     3))        
+
+
 
         r1 = eval_pts_expand - p_1_expand
         r2 = eval_pts_expand - p_2_expand
