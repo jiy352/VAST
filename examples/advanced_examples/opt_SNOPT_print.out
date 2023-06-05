@@ -1,0 +1,573 @@
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............         9
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-06       Iteration limit........     10000
+ Scale option...........         0       Minor optimality  tol..  5.00E-10       Minor print level......         1
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars         2       Major optimality tol...  1.00E-09       Function precision.....  3.00E-13
+ Unbounded step size....  1.00E+20       Superbasics limit......         2       Difference interval....  5.48E-07
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....         2       Central difference int.  6.70E-05
+ Major step limit.......  2.00E+00       Derivative linesearch..                 Derivative level.......         3
+ Major iterations limit.       100       Linesearch tolerance...   0.90000       Verify level...........         0
+ Minor iterations limit.       500       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         1       Major feasibility tol..  1.00E-09       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars         2
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              1           0           1           0           0
+ Columns           2           0           0           0           2
+
+ No. of matrix elements                    2     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............         9
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-06       Iteration limit........     10000
+ Scale option...........         0       Minor optimality  tol..  5.00E-10       Minor print level......         1
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars         2       Major optimality tol...  1.00E-09       Function precision.....  3.00E-13
+ Unbounded step size....  1.00E+20       Superbasics limit......         2       Difference interval....  5.48E-07
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....         2       Central difference int.  6.70E-05
+ Major step limit.......  2.00E+00       Derivative linesearch..                 Derivative level.......         3
+ Major iterations limit.       100       Linesearch tolerance...   0.90000       Verify level...........         0
+ Minor iterations limit.       500       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         1       Major feasibility tol..  1.00E-09       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars         2
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              1           0           1           0           0
+ Columns           2           0           0           0           2
+
+ No. of matrix elements                    2     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
+
+ Nonlinear constraints       1     Linear constraints       0
+ Nonlinear variables         2     Linear variables         0
+ Jacobian  variables         2     Objective variables      2
+ Total constraints           1     Total variables          2
+1
+
+
+
+ The user has defined       2   out of       2   constraint gradients.
+ The user has defined       2   out of       2   objective  gradients.
+
+ Cheap test of user-supplied problem derivatives...
+
+ The constraint gradients seem to be OK.
+
+ -->  The largest discrepancy was    1.80E-06  in constraint     3
+
+
+ The objective  gradients seem to be OK.
+
+ Gradient projected in one direction  -1.18790585247E-01
+ Difference approximation             -1.18789509289E-01
+1
+
+
+
+   Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
+      2     0      2              1 (0.0E+00) 4.7E-02 -4.0824077E-01       1            2 1.0E+00         _  r
+      4     1      2 1.0E+00      2 (0.0E+00) 8.1E-03 -5.6230250E-01       1            1 1.1E+01         _  r
+      5     2      1 1.0E+00      4 (0.0E+00) 4.2E-03 -5.7952494E-01       1            1 2.8E+00         _sm
+      6     3      1 1.0E+00      5 (0.0E+00) 4.0E-03 -5.7964211E-01       1                              _
+      6     4      0 1.0E+00      6 (0.0E+00)(0.0E+00)-5.8248829E-01       1                              _
+1
+
+ SNOPTC EXIT   0 -- finished successfully
+ SNOPTC INFO   1 -- optimality conditions satisfied
+
+ Problem name                 opt     
+ No. of iterations                   6   Objective           -5.8248829467E-01
+ No. of major iterations             4   Linear    obj. term  0.0000000000E+00
+ Penalty parameter           0.000E+00   Nonlinear obj. term -5.8248829467E-01
+ User function calls (total)         7
+ No. of degenerate steps             0   Percentage                       0.00
+ Max x                       1 6.0E-01   Max pi                      1 0.0E+00
+ Max Primal infeas           0 0.0E+00   Max Dual infeas             0 0.0E+00
+ Nonlinear constraint violn    0.0E+00
+1
+
+ Name           opt                      Objective Value     -5.8248829467E-01
+
+ Status         Optimal Soln             Iteration      6    Superbasics     0
+
+ Objective               (Min)
+ RHS
+ Ranges
+ Bounds
+
+ Section 1 - Constraints
+
+  Number  ...Row.. State  ...Value......  Slack Value...  ..Lower Limit.  ..Upper Limit.  .Dual Variable    ..i
+
+       3  r      1    BS         0.58341         0.58341           None            None           .           1
+1
+
+ Section 2 - Variables
+
+  Number  .Column. State  ...Value......  .Obj Gradient.  ..Lower Limit.  ..Upper Limit.  .Dual Variable    m+j
+
+       1  x      1    UL         0.60000        -0.23574         0.10000         0.60000        -0.23574      2
+       2  x      2    UL         0.50000        -0.00814         0.02000         0.50000        -0.00814      3
+
+ Time for MPS input                             0.00 seconds
+ Time for solving problem                     380.78 seconds
+ Time for solution output                       0.00 seconds
+ Time for constraint functions                380.78 seconds
+ Time for objective function                    0.00 seconds
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............         9
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-06       Iteration limit........     10000
+ Scale option...........         0       Minor optimality  tol..  5.00E-10       Minor print level......         1
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars         2       Major optimality tol...  1.00E-09       Function precision.....  3.00E-13
+ Unbounded step size....  1.00E+20       Superbasics limit......         2       Difference interval....  5.48E-07
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....         2       Central difference int.  6.70E-05
+ Major step limit.......  2.00E+00       Derivative linesearch..                 Derivative level.......         3
+ Major iterations limit.       100       Linesearch tolerance...   0.90000       Verify level...........         0
+ Minor iterations limit.       500       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         1       Major feasibility tol..  1.00E-09       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars         2
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              1           0           1           0           0
+ Columns           2           0           0           0           2
+
+ No. of matrix elements                    2     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
+
+ Nonlinear constraints       1     Linear constraints       0
+ Nonlinear variables         2     Linear variables         0
+ Jacobian  variables         2     Objective variables      2
+ Total constraints           1     Total variables          2
+1
+
+
+
+ The user has defined       2   out of       2   constraint gradients.
+ The user has defined       2   out of       2   objective  gradients.
+
+ Cheap test of user-supplied problem derivatives...
+
+ The constraint gradients seem to be OK.
+
+ -->  The largest discrepancy was    7.15E-07  in constraint     3
+
+
+ The objective  gradients seem to be OK.
+
+ Gradient projected in one direction  -3.67402660712E-02
+ Difference approximation             -3.67387318503E-02
+1
+
+
+
+   Itns Major Minors    Step   nCon Feasible  Optimal  MeritFunction     L+U BSwap     nS condZHZ Penalty
+      2     0      2              1 (0.0E+00) 6.8E-03 -3.9788252E-01       1            2 1.0E+00         _  r
+      4     1      2 1.0E+00      2 (0.0E+00) 2.4E-02 -4.0093461E-01       1                              _  r
+      6     2      2 2.0E-02      5 (0.0E+00) 1.3E-03 -4.0118164E-01       1            2 1.1E+00         _s
+      8     3      2 1.0E+00      6 (0.0E+00) 1.2E-03 -4.0123848E-01       1            1 1.8E+01         _
+      9     4      1 1.0E+00      7 (0.0E+00) 1.6E-03 -4.0200472E-01       1            1 1.9E+01         _
+     10     5      1 1.0E+00      8 (0.0E+00) 1.5E-04 -4.0200591E-01       1            1 1.7E+01         _
+     11     6      1 1.0E+00      9 (0.0E+00) 1.1E-06 -4.0200593E-01       1            1 1.7E+01         _
+     12     7      1 1.0E+00     10 (0.0E+00)(8.1E-10)-4.0200593E-01       1            1 1.7E+01         _
+1
+
+ SNOPTC EXIT   0 -- finished successfully
+ SNOPTC INFO   1 -- optimality conditions satisfied
+
+ Problem name                 opt¾Û  
+ No. of iterations                  12   Objective           -4.0200592523E-01
+ No. of major iterations             7   Linear    obj. term  0.0000000000E+00
+ Penalty parameter           0.000E+00   Nonlinear obj. term -4.0200592523E-01
+ User function calls (total)        11
+ No. of superbasics                  1   No. of basic nonlinears             0
+ No. of degenerate steps             0   Percentage                       0.00
+ Max x                       1 3.5E-01   Max pi                      1 0.0E+00
+ Max Primal infeas           0 0.0E+00   Max Dual infeas             1 3.2E-09
+ Nonlinear constraint violn    0.0E+00
+1
+
+ Name           opt¾Û                   Objective Value     -4.0200592523E-01
+
+ Status         Optimal Soln             Iteration     12    Superbasics     1
+
+ Objective               (Min)
+ RHS
+ Ranges
+ Bounds
+
+ Section 1 - Constraints
+
+  Number  ...Row.. State  ...Value......  Slack Value...  ..Lower Limit.  ..Upper Limit.  .Dual Variable    ..i
+
+       3  r      1    BS         0.00014         0.00014           None            None           .           1
+1
+
+ Section 2 - Variables
+
+  Number  .Column. State  ...Value......  .Obj Gradient.  ..Lower Limit.  ..Upper Limit.  .Dual Variable    m+j
+
+       1  x      1 N SBS         0.35447         0.00000         0.10000         0.60000         0.00000      2
+       2  x      2    LL         0.02000         0.01044         0.02000         0.50000         0.01044      3
+
+ Time for MPS input                             0.00 seconds
+ Time for solving problem                     632.12 seconds
+ Time for solution output                       0.00 seconds
+ Time for constraint functions                632.12 seconds
+ Time for objective function                    0.00 seconds
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............         9
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-06       Iteration limit........     10000
+ Scale option...........         0       Minor optimality  tol..  5.00E-10       Minor print level......         1
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars         2       Major optimality tol...  1.00E-09       Function precision.....  3.00E-13
+ Unbounded step size....  1.00E+20       Superbasics limit......         2       Difference interval....  5.48E-07
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....         2       Central difference int.  6.70E-05
+ Major step limit.......  2.00E+00       Derivative linesearch..                 Derivative level.......         3
+ Major iterations limit.       100       Linesearch tolerance...   0.90000       Verify level...........         0
+ Minor iterations limit.       500       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         1       Major feasibility tol..  1.00E-09       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars         2
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              1           0           1           0           0
+ Columns           2           0           0           0           2
+
+ No. of matrix elements                    2     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
+
+         ==============================
+         S N O P T  7.7.7    (Feb 2021)
+         ==============================
+1
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+1
+
+ Parameters
+ ==========
+
+ Files
+ -----
+ Solution file..........         0       Old basis file ........         0       Standard input.........         5
+ Insert file............         0       New basis file ........         0       (Printer)..............         9
+ Punch file.............         0       Backup basis file......         0       (Specs file)...........         0
+ Load file..............         0       Dump file..............         0       Standard output........         6
+
+ Frequencies
+ -----------
+ Print frequency........       100       Check frequency........        60       Save new basis map.....       100
+ Summary frequency......       100       Factorization frequency        50       Expand frequency.......     10000
+
+ QP subproblems
+ --------------
+ QPsolver Cholesky......
+ Scale tolerance........     0.900       Minor feasibility tol..  1.00E-06       Iteration limit........     10000
+ Scale option...........         0       Minor optimality  tol..  5.00E-10       Minor print level......         1
+ Crash tolerance........     0.100       Pivot tolerance........  3.25E-11       New superbasics........        99
+ Crash option...........         3       Elastic weight.........  1.00E+05
+
+ Partial pricing
+ ---------------
+ LP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+ QP Partial price.......         1       Prtl price section ( A)         2       Prtl price section (-I)         1
+
+ The SQP Method
+ --------------
+ Minimize...............                 Cold start.............                 Proximal Point method..         1
+ Nonlinear objectiv vars         2       Major optimality tol...  1.00E-09       Function precision.....  3.00E-13
+ Unbounded step size....  1.00E+20       Superbasics limit......         2       Difference interval....  5.48E-07
+ Unbounded objective....  1.00E+10       Reduced Hessian dim....         2       Central difference int.  6.70E-05
+ Major step limit.......  2.00E+00       Derivative linesearch..                 Derivative level.......         3
+ Major iterations limit.       100       Linesearch tolerance...   0.90000       Verify level...........         0
+ Minor iterations limit.       500       Penalty parameter......  0.00E+00       Major Print Level......         1
+ Time limit (secs)...... 9999999.0
+
+ Hessian Approximation
+ ---------------------
+ Hessian full-memory....                 Hessian updates........  99999999       Hessian frequency......  99999999
+                                                                                 Hessian flush..........  99999999
+
+ Nonlinear constraints
+ ---------------------
+ Nonlinear constraints..         1       Major feasibility tol..  1.00E-09       Violation limit........  1.00E+06
+ Nonlinear Jacobian vars         2
+
+ Miscellaneous
+ -------------
+ LU factor tolerance....      3.99       LU singularity tol.....  3.25E-11       Timing level...........         3
+ LU update tolerance....      3.99       LU swap tolerance......  1.22E-04       Debug level............         0
+ LU partial  pivoting...                 eps (machine precision)  2.22E-16       System information.....        No
+                                                                                 Sticky parameters......        No
+1
+
+
+
+
+ Matrix statistics
+ -----------------
+               Total      Normal        Free       Fixed     Bounded
+ Rows              1           0           1           0           0
+ Columns           2           0           0           0           2
+
+ No. of matrix elements                    2     Density     100.000
+ Biggest  constant element        0.0000E+00  (excluding fixed columns,
+ Smallest constant element        0.0000E+00   free rows, and RHS)
+
+ No. of objective coefficients             0
