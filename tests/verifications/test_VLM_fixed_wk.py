@@ -18,6 +18,7 @@ Please see vlm_scipt_mls.py for how to use user defined evaluation pts
 # self.non_lifting_surface_dict = dict()
 # self.wake_surface_dict = dict()
 
+##test aero_tests_1
 def test_generate_model_vlm_fixed_wake():
     solver_option = 'VLM'
     problem_type = 'fixed_wake'

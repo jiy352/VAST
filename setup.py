@@ -19,8 +19,8 @@ setup(
     python_requires='>=3.7',
     platforms=['any'],
     install_requires=[
-        'numpy',
-        'pytest',
+        # 'numpy',
+        # 'pytest',
         'myst-nb',
         'sphinx_rtd_theme',
         'sphinx-copybutton',
