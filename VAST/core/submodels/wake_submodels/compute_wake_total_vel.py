@@ -19,7 +19,7 @@ from scipy.sparse import csc_matrix
 
 
 from VAST.core.submodels.wake_submodels.compute_wake_kinematic_vel_temp import ComputeWakeKinematicVel
-# from VAST.core.submodels.wake_submodels.eval_pts_velocities_mls import EvalPtsVel
+from VAST.core.submodels.wake_submodels.eval_pts_velocities_mls import EvalPtsVel
 
 class ComputeWakeTotalVel(Model):
     """
