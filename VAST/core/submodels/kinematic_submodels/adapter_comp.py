@@ -141,7 +141,7 @@ class AdapterComp(Model):
         #     shape=(num_nodes,1),
         # ),name='atmosphere_model')
 
-        self.create_input('density', val=997.*np.ones((num_nodes,1)))
+        self.create_input('density', val=1.*np.ones((num_nodes,1)))
 
         # self.create_input('rho', val=(num_nodes, 1))
 

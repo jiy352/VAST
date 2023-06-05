@@ -38,7 +38,8 @@ class BiotSavartComp(Model):
 
         # whether to enable the fixed vortex core model
         self.parameters.declare('vc', default=True)
-        self.parameters.declare('eps', default=5e-4)
+        # self.parameters.declare('eps', default=5e-4)
+        self.parameters.declare('eps', default=5e-10)
         # self.parameters.declare('eps', default=1e-8)
 
         self.parameters.declare('circulation_names', default=None)
@@ -80,18 +81,18 @@ class BiotSavartComp(Model):
             # ---v_inf-(x)-->  ^        |
             #                  |        v
             #                  B <----- A
-            # A = vortex_coords[:,1:, :vortex_coords_shape[1] - 1, :]
-            # B = vortex_coords[:,:vortex_coords_shape[0] -
-            #                   1, :vortex_coords_shape[1] - 1, :]
-            # C = vortex_coords[:,:vortex_coords_shape[0] - 1, 1:, :]
-            # D = vortex_coords[:,1:, 1:, :]
+            A = vortex_coords[:,1:, :vortex_coords_shape[2] - 1, :]
+            B = vortex_coords[:,:vortex_coords_shape[1] -
+                              1, :vortex_coords_shape[2] - 1, :]
+            C = vortex_coords[:,:vortex_coords_shape[1] - 1, 1:, :]
+            D = vortex_coords[:,1:, 1:, :]
 
             # openaerostruct
-            C = vortex_coords[:, 1:, :vortex_coords_shape[2] - 1, :]
-            B = vortex_coords[:, :vortex_coords_shape[1] -
-                              1, :vortex_coords_shape[2] - 1, :]
-            A = vortex_coords[:, :vortex_coords_shape[1] - 1, 1:, :]
-            D = vortex_coords[:, 1:, 1:, :]
+            # C = vortex_coords[:, 1:, :vortex_coords_shape[2] - 1, :]
+            # B = vortex_coords[:, :vortex_coords_shape[1] -
+            #                   1, :vortex_coords_shape[2] - 1, :]
+            # A = vortex_coords[:, :vortex_coords_shape[1] - 1, 1:, :]
+            # D = vortex_coords[:, 1:, 1:, :]
             # print('BScomp l91 C shape', C.shape)
             # print('BScomp l92 B shape', B.shape)
             # print('BScomp l93 A shape', A.shape)

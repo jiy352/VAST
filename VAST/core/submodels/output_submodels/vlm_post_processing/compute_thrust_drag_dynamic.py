@@ -143,9 +143,6 @@ class ThrustDrag(Model):
                                'ki->kji')
             cosb = csdl.expand(csdl.cos(beta), (num_nodes, system_size, 1),
                                'ki->kji')
-            # print('-----------------cosa', cosa.name)
-            # print('-----------------sinb', sinb.name)
-            # print('-----------------cosb', cosb.name)
 
             panel_forces = rho_expand * circulation_repeat * csdl.cross(
                 velocities, bd_vec, axis=2)
