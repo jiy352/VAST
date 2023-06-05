@@ -47,6 +47,7 @@ class EvalPtsVel(Model):
         # stands for quarter-chord
         self.parameters.declare('n_wake_pts_chord')
         self.parameters.declare('problem_type')
+        self.parameters.declare('eps',default=4e-5)
         # self.parameters.declare('delta_t')
 
     def define(self):
@@ -54,6 +55,7 @@ class EvalPtsVel(Model):
         eval_pts_shapes = self.parameters['eval_pts_shapes']
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
+        eps = self.parameters['eps']
         # eval_pts_location = self.parameters['eval_pts_location']
 
         num_nodes = surface_shapes[0][0]
@@ -168,6 +170,7 @@ class EvalPtsVel(Model):
                 output_names=output_names,
                 circulation_names=circulation_names,
                 vc=True,
+                eps=eps,
             ),
                      name='eval_pts_aics' + str(i))
 

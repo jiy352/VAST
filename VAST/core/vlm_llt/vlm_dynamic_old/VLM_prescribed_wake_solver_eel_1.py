@@ -8,6 +8,7 @@ from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_dra
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
 from ozone.api import ODEProblem
 import csdl
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_post_process import UVLMPostProc
 
 import numpy as np
 
@@ -128,7 +129,7 @@ class ODEProblemTest(ODEProblem):
 
 
 
-class RunModel(csdl.Model):
+class UVLMSolver(csdl.Model):
     '''This class generates the solver for the prescribed VLM.'''
 
     def initialize(self):
@@ -244,68 +245,77 @@ class RunModel(csdl.Model):
             tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
             for item in ode_surface_shapes
         ]
-        self.add(MeshPreprocessingComp(surface_names=surface_names,
-                                       surface_shapes=ode_surface_shapes,
-                                       eval_pts_location=0.25,
-                                       eval_pts_option='auto'),
-                 name='MeshPreprocessing_comp')
+        # self.add(MeshPreprocessingComp(surface_names=surface_names,
+        #                                surface_shapes=ode_surface_shapes,
+        #                                eval_pts_location=0.25,
+        #                                eval_pts_option='auto'),
+        #          name='MeshPreprocessing_comp')
 
-        m = AdapterComp(
-            surface_names=surface_names,
-            surface_shapes=ode_surface_shapes,
-        )
-        self.add(m, name='adapter_comp')
+        # m = AdapterComp(
+        #     surface_names=surface_names,
+        #     surface_shapes=ode_surface_shapes,
+        # )
+        # self.add(m, name='adapter_comp')
 
-        self.add(CombineGammaW(surface_names=op_surface_names, surface_shapes=ode_surface_shapes, n_wake_pts_chord=num_times-1),
-            name='combine_gamma_w')
+        # self.add(CombineGammaW(surface_names=op_surface_names, surface_shapes=ode_surface_shapes, n_wake_pts_chord=num_times-1),
+        #     name='combine_gamma_w')
 
-        self.add(SolveMatrix(n_wake_pts_chord=num_times-1,
-                                surface_names=surface_names,
-                                bd_vortex_shapes=ode_surface_shapes,
-                                delta_t=h_stepsize,
-                                problem_type='prescribed_wake'),
-                    name='solve_gamma_b_group')
-        self.add(SeperateGammab(surface_names=surface_names,
-                                surface_shapes=ode_surface_shapes),
-                 name='seperate_gamma_b')
+        # self.add(SolveMatrix(n_wake_pts_chord=num_times-1,
+        #                         surface_names=surface_names,
+        #                         bd_vortex_shapes=ode_surface_shapes,
+        #                         delta_t=h_stepsize,
+        #                         problem_type='prescribed_wake'),
+        #             name='solve_gamma_b_group')
+        # self.add(SeperateGammab(surface_names=surface_names,
+        #                         surface_shapes=ode_surface_shapes),
+        #          name='seperate_gamma_b')
 
-        eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
-        eval_pts_shapes =        [
-            tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
-            for item in ode_surface_shapes
-        ]
+        # eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
+        # eval_pts_shapes =        [
+        #     tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
+        #     for item in ode_surface_shapes
+        # ]
 
-        # compute lift and drag
-        submodel = HorseshoeCirculations(
-            surface_names=surface_names,
-            surface_shapes=ode_surface_shapes,
-        )
-        self.add(submodel, name='compute_horseshoe_circulation')
+        # # compute lift and drag
+        # submodel = HorseshoeCirculations(
+        #     surface_names=surface_names,
+        #     surface_shapes=ode_surface_shapes,
+        # )
+        # self.add(submodel, name='compute_horseshoe_circulation')
 
-        submodel = EvalPtsVel(
-            eval_pts_names=eval_pts_names,
-            eval_pts_shapes=eval_pts_shapes,
-            eval_pts_option='auto',
-            eval_pts_location=0.25,
-            surface_names=surface_names,
-            surface_shapes=ode_surface_shapes,
-            n_wake_pts_chord=num_times-1,
-            delta_t=h_stepsize,
-            problem_type='prescribed_wake',
-        )
-        self.add(submodel, name='EvalPtsVel')
+        # submodel = EvalPtsVel(
+        #     eval_pts_names=eval_pts_names,
+        #     eval_pts_shapes=eval_pts_shapes,
+        #     eval_pts_option='auto',
+        #     eval_pts_location=0.25,
+        #     surface_names=surface_names,
+        #     surface_shapes=ode_surface_shapes,
+        #     n_wake_pts_chord=num_times-1,
+        #     delta_t=h_stepsize,
+        #     problem_type='prescribed_wake',
+        # )
+        # self.add(submodel, name='EvalPtsVel')
 
-        submodel = ThrustDrag(
-            surface_names=surface_names,
-            surface_shapes=ode_surface_shapes,
-            eval_pts_option='auto',
-            eval_pts_shapes=eval_pts_shapes,
-            eval_pts_names=eval_pts_names,
-            sprs=None,
-            coeffs_aoa=None,
-            coeffs_cd=None,
-        )
-        self.add(submodel, name='ThrustDrag')
+        # submodel = ThrustDrag(
+        #     surface_names=surface_names,
+        #     surface_shapes=ode_surface_shapes,
+        #     eval_pts_option='auto',
+        #     eval_pts_shapes=eval_pts_shapes,
+        #     eval_pts_names=eval_pts_names,
+        #     sprs=None,
+        #     coeffs_aoa=None,
+        #     coeffs_cd=None,
+        # )
+        # self.add(submodel, name='ThrustDrag')
+
+        m = UVLMPostProc(
+                num_times=num_times,
+                states_dict=AcStates_val_dict,
+                surface_properties_dict=surface_properties_dict,
+                h_stepsize=h_stepsize,
+                problem_type=self.parameters['problem_type'],
+            )
+        self.add(m, name='UVLMPostProc')   
         self.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')
 
 

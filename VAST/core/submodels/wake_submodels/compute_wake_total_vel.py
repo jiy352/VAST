@@ -49,12 +49,6 @@ class ComputeWakeTotalVel(Model):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
 
-        # self.parameters.declare('eval_pts_names', types=list)
-
-        # self.parameters.declare('eval_pts_location')
-        # self.parameters.declare('eval_pts_option')
-        # self.parameters.declare('eval_pts_shapes', types=list)
-        # self.parameters.declare('sprs')
 
         self.parameters.declare('n_wake_pts_chord') # we need this to combine bd and wake 
         # self.parameters.declare('delta_t', default=100)
@@ -68,16 +62,6 @@ class ComputeWakeTotalVel(Model):
         surface_shapes = self.parameters['surface_shapes']
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
 
-        # eval_pts_names = self.parameters['eval_pts_names']
-        # eval_pts_shapes = self.parameters['eval_pts_shapes']
-        # eval_pts_option = self.parameters['eval_pts_option']
-        # eval_pts_location = self.parameters['eval_pts_location']
-        # sprs = self.parameters['sprs']
-
-        # delta_t = self.parameters['delta_t']
-        # coeffs_aoa = self.parameters['coeffs_aoa']
-        # coeffs_cd = self.parameters['coeffs_cd']
-
         submodel = ComputeWakeKinematicVel(
             surface_names=surface_names,
             surface_shapes=surface_shapes,
@@ -88,16 +72,18 @@ class ComputeWakeTotalVel(Model):
         wake_coords_names = [x + '_wake_coords' for x in surface_names]
         wake_vortex_pts_shapes = [tuple((item[0],n_wake_pts_chord, item[2], 3)) for item in surface_shapes]
 
-        # submodel = EvalPtsVel(
-        #     eval_pts_names=wake_coords_names,
-        #     eval_pts_shapes=wake_vortex_pts_shapes,
-        #     surface_names=surface_names,
-        #     surface_shapes=surface_shapes,
-        #     n_wake_pts_chord=n_wake_pts_chord,
-        #     problem_type='prescribed_wake'
+
+        submodel = EvalPtsVel(
+            eval_pts_names=wake_coords_names,
+            eval_pts_shapes=wake_vortex_pts_shapes,
+            surface_names=surface_names,
+            surface_shapes=surface_shapes,
+            n_wake_pts_chord=n_wake_pts_chord,
+            problem_type='prescribed_wake',
+            eps=1e-2,
             
-        # )
-        # self.add(submodel, name='EvalPtsVel')
+        )
+        self.add(submodel, name='EvalPtsVel')
 
         wake_kinematic_vel_names = [x + '_wake_kinematic_vel' for x in surface_names]
         wake_total_vel_names = [x + '_wake_total_vel' for x in surface_names]
@@ -105,16 +91,10 @@ class ComputeWakeTotalVel(Model):
 
         for i in range(len(surface_names)):
             wake_kinematic_vel = self.declare_variable(wake_kinematic_vel_names[i],shape=wake_vortex_pts_shapes[i])
-            # wake_induced_vel = self.declare_variable(eval_induced_velocities_names[i],shape=wake_vortex_pts_shapes[i])
-            wake_induced_vel = 0
 
-            # print('vars-------------')
-            # self.print_var(wake_kinematic_vel)
-            # self.print_var(wake_induced_vel)
+            wake_induced_vel = self.declare_variable(eval_induced_velocities_names[i],shape=wake_vortex_pts_shapes[i])
             ''''TODO: fix this hardcoding'''
             wake_total_vel = wake_kinematic_vel + wake_induced_vel*0
-            # wake_kinematic_vel * 0
-            # wake_kinematic_vel+0#+wake_induced_vel
             
             self.register_output(wake_total_vel_names[i],wake_total_vel)
 

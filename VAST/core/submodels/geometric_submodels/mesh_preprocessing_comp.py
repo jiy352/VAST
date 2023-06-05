@@ -2,9 +2,9 @@ from csdl import Model
 import csdl
 import numpy as np
 from numpy.core.fromnumeric import size
-
-
-class MeshPreprocessingComp(Model):
+from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
+# vst
+class MeshPreprocessingComp(ModuleCSDL):
     """
     Compute various geometric properties for VLM analysis.
 
@@ -32,7 +32,7 @@ class MeshPreprocessingComp(Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('eval_pts_option', default='auto')
-        self.parameters.declare('eval_pts_location')
+        self.parameters.declare('eval_pts_location',default=0.25)
 
     def define(self):
         # load options
@@ -77,12 +77,14 @@ class MeshPreprocessingComp(Model):
             # this should come from CADDEE geometry if connected,
             # or up to the user to create an input if using the solver alone.
             if mesh_unit == 'm':
-                def_mesh = self.declare_variable(surface_name,
-                                                 shape=surface_shapes[i])
+                def_mesh = self.register_module_input(surface_name,
+                                                 shape=surface_shapes[i], promotes=True)
             elif mesh_unit == 'ft':
-                def_mesh_ft = self.declare_variable(surface_name,
-                                                    shape=surface_shapes[i])
+                def_mesh_ft = self.register_module_input(surface_name,
+                                                    shape=surface_shapes[i], promotes=True)
                 def_mesh = def_mesh_ft * 0.3048
+                # print('def_mesh-----------------', def_mesh.name)
+
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
@@ -180,11 +182,11 @@ class MeshPreprocessingComp(Model):
         if self.parameters['eval_pts_option'] == 'auto':
             for i in range(len(surface_shapes)):
                 if mesh_unit == 'm':
-                    mesh = self.declare_variable(surface_names[i],
-                                                shape=surface_shapes[i])
+                    mesh = self.register_module_input(surface_names[i],
+                                                shape=surface_shapes[i], promotes=True)
                 elif mesh_unit == 'ft':
-                    mesh_ft = self.declare_variable(surface_names[i],
-                                                    shape=surface_shapes[i])
+                    mesh_ft = self.register_module_input(surface_names[i],
+                                                    shape=surface_shapes[i], promotes=True)
                     mesh = mesh_ft * 0.3048
 
                 eval_pts_coords = (
