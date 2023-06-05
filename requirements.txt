@@ -10,5 +10,6 @@ sphinx-copybutton
 sphinx-autoapi
 numpydoc
 gitpython
+ozone
 -e .
 # git+https://github.com/anugrahjo/sphinx-collections.git
