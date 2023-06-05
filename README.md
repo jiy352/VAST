@@ -12,7 +12,9 @@
 [![Forks](https://img.shields.io/github/forks/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/network)
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/issues)
 
-A template repository for LSDOlab projects
+Repository for **V**ortex-based **A**erodynamic **S**olver **T**oolkit **(VAST)**.
+We aim to have vortex-lattice method, (lifting line method), panel method 
+
 
 This repository serves as a template for all LSDOlab projects with regard to documentation, testing and hosting of open-source code.
 

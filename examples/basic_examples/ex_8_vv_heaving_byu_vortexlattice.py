@@ -6,7 +6,7 @@ from VAST.utils.generate_mesh import *
 from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 
 
 import cProfile
@@ -89,7 +89,7 @@ def ex8_generate_model():
         model_1.add(submodel, 'VLMSolverModel')
         sim = Simulator(model_1)
     elif fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'prescribed_wake':
-        sim = Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+        sim = Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
     # wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))

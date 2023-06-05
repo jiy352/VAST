@@ -71,8 +71,16 @@ class PrescribeWakeCoords(Model):
                                    np.arange(n_wake_pts_chord) * delta_t,
                                    np.ones((num_nodes, num_pts_span, 3)))
 
-                wake_coords[i, :, :, :] = 
+                factor = self.create_input(surface_name + '_factor',
+                                       val=factor_var)
+                #! TODO:! fix this for rotating surfaces
+                # - should be fine actually just to align the wake w/ free stream
+                delta_x = csdl.expand(-frame_vel,
+                                    (num_nodes, n_wake_pts_chord, num_pts_span,
+                                    3), 'il->ijkl') * factor
+                wake_coords = TE_reshaped_expand + delta_x
 
+                self.register_output(wake_coords_names[i], wake_coords)
 
             if TE_idx == 'first':
                 TE = bd_vtx_coords[:, 0, :, :]

@@ -11,5 +11,6 @@ tutorials page.
 ```{toctree}
 :maxdepth: 1
 
-../_temp/tutorials/basic_tutorials/jupyter_tutorial
+<!-- ../_temp/tutorials/basic_tutorials/jupyter_tutorial -->
+../_temp/tutorials/basic_tutorials/vast_fxw_tutorial
 ```

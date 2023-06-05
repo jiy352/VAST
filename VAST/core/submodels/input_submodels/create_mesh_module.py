@@ -5,17 +5,6 @@ from numpy.core.fromnumeric import size
 from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
 
-    # single lifting surface 
-    # (nx: number of points in streamwise direction; ny:number of points in spanwise direction)
-    surface_names = ['wing']
-    surface_shapes = [(num_nodes, nx, ny, 3)]
-    mesh_dict = {
-        "num_y": ny, "num_x": nx, "wing_type": "rect", "symmetry": False, "span": 10.0,
-        "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
-    }
-    # Generate mesh of a rectangular wing
-    mesh = generate_mesh(mesh_dict) 
-    wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
 
 class CreateMeshModule(ModuleCSDL):
     def initialize(self):

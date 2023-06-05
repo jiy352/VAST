@@ -9,15 +9,15 @@ import numpy as np
 # Script to create optimization problem
 
 be = 'python_csdl_backend'
-make_video = 1
+make_video = 0
 plot_cl = 1
 ########################################
 # define mesh here
 ########################################
-nx = 15; ny = 5
+nx = 7; ny = 3
 chord = 1; span = 4
-num_nodes = 40;  nt = num_nodes
-n_period = 2
+num_nodes = 99;  nt = num_nodes
+n_period = 4
 omg=1
 h=0.1
 alpha = - np.deg2rad(5)
