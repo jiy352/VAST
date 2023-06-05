@@ -5,8 +5,7 @@ from numpy.core.fromnumeric import size
 from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
 
-
-class CreateMeshModule(ModuleCSDL):
+class CreateACSatesModel(csdl.Model):
     def initialize(self):
         self.parameters.declare('v_inf', types=np.ndarray)
         self.parameters.declare('theta', types=np.ndarray)
