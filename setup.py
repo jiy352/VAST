@@ -5,13 +5,13 @@ with open("README.md", "r") as fh:
 
 setup(
     name='VAST',
-    # version='',
+    version='0.0.1',
     author='Jiayao Yan',
     author_email='jiy352@ucsd.edu',
     license='LGPLv3+',
     keywords='vortex-based aerodynamic solver toolkit',
     url='http://github.com/jiy352/vast',
-    download_url='http://pypi.python.org/pypi/lsdo_project_template',
+    # download_url='http://pypi.python.org/pypi/lsdo_project_template',
     description='vortex-based aerodynamic solver toolkit',
     long_description=long_description,
     long_description_content_type='text/markdown',
