@@ -52,6 +52,7 @@ class EelActuationModel(csdl.Model):
         tail_amplitude = self.declare_variable('tail_amplitude', val=A)
         tail_frequency = self.declare_variable('tail_frequency', val=f)
         wave_number = self.declare_variable('wave_number', val=lambda_)
+        linear_relation = self.declare_variable('linear_relation', val=0.03125)
 
         t_temp_val = np.linspace(0,N_period,num_nodes)
         t_temp = self.create_input('t_temp',val = t_temp_val)
@@ -102,11 +103,12 @@ class EelActuationModel(csdl.Model):
             t_exp = csdl.expand(t, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             tail_amplitude_exp = csdl.expand(tail_amplitude, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             wave_number_exp = csdl.expand(wave_number, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
+            linear_relation_exp = csdl.expand(linear_relation, shape=(num_nodes,nx,ny,1),indices='i->ijkl') 
 
             x_exp = tensor_x_csdl
 
-            y = tail_amplitude_exp*((x_exp+0.03125)/(1.03125)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp)
-            y_dot =  tail_amplitude_exp*((x_exp+0.03125)/(1.03125))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg*t_exp)*(-omg)
+            y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp)
+            y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg*t_exp)*(-omg)
             # self.print_var(omg*t/np.pi)
             # self.print_var(tail_amplitude)
             # self.print_var(tensor_x_csdl)

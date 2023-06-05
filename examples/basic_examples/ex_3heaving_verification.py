@@ -80,7 +80,7 @@ if plot_cl == 1:
     plt.plot(t_vec,sim['wing_C_L'],'.-')
     plt.gca().invert_yaxis()
     plt.show()
-    cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1]
+    cl = sim['wing_C_L'][-int(num_nodes/n_period)*(n_period-2)-1:-int(num_nodes/n_period)-2]
     cl_ref = np.loadtxt('data.txt')
     plt.plot(np.linspace(0, np.pi*2,cl.shape[0]),cl,'.-')
     plt.plot(np.linspace(0, np.pi*2,cl_ref.shape[0]),cl_ref,'.-')
@@ -88,8 +88,8 @@ if plot_cl == 1:
     plt.gca().invert_yaxis()
     plt.show()
 
-cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
-cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
+cl_ref = cl_ref.flatten()
+cl = cl.flatten()
 print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
 # sim.compute_totals(of='',wrt='*')
 ######################################################

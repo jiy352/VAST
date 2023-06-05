@@ -12,8 +12,9 @@ import csdl
 ########################################
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-nx = 15; ny = 5
-num_nodes = 20;  
+nx = 15; ny = 3
+# nx = 15; ny = 11
+num_nodes = 40;  
 nt = num_nodes
 
 # kinematics variables
@@ -46,28 +47,37 @@ h_stepsize = t_vec[1]
 import python_csdl_backend
 model = csdl.Model()
 v_x = model.create_input('v_x', val=0.35)
+#v_x = model.create_input('v_x', val=0.35)
+v_x = model.create_input('tail_amplitude', val=A)
+tail_frequency = model.create_input('tail_frequency', val=f)
+wave_number = model.create_input('wave_number', val=lambda_)
+linear_relation = model.create_input('linear_relation', val=lambda_)
 # v_x = model.create_input('v_x', val=0.8467351)
 u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
 
-model.add_design_variable('v_x',upper=0.6,lower=0.1)
+model.add_design_variable('v_x',upper=0.8,lower=0.1)
+model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+model.add_design_variable('tail_frequency',upper=0.5,lower=0.2)
+model.add_design_variable('wave_number',upper=2,lower=1)
+model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
 thrust = model.declare_variable('thrust',shape=(num_nodes,1))
 C_F = model.declare_variable('C_F')
 density = model.declare_variable('density',shape=(num_nodes,1))
 
 thrust_coeff_avr = (csdl.sum(thrust)/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*0.13826040386294708)/num_nodes - C_F)**2
 
-
 model.register_output('thrust_coeff_avr', thrust_coeff_avr)
-model.add_objective('thrust_coeff_avr')
+model.add_constraint('thrust_coeff_avr',equals=0.)
+model.add_objective('efficiency',scaler=-1)
 
 sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
 sim.run()
-# make_video_vedo(surface_properties_dict, num_nodes, sim,xrange=(-0.5,3),yrange=(-0.3,0.3),zrange=(-0.5,0.5))
+
 
 exit()
 
@@ -90,7 +100,17 @@ prob = CSDLProblem(
     problem_name='eel_kinematic_opt',
     simulator=sim,
 )
-optimizer = SLSQP(prob, maxiter=1)
+# optimizer = SLSQP(prob, maxiter=1)
+optimizer = SNOPT(
+    prob, 
+    Major_iterations=100,
+    # Major_optimality=1e-6,
+    Major_optimality=1e-9,
+    Major_feasibility=1e-9,
+    append2file=True,
+    Major_step_limit=.25,
+)
+# optimizer = SLSQP(prob, maxiter=1)
 # optimizer = SNOPT(
 #     prob, 
 #     Major_iterations=100,

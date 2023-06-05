@@ -71,6 +71,7 @@ class LiftDrag(csdl.Model):
         else:
             eval_pts_names=self.parameters['eval_pts_names']
         v_total_wake_names = [x + '_eval_total_vel' for x in eval_pts_names]
+        
 
         bd_vec = self.declare_variable('bd_vec',
                                        shape=((num_nodes, system_size, 3)))

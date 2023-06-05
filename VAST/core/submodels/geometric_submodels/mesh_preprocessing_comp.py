@@ -167,7 +167,7 @@ class MeshPreprocessingComp(ModuleCSDL):
             num_pts_span = surface_shapes[i][2]
 
             delta = (num_pts_chord - 1) * (num_pts_span - 1)
-            bound_vecs = csdl.reshape(
+            bound_vecs = -csdl.reshape(
                 (0.75 * def_mesh_list[i][:, 0:-1, 0:-1, :] +
                  0.25 * def_mesh_list[i][:, 1:, 0:-1, :] +
                  -0.75 * def_mesh_list[i][:, 0:-1, 1:, :] +
