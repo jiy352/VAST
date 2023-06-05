@@ -12,7 +12,7 @@
 [![Forks](https://img.shields.io/github/forks/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/network)
 [![Issues](https://img.shields.io/github/issues/LSDOlab/lsdo_project_template.svg)](https://github.com/jiy352/VAST/issues)
 
-A template repository for LSDOlab projects
+VAST
 
 This repository serves as a template for all LSDOlab projects with regard to documentation, testing and hosting of open-source code.
 
