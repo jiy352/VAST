@@ -51,10 +51,10 @@ jobs:
       run: |
         python ./examples/basic_examples/run.py
         
-#     - name: Test with pytest
-#       run: |
-#         pytest
-        
-    - name: Test with lsdo_test
+    - name: Test with pytest
       run: |
-        lsdo_test aero_tests_1
+        pytest
+        
+#     - name: Test with lsdo_test
+#       run: |
+#         lsdo_test aero_tests_1
