@@ -13,7 +13,7 @@ gitpython
 
 # git+https://github.com/LSDOlab/ozone.git
 -e .
--e git+https://github.com/LSDOlab/ozone.git@main#egg=ozone
+git+https://github.com/LSDOlab/ozone.git@main#egg=ozone
 git+https://github.com/LSDOlab/lsdo_test
 # git+https://github.com/anugrahjo/sphinx-collections.git
 
