@@ -49,7 +49,7 @@ jobs:
       # Finally, we run the package unit-tests on the specified OS and python versions.
     - name: Test import ozone
       run: |
-        python VAST/examples/basic_examples/run.py
+        python ./examples/basic_examples/run.py
         
 #     - name: Test with pytest
 #       run: |
