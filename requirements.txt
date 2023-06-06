@@ -14,5 +14,5 @@ gitpython
 -e .
 git+https://github.com/LSDOlab/lsdo_test
 # git+https://github.com/anugrahjo/sphinx-collections.git
--e ozone @ git+https://github.com/LSDOlab/ozone.git@main#egg=ozone
+-e git+https://github.com/LSDOlab/ozone.git@main#egg=ozone
 vedo
