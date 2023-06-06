@@ -47,10 +47,14 @@ jobs:
 #         flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       # Finally, we run the package unit-tests on the specified OS and python versions.
-    # - name: Test with pytest
-    #   run: |
-    #     pytest
-
+    - name: Test import ozone
+      run: |
+        from ozone.api import ODEProblem
+        
+#     - name: Test with pytest
+#       run: |
+#         pytest
+        
     - name: Test with lsdo_test
       run: |
         lsdo_test aero_tests_1
