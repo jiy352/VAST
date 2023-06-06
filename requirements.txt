@@ -10,6 +10,7 @@ sphinx-copybutton
 sphinx-autoapi
 numpydoc
 gitpython
+vedo
 # git+https://github.com/LSDOlab/ozone.git
 -e .
 -e git+https://github.com/LSDOlab/ozone.git@main#egg=ozone
