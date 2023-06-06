@@ -36,6 +36,8 @@ setup(
         'python_csdl_backend @ git+https://github.com/LSDOlab/python_csdl_backend',
         'csdl @ git+https://github.com/LSDOlab/csdl',  
         'csdl_om @ git+https://github.com/LSDOlab/csdl_om', 
+        'zone @ git+https://github.com/LSDOlab/ozone.git@main#egg=ozone'
+
         # 'ozone @ git+https://github.com/LSDOlab/ozone', 
         # 'VAST @ git+https://github.com/jiy352/VAST',
     ],
