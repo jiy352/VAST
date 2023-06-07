@@ -1,6 +1,6 @@
 '''Example 4 : fish trim optimization'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel import UVLMSolver
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
@@ -47,7 +47,7 @@ h_stepsize = t_vec[1]
 # define the problem
 #####################
 import python_csdl_backend
-sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
+sim = python_csdl_backend.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), mode='rev')
     
 if profile_opt==True:

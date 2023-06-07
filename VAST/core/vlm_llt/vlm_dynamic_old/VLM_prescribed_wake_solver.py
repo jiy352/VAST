@@ -129,7 +129,7 @@ class ODEProblemTest(ODEProblem):
 
 
 
-class RunModel(csdl.Model):
+class UVLMSolver(csdl.Model):
     '''This class generates the solver for the prescribed VLM.'''
 
     def initialize(self):

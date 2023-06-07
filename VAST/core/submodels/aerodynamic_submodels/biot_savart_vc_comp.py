@@ -38,8 +38,8 @@ class BiotSavartComp(Model):
 
         # whether to enable the fixed vortex core model
         self.parameters.declare('vc', default=True)
-        # self.parameters.declare('eps', default=5e-4)
-        self.parameters.declare('eps', default=5e-10)
+        self.parameters.declare('eps', default=5e-8)
+        # self.parameters.declare('eps', default=5e-10)
         # self.parameters.declare('eps', default=1e-8)
 
         self.parameters.declare('circulation_names', default=None)

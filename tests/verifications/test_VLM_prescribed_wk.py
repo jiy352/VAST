@@ -6,7 +6,7 @@ from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 
 from VAST.utils.generate_mesh import *
 import numpy as np
@@ -71,18 +71,20 @@ def test_generate_model_vlm_fixed_wake():
 
     h_stepsize = delta_t = 1 
     if fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'prescibed_wake':
-        sim = Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+        sim = Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
     sim.run()
     
     cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
     try:
         cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
-    except:
+    try:
         # cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
         import os
         print(os.getcwd())
         cl_ref = np.loadtxt(os.getcwd()+'/tests/verifications/uvlm_plunging.txt').flatten()
+    except:
+        cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
 
     np.testing.assert_array_almost_equal(np.linalg.norm(
             (cl-cl_ref)) / np.linalg.norm(cl_ref),

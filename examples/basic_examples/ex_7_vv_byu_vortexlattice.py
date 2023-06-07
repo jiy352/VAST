@@ -3,7 +3,7 @@ import csdl
 import numpy as np
 from VAST.core.fluid_problem import FluidProblem
 from VAST.utils.generate_mesh import *
-from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
+from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 
@@ -30,7 +30,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,):
     v_inf = np.ones((num_nodes,1))*1
     theta = np.deg2rad(np.ones((num_nodes,1))*10)  # pitch angles
 
-    submodel = CreateACSatesModule(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
+    submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
     model_1.add(submodel, 'InputsModule')
     ####################################################################
     # 2. add VLM meshes
@@ -71,9 +71,17 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,):
     profiler.disable()
     profiler.dump_stats('output_1')
     sim = Simulator(model_1) # add simulator
+    sim.run()
+    gamma = sim['gamma_b'].flatten()
+    gamma_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/gamma_10_aoa.txt').flatten()
+    print(np.linalg.norm(gamma - gamma_ref)/np.linalg.norm(gamma_ref)*100,'%')
+    print((gamma - gamma_ref)/gamma_ref*100,'%')
+    print(gamma_ref)
+    print()
+    print(gamma)
     return sim
 
-sim = ex1_generate_model_vlm_fixed_wake(num_nodes=1,)
+# sim = ex1_generate_model_vlm_fixed_wake(num_nodes=1,)
 
 
 

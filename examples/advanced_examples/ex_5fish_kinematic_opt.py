@@ -1,6 +1,6 @@
 '''Example 5 : fish kinematic optimization'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import RunModel
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import UVLMSolver
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
@@ -55,7 +55,7 @@ linear_relation = model.create_input('linear_relation', val=lambda_)
 # v_x = model.create_input('v_x', val=0.8467351)
 u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
 
-model.add(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
+model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
 
 model.add_design_variable('v_x',upper=0.8,lower=0.1)

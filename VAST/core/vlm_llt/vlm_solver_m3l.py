@@ -191,8 +191,9 @@ if __name__ == "__main__":
     grid = pv.StructuredGrid(oml_mesh[:, :, 0]+disp[0,:, :, 0], oml_mesh[:, :, 1]+disp[0,:, :, 1], oml_mesh[:, :, 2]+disp[0,:, :, 2])
     grid_1 = pv.StructuredGrid(deformed_mesh[:, :, 0], deformed_mesh[:, :, 1], deformed_mesh[:, :, 2])
 
-    plotter.add_mesh(grid, show_edges=True,opacity=0.5, color='red')
-    plotter.add_mesh(grid_1, show_edges=True,color='blue')
+    plotter.add_mesh(grid, show_edges=False,opacity=0.5, color='red')
+    plotter.add_mesh(grid_1, show_edges=True,color='grey')
+    plotter.set_background('white')
     plotter.show()
     offset = 0
 
