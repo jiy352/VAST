@@ -33,7 +33,7 @@ def test_generate_model_vlm_fixed_wake():
     # nx = 15; ny = 5
     nx = 7; ny = 3
     chord = 1; span = 4
-    num_nodes = 60;  nt = num_nodes
+    num_nodes = 99;  nt = num_nodes
     n_period = 4
     omg=1
     h=0.1
@@ -79,7 +79,10 @@ def test_generate_model_vlm_fixed_wake():
     try:
         cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
     except:
-        cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
+        # cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
+        import os
+        print(os.getcwd())
+        cl_ref = np.loadtxt(os.getcwd()+'/tests/verifications/uvlm_plunging.txt').flatten()
 
     np.testing.assert_array_almost_equal(np.linalg.norm(
             (cl-cl_ref)) / np.linalg.norm(cl_ref),
