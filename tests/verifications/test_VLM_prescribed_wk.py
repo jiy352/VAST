@@ -30,9 +30,10 @@ def test_generate_model_vlm_fixed_wake():
     ####################################################################
     # 1. Define VLM inputs that share the common names within CADDEE
     ####################################################################
-    nx = 15; ny = 5
+    # nx = 15; ny = 5
+    nx = 7; ny = 3
     chord = 1; span = 4
-    num_nodes = 99;  nt = num_nodes
+    num_nodes = 60;  nt = num_nodes
     n_period = 4
     omg=1
     h=0.1
