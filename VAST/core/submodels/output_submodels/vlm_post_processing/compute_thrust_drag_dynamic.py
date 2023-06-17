@@ -149,7 +149,9 @@ class ThrustDrag(Model):
 
             self.register_output('panel_forces', panel_forces)
             wing_inital = self.declare_variable(surface_names[0],shape=(num_nodes,nx,ny,3))
-            c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,0,0,0]
+            # TODO: delete this hardcoding
+            c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,nx-2,0,0]
+            # self.print_var(c_bar)
             c_bar_exp = csdl.reshape(csdl.expand(csdl.reshape(c_bar,(1,)), (num_nodes*system_size*3,1),'i->ji'),(num_nodes,system_size,3))
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
             print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
@@ -162,6 +164,9 @@ class ThrustDrag(Model):
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]
             panel_forces_z = panel_forces[:, :, 2] + panel_forces_dynamic[:, :, 2]
+            self.register_output('panel_forces_x', panel_forces_x)
+            self.register_output('panel_forces_y', panel_forces_y)
+            self.register_output('panel_forces_z', panel_forces_z)
             # print('compute lift drag panel_forces', panel_forces.shape)
             b = frame_vel[:, 0]**2 + frame_vel[:, 1]**2 + frame_vel[:, 2]**2
 
@@ -216,6 +221,9 @@ class ThrustDrag(Model):
                 D = csdl.sum(D_panel_surface, axes=(1, ))
                 self.register_output(L_name, csdl.reshape(L, (num_nodes, 1)))
                 self.register_output(D_name, csdl.reshape(D, (num_nodes, 1)))
+                self.print_var(rho)
+                self.print_var(s_panels_sum)
+                self.print_var(b)
 
                 c_l = L / (0.5 * rho * s_panels_sum * b)
                 self.register_output(CL_name,

@@ -176,6 +176,7 @@ class RHS(Model):
             bd_coll_pts_shapes=bd_coll_pts_shapes,
             wake_vortex_pts_shapes=bd_vortex_shapes,
             full_aic_name='aic_bd',
+            vc = False,
             # delta_t=delta_t,  # one line of wake vortex for fix wake
         )
         self.add(m, name='AssembleAic_bd')

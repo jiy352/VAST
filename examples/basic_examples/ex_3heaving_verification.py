@@ -1,6 +1,6 @@
 '''Example 3 : verification of prescibed vlm with Katz and Plotkin 1991'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import RunModel
 
 from VAST.utils.generate_mesh import *
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
@@ -56,11 +56,11 @@ h_stepsize = delta_t = 1
 
 if be == 'csdl_om':
     import csdl_om
-    sim = csdl_om.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+    sim = csdl_om.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
 if be == 'python_csdl_backend':
     import python_csdl_backend
-    sim = python_csdl_backend.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+    sim = python_csdl_backend.Simulator(RunModel(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
     
 t_start = time.time()

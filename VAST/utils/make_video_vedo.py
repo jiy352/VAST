@@ -10,13 +10,11 @@ def make_video(surface_properties_dict,num_nodes, sim):
         yrange=(-10, 10),
         zrange=(-3, 0.5),
     )
-    video = Video("spider.gif", duration=10, backend='ffmpeg')
+    video = Video("fixvd.gif",backend='imageio')
     for i in range(nt - 1):
-        vp = Plotter(
+        plt = Plotter(
             bg='beige',
             bg2='lb',
-            # axes=0,
-            #  pos=(0, 0),
             offscreen=False,
             interactive=1)
         # Any rendering loop goes here, e.g.:
@@ -24,22 +22,25 @@ def make_video(surface_properties_dict,num_nodes, sim):
             vps = Points(np.reshape(sim[surface_name][i, :, :, :], (-1, 3)),
                         r=8,
                         c='red')
-            vp += vps
-            vp += __doc__
+            plt += [vps, __doc__]
+            # plt += __doc__
             vps = Points(np.reshape(sim['op_'+surface_name+'_wake_coords'][i, 0:i, :, :],
                                     (-1, 3)),
                         r=8,
                         c='blue')
-            vp += vps
-            vp += __doc__
+            plt += [vps, __doc__]
+            # plt += __doc__
         # cam1 = dict(focalPoint=(3.133, 1.506, -3.132))
         # video.action(cameras=[cam1, cam1])
-        vp.show(axs, elevation=-60, azimuth=-0,
+        plt.show( elevation=-60, azimuth=-0,
                 axes=False)  # render the scene
-        video.addFrame()  # add individual frame
+        video.add_frame()  # add individual frame
         # time.sleep(0.1)
-        # vp.interactive().close()
-        vp.closeWindow()
-    vp.closeWindow()
+        plt.interactive().close()
+        # plt.interactive().close()
+    #     plt.closeWindow()
+    # plt.closeWindow()
     video.close()  # merge all the recorded frames
+    
+    plt.interactive().close()
 

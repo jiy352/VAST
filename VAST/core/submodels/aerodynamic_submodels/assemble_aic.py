@@ -38,6 +38,7 @@ class AssembleAic(Model):
         self.parameters.declare('full_aic_name', types=str)
 
         self.parameters.declare('delta_t',default=None)
+        self.parameters.declare('vc',default=True)
 
     def define(self):
         # add_input
@@ -48,6 +49,9 @@ class AssembleAic(Model):
         bd_coll_pts_shapes = self.parameters['bd_coll_pts_shapes']
         wake_vortex_pts_shapes = self.parameters['wake_vortex_pts_shapes']
         full_aic_name = self.parameters['full_aic_name']
+        vc = self.parameters['vc']
+
+
         num_nodes = bd_coll_pts_shapes[0][0]
         row_ind = 0
         col_ind = 0
@@ -90,6 +94,7 @@ class AssembleAic(Model):
             eval_pt_shapes=eval_pt_shapes,
             vortex_coords_shapes=vortex_coords_shapes,
             output_names=output_names,
+            vc=vc,
         )
         self.add(m, name='aic_bd_w_seperate')
 

@@ -8,6 +8,8 @@ from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 
+from VAST.utils.make_video_vedo import make_video as make_video_vedo
+
 
 
 fluid_problem = FluidProblem(solver_option='VLM', problem_type='prescribed_wake')
@@ -16,11 +18,12 @@ model_1 = csdl.Model()
 ####################################################################
 # 1. add aircraft states
 ####################################################################
-num_nodes = 100;  nt = num_nodes
-n_period = 4.5
+num_nodes = 30;  nt = num_nodes
+n_period = 1
+
 omg=1
 h=0.1
-alpha = - np.deg2rad(5)
+alpha = - np.deg2rad(0)
 
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
 
@@ -43,9 +46,9 @@ states_dict = {
 # single lifting surface 
 # (nx: number of points in streamwise direction; ny:number of points in spanwise direction)
 
-x_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/x_dynamic.txt')
-y_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/y_dynamic.txt')
-z_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/z_dynamic.txt')
+x_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/x_dynamic.txt')
+y_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/y_dynamic.txt')
+z_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/z_dynamic.txt')
 mesh = np.stack((x_coords, y_coords, z_coords), axis=-1)
 nx = x_coords.shape[0]; ny = x_coords.shape[1]
 
@@ -96,16 +99,54 @@ sim.run()
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 mpl.rcParams.update(mpl.rcParamsDefault)
-plt.plot(sim['wing_C_L'][-26:,:].flatten(),'.-')
-plt.plot(cl_ref,'.-')
-plt.show()
+# plt.plot(sim['wing_C_L'][-26:,:].flatten(),'.-')
+# plt.plot(cl_ref,'.-')
+# plt.show()
 
 gamma = sim['gamma_b']
-gamma_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/gamma_heaving.txt')
+gamma_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/gamma_heaving_simple.txt')
+cl_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/cl30.txt')
 
 import pyvista as pv
 
-mesh = sim['wing'][0].reshape(5,14,3)
+mesh = sim['wing'][0].reshape(nx,ny,3)
 pv_mesh = pv.StructuredGrid(mesh[:,:,0], mesh[:,:,1], mesh[:,:,2])
 pv_mesh.plot(show_edges=True, color='w', line_width=1, show_scalar_bar=False, background='k',)
 
+import pandas as pd
+AIC = pd.DataFrame(sim['aic_bd_proj'][0])
+wake = sim['op_wing_wake_coords'][0]
+
+
+p_in = -sim['wing_kinematic_vel']*sim['panel_forces_all']
+T = sim['F'][:,0]
+vx = sim['frame_vel'][:,0]
+
+
+p_in = -sim['wing_kinematic_vel']*sim['panel_forces_all']
+
+p_out = T * vx
+plt.figure()
+plt.plot(np.sum(sim['panel_forces_z'],axis=(1,2)))
+# plt.plot(np.sum(sim['panel_forces_x'],axis=(1,2)))
+# plt.plot(sim['frame_vel'][:,2])
+
+plt.figure()
+w_vel_wing = -np.ones((num_nodes,1)) * np.sin(alpha) + h * np.cos(omg*t_vec).reshape((num_nodes,1))
+w_vel_dot  =  - h * np.sin(omg*t_vec).reshape((num_nodes,1))*omg
+
+
+
+plt.plot(w_vel_dot)
+plt.plot(np.sum(sim['panel_forces_dynamic'],axis=1)[:,-1])
+plt.plot(np.sum(sim['panel_forces'],axis=1)[:,-1])
+plt.legend(['panel_acceleration','panel_forces_dynamic_z'])
+plt.show()
+
+
+np.sum(sim['panel_forces'],axis=1)
+panel_vel = -sim['wing_kinematic_vel']
+
+p_in = np.sum(sim['panel_forces']*panel_vel,axis=(1,2))
+p_out = np.sum((sim['panel_forces']*panel_vel)[:,:,0],axis=(1,))
+p_out/p_in
