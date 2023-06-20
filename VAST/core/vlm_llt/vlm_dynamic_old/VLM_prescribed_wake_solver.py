@@ -1,7 +1,6 @@
 import time
 
 import matplotlib.pyplot as plt
-import openmdao.api as om
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
@@ -13,7 +12,6 @@ import numpy as np
 
 
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
-
 
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW

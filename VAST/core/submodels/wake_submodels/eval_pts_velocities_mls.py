@@ -9,7 +9,10 @@ from scipy.sparse import csc_matrix
 
 
 from VAST.core.submodels.aerodynamic_submodels.combine_bd_wake_comp import BdnWakeCombine
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp_org import BiotSavartComp
 from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp import BiotSavartComp
+
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_jax import BiotSavartComp
 from VAST.core.submodels.aerodynamic_submodels.induced_velocity_comp import InducedVelocity
 
 class EvalPtsVel(Model):

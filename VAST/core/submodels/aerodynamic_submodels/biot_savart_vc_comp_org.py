@@ -1,4 +1,3 @@
-from csdl_om import Simulator
 from csdl import Model
 import csdl
 import numpy as np
@@ -335,6 +334,8 @@ class BiotSavartComp(Model):
 
 
 if __name__ == "__main__":
+    from python_csdl_backend import Simulator
+    import timeit
 
     def generate_simple_mesh(nx, ny, n_wake_pts_chord=None):
         if n_wake_pts_chord == None:
@@ -350,58 +351,70 @@ if __name__ == "__main__":
                 mesh[i, :, :, 2] = 0.
         return mesh
 
-    n_wake_pts_chord = 2
-    nc = 2
-    ns = 3
-    nc_v = 3
-    ns_v = 4
+    num_nodes = 1
+    nc = 10
+    ns = 10
+
     eval_pt_names = ['col']
     vortex_coords_names = ['vor']
-    # eval_pt_shapes = [(nx, ny, 3)]
-    # vortex_coords_shapes = [(nx, ny, 3)]
 
-    eval_pt_shapes = [(nc, ns, 3), (nc, ns, 3)]
-    vortex_coords_shapes = [(nc, ns, 3)]
+    eval_pt_shapes = [(num_nodes, nc-1, ns-1, 3)]
+    vortex_coords_shapes = [(num_nodes, nc, ns, 3)]
 
     output_names = ['aic']
 
     model_1 = Model()
 
-    # circulations_val = np.zeros(
-    #     (nx - 1, ny - 1))  ####################the size of this is important
-    # circulations_val[:2, :] = np.random.random((2, ny - 1))
-    circulations_val = np.ones((nx - 1, ny - 1)) * 0.5
-
-    vor_val = generate_simple_mesh(nx, ny)
-    col_val = 0.25 * (vor_val[:-1, :-1, :] + vor_val[:-1, 1:, :] +
-                      vor_val[1:, :-1, :] + vor_val[1:, 1:, :])
+    vor_val = generate_simple_mesh(nc, ns).reshape(1, nc, ns, 3)
+    col_val = 0.25 * (vor_val[:,:-1, :-1, :] + vor_val[:,:-1, 1:, :] +
+                      vor_val[:,1:, :-1, :] + vor_val[:,1:, 1:, :])
     # col_val = generate_simple_mesh(nx, ny)
 
     vor = model_1.create_input('vor', val=vor_val)
     col = model_1.create_input('col', val=col_val)
-    circulations = model_1.create_input('circulations',
-                                        val=circulations_val.reshape(
-                                            1, nx - 1, ny - 1))
+
 
     model_1.add(BiotSavartComp(eval_pt_names=eval_pt_names,
                                vortex_coords_names=vortex_coords_names,
                                eval_pt_shapes=eval_pt_shapes,
                                vortex_coords_shapes=vortex_coords_shapes,
                                output_names=output_names,
-                               vc=True,
-                               n_wake_pts_chord=n_wake_pts_chord,
-                               circulation_names=['circulations']),
+                               vc=False,),
                 name='BiotSvart_group')
     sim = Simulator(model_1)
+    print(timeit.timeit(lambda: sim.run(), number=100), 'sec')
+    print(timeit.timeit(lambda: sim.compute_totals(of='aic',wrt='vor'), number=1), 'sec')
 
-    print(sim['vor'])
-    print(sim[output_names[0]])
-    # sim.visualize_implementation()
+    import resource
+    before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     sim.run()
+    after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print('memory usage', after-before)
+    exit()
 
-    a_l = 1.25643
-    kinematic_viscocity = 1.48 * 1e-5
-    a_1 = 0.1
-    time_current = 2
-    sigma = 1 + a_1 * csdl.reshape(
-        circulations, new_shape=(circulations.shape[1:])) / kinematic_viscocity
+    print('aic is', sim['aic'])
+    print('collocation points are ', sim['col'].shape, '\n',sim['col'])
+    print('vortex points are ', sim['vor'].shape ,'\n',sim['vor'])
+
+    # a_l = 1.25643
+    # kinematic_viscocity = 1.48 * 1e-5
+    # a_1 = 0.1
+    # time_current = 2
+    # sigma = 1 + a_1 * csdl.reshape(
+    #     circulations, new_shape=(circulations.shape[1:])) / kinematic_viscocity
+    a= sim.check_partials(compact_print=True)
+    anal = a['aic', 'vor']['analytical_jac']
+    fd = a['aic', 'vor']['fd_jac']
+    import pandas as pd
+    df_ana = pd.DataFrame(anal)
+    df_fd = pd.DataFrame(fd)
+    print(df_ana)
+    print(df_fd)
+
+    
+    anal = a['aic', 'col']['analytical_jac']
+    fd = a['aic', 'col']['fd_jac']
+    df_ana = pd.DataFrame(anal)
+    df_fd = pd.DataFrame(fd)
+    print(df_ana)
+    print(df_fd)

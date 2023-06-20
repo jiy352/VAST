@@ -2,7 +2,9 @@
 from csdl import Model
 import csdl
 import numpy as np
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp_org import BiotSavartComp
 from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp import BiotSavartComp
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_jax import BiotSavartComp
 
 class AssembleAic(Model):
     """

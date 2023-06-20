@@ -7,7 +7,9 @@ from numpy.core.fromnumeric import size
 
 from scipy.sparse import csc_matrix
 from VAST.core.submodels.aerodynamic_submodels.combine_bd_wake_comp import BdnWakeCombine
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp_org import BiotSavartComp
 from VAST.core.submodels.aerodynamic_submodels.biot_savart_vc_comp import BiotSavartComp
+# from VAST.core.submodels.aerodynamic_submodels.biot_savart_jax import BiotSavartComp
 from VAST.core.submodels.aerodynamic_submodels.induced_velocity_comp import InducedVelocity
 
 class EvalPtsVel(Model):
@@ -205,7 +207,7 @@ class EvalPtsVel(Model):
                 vortex_coords_shapes=bdnwake_shapes,
                 output_names=output_names,
                 circulation_names=circulation_names,
-                vc=True,
+                vc=False,
                 eps=self.parameters['eps'],
 
             ),

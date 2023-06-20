@@ -1,6 +1,4 @@
 import matplotlib.pyplot as plt
-import openmdao.api as om
-import csdl_om
 import numpy as np
 import csdl
 
