@@ -12,7 +12,7 @@ import csdl
 ########################################
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-nx = 15; ny = 3
+nx = 12; ny = 3
 # nx = 15; ny = 11
 num_nodes = 40;  
 nt = num_nodes
@@ -82,14 +82,11 @@ sim.run()
 
 # make_video_vedo(ssurface_properties_dict,num_nodes, sim)
 
+sim.compute_total_derivatives()
 exit()
 
 # panel_forces = sim['panel_forces_all']
 
-
-
-
-# exit()
 
 #####################
 # optimizaton
@@ -103,16 +100,16 @@ prob = CSDLProblem(
     problem_name='eel_kinematic_opt',
     simulator=sim,
 )
-# optimizer = SLSQP(prob, maxiter=1)
-optimizer = SNOPT(
-    prob, 
-    Major_iterations=100,
-    # Major_optimality=1e-6,
-    Major_optimality=1e-9,
-    Major_feasibility=1e-9,
-    append2file=True,
-    Major_step_limit=.25,
-)
+optimizer = SLSQP(prob, maxiter=1)
+# optimizer = SNOPT(
+#     prob, 
+#     Major_iterations=100,
+#     # Major_optimality=1e-6,
+#     Major_optimality=1e-9,
+#     Major_feasibility=1e-9,
+#     append2file=True,
+#     Major_step_limit=.25,
+# )
 
 optimizer.solve()
 optimizer.print_results(summary_table=True)

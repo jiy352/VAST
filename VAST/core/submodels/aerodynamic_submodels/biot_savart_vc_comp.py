@@ -76,11 +76,43 @@ class BiotSavartComp(Model):
             C = vortex_coords[:,:vortex_coords_shape[1] - 1, 1:, :]
             D = vortex_coords[:,1:, 1:, :]
 
-            self.r_A, self.r_A_norm = self.__compute_expand_vecs(eval_pts, A, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'A')
-            self.r_B, self.r_B_norm = self.__compute_expand_vecs(eval_pts, B, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'B')
-            self.r_C, self.r_C_norm = self.__compute_expand_vecs(eval_pts, C, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'C')
-            self.r_D, self.r_D_norm = self.__compute_expand_vecs(eval_pts, D, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'D')
+            symmetry = True
 
+            if symmetry == False:
+                self.r_A, self.r_A_norm = self.__compute_expand_vecs(eval_pts, A, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'A')
+                self.r_B, self.r_B_norm = self.__compute_expand_vecs(eval_pts, B, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'B')
+                self.r_C, self.r_C_norm = self.__compute_expand_vecs(eval_pts, C, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'C')
+                self.r_D, self.r_D_norm = self.__compute_expand_vecs(eval_pts, D, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'D')
+                v_ab = self._induced_vel_line(self.r_A, self.r_B, self.r_A_norm, self.r_B_norm)
+                v_bc = self._induced_vel_line(self.r_B, self.r_C, self.r_B_norm, self.r_C_norm)
+                v_cd = self._induced_vel_line(self.r_C, self.r_D, self.r_C_norm, self.r_D_norm)
+                v_da = self._induced_vel_line(self.r_D, self.r_A, self.r_D_norm, self.r_A_norm)
+
+                AIC = v_ab + v_bc + v_cd + v_da           
+            
+            else:
+                nx = eval_pt_shape[1]
+                ny = eval_pt_shape[2]
+                self.r_A, self.r_A_norm = self.__compute_expand_vecs(eval_pts[:,:,:int(ny/2),:], A, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'A')
+                self.r_B, self.r_B_norm = self.__compute_expand_vecs(eval_pts[:,:,:int(ny/2),:], B, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'B')
+                self.r_C, self.r_C_norm = self.__compute_expand_vecs(eval_pts[:,:,:int(ny/2),:], C, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'C')
+                self.r_D, self.r_D_norm = self.__compute_expand_vecs(eval_pts[:,:,:int(ny/2),:], D, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'D')
+                
+                v_ab = self._induced_vel_line(self.r_A, self.r_B, self.r_A_norm, self.r_B_norm)
+                v_bc = self._induced_vel_line(self.r_B, self.r_C, self.r_B_norm, self.r_C_norm)
+                v_cd = self._induced_vel_line(self.r_C, self.r_D, self.r_C_norm, self.r_D_norm)
+                v_da = self._induced_vel_line(self.r_D, self.r_A, self.r_D_norm, self.r_A_norm)
+
+                AIC_half = v_ab + v_bc + v_cd + v_da      
+                # self.register_output('aic_half', AIC_half)             
+                # model_2 = csdl.Model()
+                AIC = csdl.custom(AIC_half, op = SymmetryJax(in_name=AIC_half.name, eval_pt_shape=eval_pt_shape, vortex_coords_shape=vortex_coords_shape, out_name=output_name))
+                
+
+            self.register_output(output_name, AIC)
+
+                # self.print_var( AIC)
+                # self.add(model_2, name='aic_symmetry')
             # openaerostruct
             # C = vortex_coords[:, 1:, :vortex_coords_shape[2] - 1, :]
             # B = vortex_coords[:, :vortex_coords_shape[1] -
@@ -93,14 +125,9 @@ class BiotSavartComp(Model):
             # v_cd = self._induced_vel_line(self.r_C, self.r_D, self.r_C_norm, self.r_D_norm, output_name,'CD')
             # v_da = self._induced_vel_line(self.r_D, self.r_A, self.r_D_norm, self.r_A_norm, output_name,'DA')
 
-            v_ab = self._induced_vel_line(self.r_A, self.r_B, self.r_A_norm, self.r_B_norm)
-            v_bc = self._induced_vel_line(self.r_B, self.r_C, self.r_B_norm, self.r_C_norm)
-            v_cd = self._induced_vel_line(self.r_C, self.r_D, self.r_C_norm, self.r_D_norm)
-            v_da = self._induced_vel_line(self.r_D, self.r_A, self.r_D_norm, self.r_A_norm)
 
-            AIC = v_ab + v_bc + v_cd + v_da
 
-            self.register_output(output_name, AIC)
+            
 
     def __compute_expand_vecs(self, eval_pts, p_1, vortex_coords_shape, eval_pt_name, vortex_coords_name, output_name, point_name):
 
@@ -167,8 +194,209 @@ class BiotSavartComp(Model):
         return v_induced_line
 
 
+class SymmetryJax(csdl.CustomExplicitOperation):
+    """
+    Compute the whole AIC matrix given half of it
+
+    parameters
+    ----------
+    <aic_half_names>[nc*ns*(nc_v-1)*(ns_v-1)* nc*ns*(nc_v-1)*(ns_v-1)/2, 3] : numpy array
+        Array defining the nodal coordinates of the lifting surface that the 
+        AIC matrix is computed on.
+
+    Returns
+    -------
+    <aic_names>[nc*ns*(nc_v-1)*(ns_v-1), nc*ns*(nc_v-1)*(ns_v-1), 3] : numpy array
+        Aerodynamic influence coeffients (can be interprete as induced
+        velocities given circulations=1)
+    """    
+    def initialize(self):
+        self.parameters.declare('in_name', types=str)
+        self.parameters.declare('eval_pt_shape', types=tuple)
+        self.parameters.declare('vortex_coords_shape', types=tuple)
+        self.parameters.declare('out_name', types=str)
+    def define(self):
+        eval_pt_shape =self.eval_pt_shape= self.parameters['eval_pt_shape']
+        vortex_coords_shape =self.vortex_coords_shape =  self.parameters['vortex_coords_shape']
+        shape = eval_pt_shape[1]*eval_pt_shape[2]*(vortex_coords_shape[1]-1)*(vortex_coords_shape[2]-1)
+        num_nodes = eval_pt_shape[0]
+        self.add_input(self.parameters['in_name'],shape=(num_nodes,int(shape/2),3))
+        self.add_output(self.parameters['out_name'],shape=(num_nodes,int(shape),3))
+
+        self.full_aic_func = self.__get_full_aic_jax
+        row_indices  = np.arange(int(num_nodes*shape*3))
+        col_ind_temp = np.arange(int(num_nodes*shape/2*3)).reshape(num_nodes,eval_pt_shape[1],int(eval_pt_shape[2]/2),int(vortex_coords_shape[1]-1),int(vortex_coords_shape[2]-1),3)
+        
+        col_ind_flip = np.flip(col_ind_temp,axis=(2,4))
+        col_indices = np.concatenate((col_ind_temp,col_ind_flip),axis=2).flatten()
+        # col_indices = np.arange(int(num_nodes*shape/2*3))
+        self.declare_derivatives(self.parameters['out_name'], self.parameters['in_name'],rows=row_indices,cols=col_indices,val=np.ones(row_indices.size))
+
+    def compute(self, inputs, outputs):
+        # print('in_name is', self.parameters['in_name'])
+        # print('out_name is', self.parameters['out_name'])
+        # print(onp.array(self.full_aic_func(inputs[self.parameters['in_name']])))
+        outputs[self.parameters['out_name']] = self.full_aic_func(inputs[self.parameters['in_name']]).reshape(1,-1,3)
+    # def compute_derivatives(self, inputs, derivatives):
+    #     pass
+    def __get_full_aic_jax(self,half_aic):
+        nx_panel = self.eval_pt_shape[1]
+        ny_panel = self.eval_pt_shape[2] 
+        nx_panel_ind = self.vortex_coords_shape[1] - 1
+        ny_panel_ind = self.vortex_coords_shape[2] - 1 
+        num_nodes = self.eval_pt_shape[0]
+        half_reshaped = half_aic.reshape(num_nodes,nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+        # half_aic.reshape(nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+        other_half_aic = np.flip(half_reshaped, (2,4))
+        full_aic = np.concatenate((half_reshaped, other_half_aic), axis=2).reshape(num_nodes,-1,3)
+        return full_aic
+
+
+# class SymmetryJax(csdl.CustomExplicitOperation):
+#     """
+#     Compute the whole AIC matrix given half of it
+
+#     parameters
+#     ----------
+#     <aic_half_names>[nc*ns*(nc_v-1)*(ns_v-1)* nc*ns*(nc_v-1)*(ns_v-1)/2, 3] : numpy array
+#         Array defining the nodal coordinates of the lifting surface that the 
+#         AIC matrix is computed on.
+
+#     Returns
+#     -------
+#     <aic_names>[nc*ns*(nc_v-1)*(ns_v-1), nc*ns*(nc_v-1)*(ns_v-1), 3] : numpy array
+#         Aerodynamic influence coeffients (can be interprete as induced
+#         velocities given circulations=1)
+#     """    
+#     def initialize(self):
+#         self.parameters.declare('in_name', types=str)
+#         self.parameters.declare('eval_pt_shape', types=tuple)
+#         self.parameters.declare('vortex_coords_shape', types=tuple)
+#         self.parameters.declare('out_name', types=str)
+#     def define(self):
+#         shape = self.parameters['eval_pt_shape'][1]*self.parameters['eval_pt_shape'][2]*(self.parameters['vortex_coords_shape'][1]-1)*(self.parameters['vortex_coords_shape'][2]-1)
+#         print('shape is', shape)
+#         num_nodes = self.parameters['eval_pt_shape'][0]
+#         self.add_input(self.parameters['in_name'],shape=(num_nodes,int(shape/2),3))
+#         self.add_output(self.parameters['out_name'],shape=(num_nodes,int(shape/2),3))
+#         self.eval_pt_shape = self.parameters['eval_pt_shape']
+#         self.vortex_coords_shape = self.parameters['vortex_coords_shape']
+#         # self.full_aic_func = jit((self.__get_full_aic_jax))
+#         # self.full_aic_jac_func = jit((jacfwd(self.full_aic_func)))
+#         # print('in_name is', self.parameters['in_name'])
+#         # print('out_name is', self.parameters['out_name'])
+
+#         self.full_aic_func = self.__get_full_aic_jax
+#         # self.full_aic_jac_func = jacfwd(self.full_aic_func)
+#         row_indices  = np.arange(int(num_nodes*shape/2*3))
+#         col_indices = np.flip(row_indices.reshape(1,2,2,2,4,3),axis=(2,4)).flatten()
+#         self.declare_derivatives(self.parameters['out_name'], self.parameters['in_name'],rows=row_indices,cols=col_indices,val=np.ones(row_indices.size))
+
+#     def compute(self, inputs, outputs):
+#         # print('in_name is', self.parameters['in_name'])
+#         # print('out_name is', self.parameters['out_name'])
+#         # print(onp.array(self.full_aic_func(inputs[self.parameters['in_name']])))
+#         outputs[self.parameters['out_name']] = self.full_aic_func(inputs[self.parameters['in_name']]).reshape(1,-1,3)
+#     # def compute_derivatives(self, inputs, derivatives):
+#     #     pass
+#     def __get_full_aic_jax(self,half_aic):
+#         nx_panel = self.eval_pt_shape[1]
+#         ny_panel = self.eval_pt_shape[2] 
+#         nx_panel_ind = self.vortex_coords_shape[1] - 1
+#         ny_panel_ind = self.vortex_coords_shape[2] - 1 
+#         num_nodes = self.eval_pt_shape[0]
+#         half_reshaped = half_aic.reshape(num_nodes,nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+#         # half_aic.reshape(nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+#         other_half_aic = np.flip(half_reshaped, (2,4))
+#         full_aic = np.concatenate((half_reshaped, other_half_aic), axis=1).reshape(num_nodes,-1,3)
+#         return other_half_aic
+
+# import jax.numpy as jnp
+# from jax import jacfwd, jacrev, jit
+# from jax.experimental import sparse
+
+# class SymmetryJax(csdl.CustomExplicitOperation):
+#     """
+#     Compute the whole AIC matrix given half of it
+
+#     parameters
+#     ----------
+#     <aic_half_names>[nc*ns*(nc_v-1)*(ns_v-1)* nc*ns*(nc_v-1)*(ns_v-1)/2, 3] : numpy array
+#         Array defining the nodal coordinates of the lifting surface that the 
+#         AIC matrix is computed on.
+
+#     Returns
+#     -------
+#     <aic_names>[nc*ns*(nc_v-1)*(ns_v-1), nc*ns*(nc_v-1)*(ns_v-1), 3] : numpy array
+#         Aerodynamic influence coeffients (can be interprete as induced
+#         velocities given circulations=1)
+#     """    
+#     def initialize(self):
+#         self.parameters.declare('in_name', types=str)
+#         self.parameters.declare('eval_pt_shape', types=tuple)
+#         self.parameters.declare('vortex_coords_shape', types=tuple)
+#         self.parameters.declare('out_name', types=str)
+#     def define(self):
+#         shape = self.parameters['eval_pt_shape'][1]*self.parameters['eval_pt_shape'][2]*(self.parameters['vortex_coords_shape'][1]-1)*(self.parameters['vortex_coords_shape'][2]-1)
+#         self.add_input(self.parameters['in_name'],shape=(1,int(shape/2),3))
+#         self.add_output(self.parameters['out_name'],shape=(1,shape,3))
+#         self.eval_pt_shape = self.parameters['eval_pt_shape']
+#         self.vortex_coords_shape = self.parameters['vortex_coords_shape']
+#         # self.full_aic_func = jit((self.__get_full_aic_jax))
+#         # self.full_aic_jac_func = jit((jacfwd(self.full_aic_func)))
+#         # print('in_name is', self.parameters['in_name'])
+#         # print('out_name is', self.parameters['out_name'])
+
+#         self.full_aic_func = self.__get_full_aic_jax
+#         self.full_aic_jac_func = jacfwd(self.full_aic_func)
+#         self.declare_derivatives(self.parameters['out_name'], self.parameters['in_name'])
+
+#     def compute(self, inputs, outputs):
+#         # print('in_name is', self.parameters['in_name'])
+#         # print('out_name is', self.parameters['out_name'])
+#         # print(onp.array(self.full_aic_func(inputs[self.parameters['in_name']])))
+#         outputs[self.parameters['out_name']] = onp.array(self.full_aic_func(inputs[self.parameters['in_name']]))
+#     def compute_derivatives(self, inputs, derivatives):
+#         # print(onp.array(
+#         #     (self.full_aic_jac_func(inputs[self.parameters['in_name']]))
+#         # ))
+#         derivatives[self.parameters['out_name'], self.parameters['in_name']] = onp.array(
+#             (self.full_aic_jac_func(inputs[self.parameters['in_name']]))
+#         )
+#         # print('the shape of the derivative is', derivatives[self.parameters['out_name'], self.parameters['in_name']].shape)
+#         # print(derivatives[self.parameters['out_name'], self.parameters['in_name']] )
+#     def __get_full_aic_jax(self,half_aic):
+#         nx_panel = self.eval_pt_shape[1]
+#         ny_panel = self.eval_pt_shape[2] 
+#         nx_panel_ind = self.vortex_coords_shape[1] - 1
+#         ny_panel_ind = self.vortex_coords_shape[2] - 1 
+#         num_nodes = self.eval_pt_shape[0]
+#         half_reshaped = half_aic.reshape(nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+#         # half_aic.reshape(nx_panel,int(ny_panel/2),nx_panel_ind, ny_panel_ind, 3)
+#         other_half_aic = jnp.flip(half_reshaped, (1,3))
+#         full_aic = jnp.concatenate((half_reshaped, other_half_aic), axis=1).reshape(num_nodes,-1,3)
+#         return full_aic
+
+
+
 if __name__ == "__main__":
+    # import timeit
+    # from python_csdl_backend import Simulator
+    # import numpy as onp
+    # AIC_half_val = onp.random.rand(1, 32, 3)
+    # eval_pt_shape = (1,2,4)
+    # vortex_coords_shape = (1,3,5)
+    # m = csdl.Model()
+    # AIC_half = m.declare_variable('AIC_half', val = AIC_half_val)
+    # output_name = 'AIC'
+    # AIC = csdl.custom(AIC_half, op = SymmetryJax(in_name=AIC_half.name, eval_pt_shape=eval_pt_shape, vortex_coords_shape=vortex_coords_shape, out_name=output_name))
+    # m.register_output(output_name, AIC)
+    # sim = Simulator(m)
+    # sim.run()
+
+    import time
     import timeit
+    ts = time.time()
     from python_csdl_backend import Simulator
     import numpy as onp
     def generate_simple_mesh(nx, ny):
@@ -180,7 +408,7 @@ if __name__ == "__main__":
 
     n_wake_pts_chord = 2
     nc = 10
-    ns = 10
+    ns = 11
 
     eval_pt_names = ['coll_pts']
     vortex_coords_names = ['vtx_pts']
@@ -212,46 +440,21 @@ if __name__ == "__main__":
 
     model_1.add(submodel,'submodel')
 
-
+    #####################
+    # finshed adding model
+    ####################
     sim = Simulator(model_1)
-    print(timeit.timeit(lambda: sim.run(), number=100), 'sec')
-    print(timeit.timeit(lambda: sim.compute_totals(of='aic',wrt='vtx_pts'), number=10), 'sec')
-
-    import cProfile
-    profiler = cProfile.Profile()
-
-    profiler.enable()
-    rep = csdl.GraphRepresentation(model_1)
-    profiler.disable()
-    profiler.dump_stats('output_1')
-    
-    # print(sim['vor'])
-    # print(sim[output_names[0]])
-    # sim.visualize_implementation()
-    import resource
-    before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    print('time', time.time() - ts)
     sim.run()
-    after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    print('memory usage', after-before)
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
     exit()
-    
-    a= sim.check_partials(compact_print=True)
-    anal = a['aic', 'vtx_pts']['analytical_jac']
-    fd = a['aic', 'vtx_pts']['fd_jac']
-    import pandas as pd
-    df_ana = pd.DataFrame(anal)
-    df_fd = pd.DataFrame(fd)
-    print(df_ana)
-    print(df_fd)
-    
-    anal = a['aic', 'coll_pts']['analytical_jac']
-    fd = a['aic', 'coll_pts']['fd_jac']
-    df_ana = pd.DataFrame(anal)
-    df_fd = pd.DataFrame(fd)
-    print(df_ana)
-    print(df_fd)
-
-
-    print('aic is', sim['aic'])
-    print('collocation points are ', sim['coll_pts'].shape, '\n',sim['coll_pts'])
-    print('vortex points are ', sim['vtx_pts'].shape ,'\n',sim['vtx_pts'])

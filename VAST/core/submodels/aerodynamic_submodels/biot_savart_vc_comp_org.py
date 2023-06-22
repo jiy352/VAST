@@ -334,87 +334,60 @@ class BiotSavartComp(Model):
 
 
 if __name__ == "__main__":
-    from python_csdl_backend import Simulator
     import timeit
-
-    def generate_simple_mesh(nx, ny, n_wake_pts_chord=None):
-        if n_wake_pts_chord == None:
-            mesh = np.zeros((nx, ny, 3))
-            mesh[:, :, 0] = np.outer(np.arange(nx), np.ones(ny))
-            mesh[:, :, 1] = np.outer(np.arange(ny), np.ones(nx)).T
-            mesh[:, :, 2] = 0.
-        else:
-            mesh = np.zeros((n_wake_pts_chord, nx, ny, 3))
-            for i in range(n_wake_pts_chord):
-                mesh[i, :, :, 0] = np.outer(np.arange(nx), np.ones(ny))
-                mesh[i, :, :, 1] = np.outer(np.arange(ny), np.ones(nx)).T
-                mesh[i, :, :, 2] = 0.
+    from python_csdl_backend import Simulator
+    import numpy as onp
+    def generate_simple_mesh(nx, ny):
+        mesh = onp.zeros((nx, ny, 3))
+        mesh[:, :, 0] = onp.outer(onp.arange(nx), onp.ones(ny))
+        mesh[:, :, 1] = onp.outer(onp.arange(ny), onp.ones(nx)).T
+        mesh[:, :, 2] = 0.
         return mesh
 
-    num_nodes = 1
+    n_wake_pts_chord = 2
     nc = 10
-    ns = 10
+    ns = 20
 
-    eval_pt_names = ['col']
-    vortex_coords_names = ['vor']
+    eval_pt_names = ['coll_pts']
+    vortex_coords_names = ['vtx_pts']
+    # eval_pt_shapes = [(nx, ny, 3)]
+    # vortex_coords_shapes = [(nx, ny, 3)]
 
-    eval_pt_shapes = [(num_nodes, nc-1, ns-1, 3)]
-    vortex_coords_shapes = [(num_nodes, nc, ns, 3)]
+    eval_pt_shapes = [(1, nc-1, ns-1, 3)]
+    vortex_coords_shapes = [(1, nc, ns, 3)]
 
     output_names = ['aic']
 
-    model_1 = Model()
+    model_1 = csdl.Model()
+
 
     vor_val = generate_simple_mesh(nc, ns).reshape(1, nc, ns, 3)
     col_val = 0.25 * (vor_val[:,:-1, :-1, :] + vor_val[:,:-1, 1:, :] +
                       vor_val[:,1:, :-1, :] + vor_val[:,1:, 1:, :])
     # col_val = generate_simple_mesh(nx, ny)
 
-    vor = model_1.create_input('vor', val=vor_val)
-    col = model_1.create_input('col', val=col_val)
+    vor = model_1.create_input('vtx_pts', val=vor_val)
+    col = model_1.create_input('coll_pts', val=col_val)
 
-
-    model_1.add(BiotSavartComp(eval_pt_names=eval_pt_names,
+    # test if multiple ops work
+    submodel=BiotSavartComp(eval_pt_names=eval_pt_names,
                                vortex_coords_names=vortex_coords_names,
                                eval_pt_shapes=eval_pt_shapes,
                                vortex_coords_shapes=vortex_coords_shapes,
-                               output_names=output_names,
-                               vc=False,),
-                name='BiotSvart_group')
+                               output_names=output_names)
+
+    model_1.add(submodel,'submodel')
+
+
     sim = Simulator(model_1)
-    print(timeit.timeit(lambda: sim.run(), number=100), 'sec')
-    print(timeit.timeit(lambda: sim.compute_totals(of='aic',wrt='vor'), number=1), 'sec')
+    import time
 
-    import resource
-    before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
     sim.run()
-    after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    print('memory usage', after-before)
+    ts = time.time()
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
     exit()
-
-    print('aic is', sim['aic'])
-    print('collocation points are ', sim['col'].shape, '\n',sim['col'])
-    print('vortex points are ', sim['vor'].shape ,'\n',sim['vor'])
-
-    # a_l = 1.25643
-    # kinematic_viscocity = 1.48 * 1e-5
-    # a_1 = 0.1
-    # time_current = 2
-    # sigma = 1 + a_1 * csdl.reshape(
-    #     circulations, new_shape=(circulations.shape[1:])) / kinematic_viscocity
-    a= sim.check_partials(compact_print=True)
-    anal = a['aic', 'vor']['analytical_jac']
-    fd = a['aic', 'vor']['fd_jac']
-    import pandas as pd
-    df_ana = pd.DataFrame(anal)
-    df_fd = pd.DataFrame(fd)
-    print(df_ana)
-    print(df_fd)
-
-    
-    anal = a['aic', 'col']['analytical_jac']
-    fd = a['aic', 'col']['fd_jac']
-    df_ana = pd.DataFrame(anal)
-    df_fd = pd.DataFrame(fd)
-    print(df_ana)
-    print(df_fd)

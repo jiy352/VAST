@@ -39,7 +39,6 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
         self.parameters.declare('eps', default=5e-6)
 
         self.parameters.declare('circulation_names', default=None)
-        self.parameters.declare('jit_opt', default=False)
 
     def define(self):
         eval_pt_names = self.parameters['eval_pt_names']
@@ -71,9 +70,20 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
             self.declare_derivatives(out_name, eval_pt_name)
             self.declare_derivatives(out_name, vortex_coords_name)
 
-            self.AIC_jax = jit(self.__compute_AIC)
-            self.func = jit(self.__compute_expand_vecs)
-            self.induced_vel_line = jit(self.__induced_vel_line)
+        self.AIC_jax = jit(self.__compute_AIC)
+        self.grad_AIC_jax = jit(jacfwd(self.__compute_AIC,argnums=[0,1]))
+        self.func = jit(self.__compute_expand_vecs)
+        self.induced_vel_line = jit(self.__induced_vel_line)
+
+
+        # self.AIC_jax = self.__compute_AIC
+        # self.grad_AIC_jax = jacfwd(self.__compute_AIC,argnums=[0,1])
+        # self.func = self.__compute_expand_vecs
+        # self.induced_vel_line = self.__induced_vel_line
+
+            # self.AIC_jax = self.__compute_AIC
+            # self.func = self.__compute_expand_vecs
+            # self.induced_vel_line = self.__induced_vel_line
     def compute(self, inputs, outputs):
         eval_pt_names = self.parameters['eval_pt_names']
         eval_pt_shapes = self.parameters['eval_pt_shapes']
@@ -100,6 +110,7 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
             vortex_coords =  jnp.array(inputs[vortex_coords_name])
             # compute AIC is a jax function
             # convert back to numpy array
+            # print('------------------',self.AIC_jax(eval_pts, vortex_coords))
             outputs[out_name] = onp.array(self.AIC_jax(eval_pts, vortex_coords)) 
             # print('AIC_jax shape---------',AIC_jax.shape)
 
@@ -129,7 +140,7 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
             vortex_coords =  jnp.array(inputs[vortex_coords_name])
             # compute AIC is a jax function
 
-            grad_fcn = jacfwd(self.AIC_jax,argnums=[0,1])
+            grad_fcn = self.grad_AIC_jax
             grad_fcn_val = grad_fcn(eval_pts, vortex_coords)
             # print(grad_fcn_val[0].shape)
             # print(grad_fcn_val[1].shape)
@@ -139,7 +150,7 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
 
             derivatives[out_name, eval_pt_name] = onp.array(grad_fcn_val[0]).reshape(derivatives[out_name, eval_pt_name].shape)
             derivatives[out_name, vortex_coords_name] = onp.array(grad_fcn_val[1]).reshape(derivatives[out_name, vortex_coords_name].shape)
-    
+            del grad_fcn_val
     def __compute_AIC(self, eval_pts, vortex_coords):
 
         """
@@ -168,6 +179,7 @@ class BiotSavartCompJax(csdl.CustomExplicitOperation):
         #                  |        v
         #                  B <----- A
         vortex_coords_shape = vortex_coords.shape
+
         A = vortex_coords[:,1:, :vortex_coords_shape[2] - 1, :]
         B = vortex_coords[:,:vortex_coords_shape[1] -
                         1, :vortex_coords_shape[2] - 1, :]
@@ -280,7 +292,9 @@ class BiotSavartComp(csdl.Model):
         self.register_output(self.parameters['output_names'][0], aic)
 
 if __name__ == "__main__":
+    import time
     import timeit
+    ts = time.time()
     from python_csdl_backend import Simulator
     def generate_simple_mesh(nx, ny):
         mesh = onp.zeros((nx, ny, 3))
@@ -291,7 +305,7 @@ if __name__ == "__main__":
 
     n_wake_pts_chord = 2
     nc = 10
-    ns = 10
+    ns = 20
 
     eval_pt_names = ['coll_pts']
     vortex_coords_names = ['vtx_pts']
@@ -327,26 +341,42 @@ if __name__ == "__main__":
     # finshed adding model
     ####################
     sim = Simulator(model_1)
-    print(timeit.timeit(lambda: sim.run(), number=100), 'sec')
-    print(timeit.timeit(lambda: sim.compute_totals(of='aic',wrt='vtx_pts'), number=10), 'sec')
+    print('time', time.time() - ts)
+    sim.run()
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    sim.compute_totals(of='aic',wrt='vtx_pts')
+    print('time', time.time() - ts)
+    exit()
+    # print(timeit.timeit(lambda: sim.run(), number=5), 'sec')
+    
+    
+    # print(timeit.timeit(lambda: sim.compute_totals(of='aic',wrt='vtx_pts'), number=5), 'sec')
 
-    import cProfile
-    profiler = cProfile.Profile()
+    # import cProfile
+    # profiler = cProfile.Profile()
 
-    profiler.enable()
-    rep = csdl.GraphRepresentation(model_1)
-    profiler.disable()
-    profiler.dump_stats('output_1')
+    # profiler.enable()
+    # rep = csdl.GraphRepresentation(model_1)
+    # profiler.disable()
+    # profiler.dump_stats('output_1')
 
     # print(sim['vor'])
     # print(sim[output_names[0]])
     # sim.visualize_implementation()
-    import resource
-    before = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    sim.run()
-    after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-    print('memory usage', after-before)
-    exit()
+    # import resource
+    # before = (resource.RUSAGE_SELF).ru_maxrss
+    # sim.run()
+    
+    # after = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    # print('memory usage', after-before)
     
     a= sim.check_partials(compact_print=True)
     anal = a['aic', 'vtx_pts']['analytical_jac']
@@ -368,3 +398,10 @@ if __name__ == "__main__":
     print('aic is', sim['aic'])
     print('collocation points are ', sim['coll_pts'].shape, '\n',sim['coll_pts'])
     print('vortex points are ', sim['vtx_pts'].shape ,'\n',sim['vtx_pts'])
+
+sim['aic'].reshape(8,8,3)[:,:,2].reshape(2,4,2,4)
+computed_aic = sim['aic'].reshape(8,8,3)[:,:,2].reshape(2,4,2,4)[:,:2,:,:]
+generated_other_aic_temp = np.flip(computed_aic, axis=(1,3))
+generated_other_aic = np.flip(generated_other_aic_temp, axis=1)
+
+aic_whole = np.concatenate((computed_aic, generated_other_aic_temp), axis=1)
