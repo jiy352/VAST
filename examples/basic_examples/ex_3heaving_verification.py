@@ -65,6 +65,9 @@ if be == 'python_csdl_backend':
     
 t_start = time.time()
 sim.run()
+sim.compute_total_derivatives()
+sim.run()
+sim.compute_total_derivatives()
 exit()
 print('simulation time is', time.time() - t_start)
 # print('theta',sim['theta'])

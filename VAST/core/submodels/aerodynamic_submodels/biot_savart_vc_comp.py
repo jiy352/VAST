@@ -76,7 +76,7 @@ class BiotSavartComp(Model):
             C = vortex_coords[:,:vortex_coords_shape[1] - 1, 1:, :]
             D = vortex_coords[:,1:, 1:, :]
 
-            symmetry = True
+            symmetry = False
 
             if symmetry == False:
                 self.r_A, self.r_A_norm = self.__compute_expand_vecs(eval_pts, A, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'A')
