@@ -4,8 +4,7 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 
-from VAST.utils.compute_sprs import compute_spars
-from VAST.utils.custom_explicit_mat_sprsmat import Explicit
+from VAST.utils.custom_explicit_mat_sprsmat import Explicit, compute_spars
 
 from VAST.core.submodels.aerodynamic_submodels.kinematic_velocity_comp import KinematicVelocityComp
 from VAST.core.submodels.aerodynamic_submodels.assemble_aic import AssembleAic

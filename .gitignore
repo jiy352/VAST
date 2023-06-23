@@ -26,7 +26,11 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
-
+examples/basic_examples/total
+examples/basic_examples/total_half
+examples/basic_examples/total_old
+/examples/advanced_examples/sweeps
+.vscode
 # PyInstaller
 #  Usually these files are written by a python script from a template
 #  before PyInstaller builds the exe, so as to inject date/other infos into it.

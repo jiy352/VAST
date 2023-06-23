@@ -6,39 +6,42 @@ from csdl import Model
 from scipy.sparse import coo_array
 from scipy import sparse
 
+def compute_spars(surface_shapes):
+    '''
+    This is a helper function to compute the sparse matrix
+    for the wake panel to body panel mapping to get the reshaped M matrix
+    '''
 
-class M(Model):
-    def define(self):
-        n = 2
-        sol_shape = 3
-        num_bd_panel = 6
-        num_wake_panel = 3
-        ny_last_start = 3
+    num_total_bd_panel = 0
+    # num_bd_panel = []
+    num_bd_panel_array = np.array([])
+    for i in range(len(surface_shapes)):
+        surface_shape = surface_shapes[i]
+        num_total_bd_panel += (surface_shape[1] - 1) * (surface_shape[2] - 1)
 
-        row = np.arange(num_wake_panel)
-        col = (np.arange(num_wake_panel) + ny_last_start)
-        data = np.ones(num_wake_panel)
-        sprs = coo_array(
-            (data, (row, col)),
-            shape=(num_wake_panel, num_bd_panel),
-        )
-        # sprs_all = np.concatenate([sprs.toarray()] * n).reshape(
-        #     n, num_wake_panel, num_bd_panel)
-        M = self.declare_variable('M_mat',
-                                  val=np.random.random(
-                                      (n, num_bd_panel, num_wake_panel)))
-        M_reshaped = csdl.custom(M,
-                                 op=Explicit(
-                                     num_nodes=n,
-                                     sprs=sprs,
-                                     num_bd_panel=num_bd_panel,
-                                     num_wake_panel=num_wake_panel,
-                                 ))
-        self.register_output('M_reshaped', M_reshaped)
+    num_total_bd_ind = np.arange(num_total_bd_panel)
+    start = 0
+    for i in range(len(surface_shapes)):
+        surface_shape = surface_shapes[i]
+        delta = (surface_shape[1] - 1) * (surface_shape[2] - 1)
+        num_bd_panel_array = np.concatenate((
+            num_bd_panel_array,
+            num_total_bd_ind[start:start + delta][-(surface_shape[2] - 1):],
+        ))
+        start += delta
+    '''this only works when there is only one row of wake panel streamwise
+        can be generlized by given n_wake_pts_chord (num_wake_panel streamwise) as inputs'''
+    num_wake_panel = num_bd_panel_array.size
 
+    row = np.arange(num_wake_panel)
+    col = num_bd_panel_array
+    data = np.ones(num_wake_panel)
+    sprs = coo_array(
+        (data, (row, col)),
+        shape=(num_wake_panel, num_total_bd_panel),
+    )
+    return sprs
 
-# 'ijk,ikl->ijl', M_all(num_modes, num_bd,
-#                       num_wake), sprs(num_modes, num_wake, num_bd)
 
 
 class Explicit(csdl.CustomExplicitOperation):
@@ -82,9 +85,6 @@ class Explicit(csdl.CustomExplicitOperation):
         num_bd_panel = self.parameters['num_bd_panel']
         num_wake_panel = self.parameters['num_wake_panel']
 
-        # print('sprs-----------------------------', sprs.shape)
-        # print('inputs[M_mat]-----------------------------', inputs['M_mat'].shape)
-
         outputs['M_reshaped'] = np.einsum('ijk,kl->ijl', inputs['M_mat'],
                                           sprs.todense())
 
@@ -97,17 +97,3 @@ class Explicit(csdl.CustomExplicitOperation):
         derivatives['M_reshaped',
                     'M_mat'] = np.tile(sprs.T.todense().flatten(),
                                        num_nodes * num_bd_panel)
-
-        # sparse.coo_matrix(
-        #     (np.tile(sprs.T.todense().flatten(), num_nodes * num_bd_panel)))
-
-        # derivatives['M_reshaped', 'M_mat'] = np.tile(sprs.T.reshape(18, 1),
-        #                                          num_nodes * num_bd_panel)
-
-
-# sim = Simulator(M())
-# sim.run()
-# M_reshaped = sim['M_reshaped']
-# M = sim['M_mat']
-# sim.prob.check_partials(compact_print=True)
-# # print(np.einsum('ijk,ik->ij', A, x) + b)
