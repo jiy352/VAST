@@ -11,7 +11,6 @@ setup(
     license='LGPLv3+',
     keywords='vortex-based aerodynamic solver toolkit',
     url='http://github.com/jiy352/vast',
-    # download_url='http://pypi.python.org/pypi/lsdo_project_template',
     description='vortex-based aerodynamic solver toolkit',
     long_description=long_description,
     long_description_content_type='text/markdown',
@@ -19,8 +18,6 @@ setup(
     python_requires='>=3.7',
     platforms=['any'],
     install_requires=[
-        # 'numpy',
-        # 'pytest',
         'myst-nb',
         'sphinx_rtd_theme',
         'sphinx-copybutton',
@@ -32,14 +29,9 @@ setup(
         'setuptools',
         'wheel',
         'twine',
-        'VLM_package @ git+https://github.com/jiy352/lsdo_VLM',
         'python_csdl_backend @ git+https://github.com/LSDOlab/python_csdl_backend',
         'csdl @ git+https://github.com/LSDOlab/csdl',  
-        'csdl_om @ git+https://github.com/LSDOlab/csdl_om', 
-#         'ozone @ git+https://github.com/LSDOlab/ozone.git@main#egg=ozone'
-
         # 'ozone @ git+https://github.com/LSDOlab/ozone', 
-        # 'VAST @ git+https://github.com/jiy352/VAST',
     ],
     classifiers=[
         'Programming Language :: Python',
