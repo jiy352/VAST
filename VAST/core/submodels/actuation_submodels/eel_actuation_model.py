@@ -109,14 +109,7 @@ class EelActuationModel(csdl.Model):
 
             y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp)
             y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg*t_exp)*(-omg)
-            # self.print_var(omg*t/np.pi)
-            # self.print_var(tail_amplitude)
-            # self.print_var(tensor_x_csdl)
-            # print('left part of y-----------------')
-            # self.print_var(tail_amplitude_exp*((x_exp+0.03125)/(1.03125)))
-            # print('right part of y-----------------')
-            # self.print_var(csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp))
-            # print('y_dot--------------',y_dot.shape)
+
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))
             
             coll_vel[:,:,:,1] = (y_dot[:,:-1,:-1,:]+y_dot[:,1:,:-1,:]+y_dot[:,:-1,1:,:]+y_dot[:,1:,1:,:])/4 

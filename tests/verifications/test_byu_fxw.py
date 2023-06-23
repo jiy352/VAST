@@ -16,8 +16,6 @@ plot_cl = 1
 ########################################
 
 
-
-
 def test_generate_model_vlm_fixed_wake():
     fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
 
@@ -37,9 +35,9 @@ def test_generate_model_vlm_fixed_wake():
     # single lifting surface 
     # (nx: number of points in streamwise direction; ny:number of points in spanwise direction)
 
-    x_coords = np.loadtxt('byu_vortex_lattice/x.txt')
-    y_coords = np.loadtxt('byu_vortex_lattice/y.txt')
-    z_coords = np.loadtxt('byu_vortex_lattice/z.txt')
+    x_coords = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/byu_vortex_lattice/x.txt')
+    y_coords = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/byu_vortex_lattice/y.txt')
+    z_coords = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/byu_vortex_lattice/z.txt')
     mesh = np.stack((x_coords, y_coords, z_coords), axis=-1)
 
     nx = x_coords.shape[0]; ny = x_coords.shape[1]
@@ -70,7 +68,7 @@ def test_generate_model_vlm_fixed_wake():
     sim.run()
     
     gamma = sim['gamma_b'].flatten()
-    gamma_ref = np.loadtxt('byu_vortex_lattice/gamma_10_aoa.txt').flatten()
+    gamma_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/byu_vortex_lattice/gamma_10_aoa.txt').flatten()
 
     wing_C_L_ref = 0.6305970178500268
     wing_C_D_i_ref = 0.031877414928509776

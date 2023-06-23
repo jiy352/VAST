@@ -148,9 +148,6 @@ class MeshPreprocessingComp(Model):
 
             def_mesh_list.append(def_mesh)
 
-            # print(spans.shape, chords.shape, s_panels.shape)
-            # print(self.print_var(spans), self.print_var(chords),
-            #       self.print_var(s_panels))
 
         ################################################################################
         # create the output: 6. bd_vec_all: bd_vec of all lifting surfaces

@@ -65,9 +65,12 @@ if be == 'python_csdl_backend':
     
 t_start = time.time()
 sim.run()
+sim.compute_total_derivatives()
+sim.run()
+sim.compute_total_derivatives()
+exit()
 print('simulation time is', time.time() - t_start)
 # print('theta',sim['theta'])
-
 ######################################################
 # make video
 ######################################################
@@ -87,11 +90,12 @@ if plot_cl == 1:
     plt.legend(['VAST','BYU_UVLM'])
     plt.gca().invert_yaxis()
     plt.show()
+exit()
 
 cl_ref = cl_ref.flatten()
 cl = cl.flatten()
 print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
-# sim.compute_totals(of='',wrt='*')
+sim.compute_totals(of='wing_C_L',wrt='density')
 ######################################################
 # end make video
 ######################################################

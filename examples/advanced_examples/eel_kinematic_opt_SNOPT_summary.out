@@ -1123,3 +1123,41 @@
  Time for solution output                       0.00 seconds
  Time for constraint functions               2517.19 seconds
  Time for objective function                    0.00 seconds
+
+ ==============================
+ S N O P T  7.7.7    (Feb 2021)
+ ==============================
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+
+
+
+ Nonlinear constraints       1     Linear constraints       0
+ Nonlinear variables         5     Linear variables         0
+ Jacobian  variables         5     Objective variables      5
+ Total constraints           1     Total variables          5
+
+
+
+
+ ==============================
+ S N O P T  7.7.7    (Feb 2021)
+ ==============================
+
+ SNMEMB EXIT 100 -- finished successfully
+ SNMEMB INFO 104 -- memory requirements estimated
+
+ Trial version of SNOPT -- for evaluation or academic purposes only
+
+
+
+ Nonlinear constraints       1     Linear constraints       0
+ Nonlinear variables         5     Linear variables         0
+ Jacobian  variables         5     Objective variables      5
+ Total constraints           1     Total variables          5
+
+
+

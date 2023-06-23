@@ -3,12 +3,11 @@ import csdl
 import numpy as np
 from VAST.core.fluid_problem import FluidProblem
 from VAST.utils.generate_mesh import *
-from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
+from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel as CreateACSatesModule
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 import resource
 
-from VLM_package.VLM_preprocessing.mesh_parameterizartion_model import \
-    MeshParameterizationComp
+from VAST.core.submodels.geometric_submodels.mesh_parameterizartion_model import MeshParameterizationComp
 from modopt.csdl_library import CSDLProblem
 
 
@@ -84,7 +83,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     model_1.add_design_variable("taper_ratio", lower=0.3, upper=1.0)
 
     model_1.add_constraint("wing_area",equals=20)
-    model_1.add_constraint("wing_C_L",lower=0.7)
+    model_1.add_constraint("wing_C_L",lower=0.5)
 
     model_1.add_objective("wing_C_D_i")
 
@@ -94,17 +93,30 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
 sim = ex1_generate_model_vlm_fixed_wake(num_nodes=1,nx=3, ny=11)
 sim.run()
 
+from modopt.snopt_library import SNOPT
 from modopt.scipy_library import SLSQP
 # Define problem for the optimization
 prob = CSDLProblem(
     problem_name='wing_shape_opt',
     simulator=sim,
 )
-optimizer = SLSQP(prob, maxiter=20)
+# optimizer = SLSQP(prob, maxiter=20)
 
 # before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-# optimizer.solve()
+# optimizer = SLSQP(prob, maxiter=1)
+optimizer = SNOPT(
+    prob, 
+    Major_iterations=100,
+    # Major_optimality=1e-6,
+    Major_optimality=1e-9,
+    Major_feasibility=1e-9,
+    append2file=True,
+    Major_step_limit=.25,
+)
+
+
+optimizer.solve()
 
 # after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 # ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3)
@@ -113,7 +125,7 @@ optimizer = SLSQP(prob, maxiter=20)
 # optimizer.print_results()
 
 
-sim.compute_totals(of='wing_C_D_i', wrt=['theta','taper_ratio','wing_span_l','wing_chord_l'], return_format='dict')
-after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
-ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3)
-print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
+# sim.compute_totals(of='wing_C_D_i', wrt=['theta','taper_ratio','wing_span_l','wing_chord_l'], return_format='dict')
+# after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+# ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3)
+# print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')

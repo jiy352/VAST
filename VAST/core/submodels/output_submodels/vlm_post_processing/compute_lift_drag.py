@@ -119,6 +119,7 @@ class LiftDrag(csdl.Model):
                                                         ny - 1, 3))
                 # print('compute lift drag vel_surface shape', vel_surface.shape)
                 # print('compute lift drag velocities shape', velocities.shape)
+                # self.print_var(vel_surface)
                 velocities[:, start:start + delta, :] = vel_surface
                 s_panels_all[:, start:start + delta] = csdl.reshape(
                     s_panels, (num_nodes, delta))

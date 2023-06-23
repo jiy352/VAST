@@ -3,21 +3,21 @@ import csdl
 import numpy as np
 from VAST.core.fluid_problem import FluidProblem
 from VAST.utils.generate_mesh import *
-from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
+from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
+from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 
-
-
-fluid_problem = FluidProblem(solver_option='VLM', problem_type='prescribed_wake')
+fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
 
 model_1 = csdl.Model()
 ####################################################################
 # 1. add aircraft states
 ####################################################################
-num_nodes = 100;  nt = num_nodes
-n_period = 4.5
+num_nodes = 1;  nt = num_nodes
+n_period = 1
+
 omg=1
 h=0.1
 alpha = - np.deg2rad(5)
@@ -25,14 +25,14 @@ alpha = - np.deg2rad(5)
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
 
 u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1))
-w_vel = np.ones((num_nodes,1)) * np.sin(alpha) - h * np.cos(omg*t_vec).reshape((num_nodes,1))
+w_vel = np.ones((num_nodes,1)) * np.sin(alpha) 
 
 alpha_equ = np.arctan2(w_vel, u_val)
 
 states_dict = {
     'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
     'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
-    'theta': alpha_equ, 'psi': np.zeros((num_nodes, 1)),
+    'theta': alpha, 'psi': np.zeros((num_nodes, 1)),
     'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
@@ -43,9 +43,9 @@ states_dict = {
 # single lifting surface 
 # (nx: number of points in streamwise direction; ny:number of points in spanwise direction)
 
-x_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/x_dynamic.txt')
-y_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/y_dynamic.txt')
-z_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/z_dynamic.txt')
+x_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/x_dynamic.txt')
+y_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/y_dynamic.txt')
+z_coords = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/z_dynamic.txt')
 mesh = np.stack((x_coords, y_coords, z_coords), axis=-1)
 nx = x_coords.shape[0]; ny = x_coords.shape[1]
 
@@ -65,7 +65,8 @@ for i in range(num_nodes):
     mesh_val[i, :, :, 1] = mesh.copy()[:, :, 1] 
     mesh_val[i, :, :, 2] += z_offset[i]
 
-h_stepsize = t_vec[1] 
+submodel = CreateACSatesModel(v_inf=np.ones((num_nodes,1)),theta=np.ones((num_nodes,1))*alpha,num_nodes=num_nodes)
+model_1.add(submodel, 'CreateACSatesModel')
 
 ####################################################################
 # 3. add VAST solver
@@ -96,16 +97,20 @@ sim.run()
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 mpl.rcParams.update(mpl.rcParamsDefault)
-plt.plot(sim['wing_C_L'][-26:,:].flatten(),'.-')
-plt.plot(cl_ref,'.-')
-plt.show()
+# plt.plot(sim['wing_C_L'][-26:,:].flatten(),'.-')
+# plt.plot(cl_ref,'.-')
+# plt.show()
 
 gamma = sim['gamma_b']
-gamma_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/gamma_heaving.txt')
+gamma_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/gamma_heaving_simple.txt')
+cl_ref = np.loadtxt('vnv_meshes/byu_vortex_lattice/simple_dynamic/cl.txt')
 
 import pyvista as pv
 
-mesh = sim['wing'][0].reshape(5,14,3)
+mesh = sim['wing'][0].reshape(nx,ny,3)
 pv_mesh = pv.StructuredGrid(mesh[:,:,0], mesh[:,:,1], mesh[:,:,2])
 pv_mesh.plot(show_edges=True, color='w', line_width=1, show_scalar_bar=False, background='k',)
+
+import pandas as pd
+AIC = pd.DataFrame(sim['MTX'][0])
 

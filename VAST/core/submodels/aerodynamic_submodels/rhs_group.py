@@ -1,4 +1,3 @@
-from csdl_om import Simulator
 from csdl import Model
 import csdl
 import numpy as np
@@ -176,6 +175,7 @@ class RHS(Model):
             bd_coll_pts_shapes=bd_coll_pts_shapes,
             wake_vortex_pts_shapes=bd_vortex_shapes,
             full_aic_name='aic_bd',
+            vc = True,
             # delta_t=delta_t,  # one line of wake vortex for fix wake
         )
         self.add(m, name='AssembleAic_bd')

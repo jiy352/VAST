@@ -3,10 +3,7 @@ from VAST.core.submodels.output_submodels.vlm_post_processing.compute_outputs_gr
 import numpy as np
 import csdl
 from VAST.core.vlm_llt.NodalMapping import NodalMap,RadialBasisFunctions
-# from VLM_package.VLM_preprocessing.utils.generate_simple_mesh import *
 
-# Here n_wake_pts_chord is just a dummy variable that always equal to 2. since we are using a long wake panel,
-# we can just make n_wake_pts_chord=2 and delta_t a large number.
 
 
 class VLMSolverModel(csdl.Model):
@@ -88,6 +85,21 @@ class VLMSolverModel(csdl.Model):
         )
         self.add(sub, name='VLM_outputs')
 
+
+    def construct_displacement_map(self, nodal_outputs_mesh):
+        mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
+        oml_mesh = nodal_outputs_mesh.value.reshape((-1, 3))
+        displacement_map = self.umap(mesh.value.reshape((-1,3)), oml=oml_mesh)
+        return displacement_map
+
+    def construct_force_map(self, nodal_force):
+        mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
+        oml_mesh = nodal_force.mesh.value.reshape((-1, 3))
+        force_map = self.fmap(mesh.value.reshape((-1,3)), oml=oml_mesh)
+        return force_map
+
+    def construct_invariant_matrix(self):
+        pass
 
 if __name__ == "__main__":
 
@@ -179,9 +191,11 @@ if __name__ == "__main__":
     # Generate mesh of a rectangular wing
     mesh = generate_mesh(mesh_dict) #(nx,ny,3)
 
+    ####################################################################
     # project the displacement on the oml mesh to the camber surface mesh
     G_mat = NodalMap(oml_mesh.reshape(-1,3), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian)
     map_in = model_1.create_input('map_in', val=G_mat.map)
+    ####################################################################
 
     mapped_disp = np.einsum('ij,jk->ik',G_mat.map,disp.reshape(-1,3)).reshape(mesh.shape)
     deformed_mesh = mesh + mapped_disp
