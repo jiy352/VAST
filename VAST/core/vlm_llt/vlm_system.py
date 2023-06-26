@@ -77,7 +77,6 @@ class VLMSystem(ModuleCSDL):
             m = AdapterComp(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,
-                module=self,
             )
             # m.optimize_ir(False)
             self.add_module(m, name='adapter_comp')
