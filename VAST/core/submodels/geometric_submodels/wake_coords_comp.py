@@ -1,11 +1,7 @@
-# from csdl_om import Simulator
-from csdl import Model
 import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
 
-
-class WakeCoords(Model):
+class WakeCoords(csdl.Model):
     """
     compute wake vortex coords given the vortex coords
 
@@ -33,8 +29,7 @@ class WakeCoords(Model):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = surface_shapes[0][0]
-        n_wake_pts_chord = self.parameters[
-            'n_wake_pts_chord']  # number of wake nodes in streamwise direction
+        n_wake_pts_chord = self.parameters['n_wake_pts_chord']  # number of wake nodes in streamwise direction
         delta_t = self.parameters['delta_t']
         TE_idx = self.parameters['TE_idx']
 
@@ -62,7 +57,6 @@ class WakeCoords(Model):
             TE_reshaped_expand = csdl.expand(
                 TE_reshaped, (num_nodes, n_wake_pts_chord, num_pts_span, 3),
                 'ijk->iljk')
-            # print('TE_reshaped_expand shape', TE_reshaped_expand.shape)
 
             factor_var = np.einsum('i,jkl->jikl',
                                    np.arange(n_wake_pts_chord) * delta_t,

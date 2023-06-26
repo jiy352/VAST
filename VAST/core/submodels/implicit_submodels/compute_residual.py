@@ -3,7 +3,6 @@ import numpy as np
 import csdl
 
 from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
-from VAST.core.submodels.aerodynamic_submodels.assemble_aic import AssembleAic
 from VAST.core.submodels.aerodynamic_submodels.projection_comp import Projection
 
 class ComputeResidual(Model):

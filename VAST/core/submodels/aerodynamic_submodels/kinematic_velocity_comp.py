@@ -1,31 +1,28 @@
-# from csdl_om import Simulator
-from csdl import Model
 import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
 
-
-class KinematicVelocityComp(Model):
+class KinematicVelocityComp(csdl.Model):
     """
-    Compute various geometric properties for VLM analysis.
-    These are used primarily to help compute postprocessing quantities,
-    such as wave CD, viscous CD, etc.
-    Some of the quantities, like `normals`, are used to compute the RHS
-    of the AIC linear system.
+    Compute the kinematic velocity of the surface
+    based on the frame velocity, the angular velocity,
+    the rotation reference point
+    , and the coll pts velocity (e.g., the fish body deformation).
 
     parameters
     ----------
-    
     frame_vel
     p
     q
     r
+    rotation reference point (surface_name + '_rot_ref') (num_nodes, 3)
+    coll_vel (surface_name+'_coll_vel')
 
     Returns
     -------
     ang_vel[num_nodes,3]: p, q, r
-    kinematic_vel[n_wake_pts_chord, (num_evel_pts_x* num_evel_pts_y), 3] : csdl array
-        undisturbed fluid velocity
+    kinematic_vel[num_nodes, (num_evel_pts_x* num_evel_pts_y), 3] : csdl array
+        (surface_name + '_kinematic_vel')
+        undisturbed fluid velocity (x is positive)
     """
     def initialize(self):
 
@@ -37,11 +34,6 @@ class KinematicVelocityComp(Model):
         surface_shapes = self.parameters['surface_shapes']
         # get num_nodes from surface shape
         num_nodes = surface_shapes[0][0]
-
-        # add_input name and shapes
-        # compute rotatonal_vel_shapes from surface shape
-
-        # print('line 49 bd_coll_pts_shapes', bd_coll_pts_shapes)
 
         # add_output name and shapes
         kinematic_vel_names = [
@@ -87,8 +79,6 @@ class KinematicVelocityComp(Model):
                                            out_shape,
                                            indices='ij->ikj')
             coll_vel = self.declare_variable(surface_name+'_coll_vel',val=np.zeros((num_nodes,num_pts_chord-1,num_pts_span-1,3)))
-            # print('rot_vel shape', rot_vel.shape)
-            # print('frame_vel_expand shape', frame_vel_expand.shape)
 
             kinematic_vel = -(rot_vel + frame_vel_expand + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3)))
             self.register_output(kinematic_vel_name, kinematic_vel)

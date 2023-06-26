@@ -12,7 +12,7 @@ class VLMSolverModel(csdl.Model):
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
-        self.parameters.declare('num_nodes', types=int)
+        self.parameters.declare('num_nodes', default=None)
 
         self.parameters.declare('AcStates', default=None)
 
@@ -22,7 +22,7 @@ class VLMSolverModel(csdl.Model):
         self.parameters.declare('eval_pts_names', default=None)
 
         self.parameters.declare('eval_pts_option', default='auto')
-        self.parameters.declare('eval_pts_shapes', types=list)
+        self.parameters.declare('eval_pts_shapes', default=None)
         self.parameters.declare('sprs', default=None)
         self.parameters.declare('coeffs_aoa', default=None)
         self.parameters.declare('coeffs_cd', default=None)
@@ -35,7 +35,6 @@ class VLMSolverModel(csdl.Model):
         # add the mesh info
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        num_nodes = self.parameters['num_nodes']
         cl0 = self.parameters['cl0']
 
         free_stream_velocities = self.parameters['free_stream_velocities']
@@ -49,6 +48,8 @@ class VLMSolverModel(csdl.Model):
         coeffs_aoa = self.parameters['coeffs_aoa']
         coeffs_cd = self.parameters['coeffs_cd']
         mesh_unit = self.parameters['mesh_unit']
+
+        num_nodes = surface_shapes[0][0]
         if self.parameters['AcStates'] == None:
             frame_vel_val = -free_stream_velocities
 
@@ -68,6 +69,7 @@ class VLMSolverModel(csdl.Model):
             ), 'VLM_system')
         if eval_pts_option=='auto':
             eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
+            eval_pts_shapes = [(num_nodes, x[1] - 1, x[2] - 1, 3) for x in surface_shapes]
         else:
             eval_pts_names=self.parameters['eval_pts_names']
 

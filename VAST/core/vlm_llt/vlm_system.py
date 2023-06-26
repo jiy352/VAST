@@ -29,9 +29,6 @@ class VLMSystem(csdl.Model):
 
         self.parameters.declare('AcStates', default=None)
 
-        # We also passed in parameters to this ODE model in ODEproblem.create_model() in 'run.py' which we can access here.
-        # for now, we just make frame_vel an option, bd_vortex_coords, as static parameters
-        # self.parameters.declare('frame_vel')
         self.parameters.declare('n_wake_pts_chord', default=2)
 
         self.parameters.declare('solve_option',

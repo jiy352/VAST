@@ -38,7 +38,7 @@ class EvalPtsVel(Model):
     """
     def initialize(self):
         self.parameters.declare('eval_pts_names', types=list)
-        self.parameters.declare('eval_pts_shapes', types=list)
+        self.parameters.declare('eval_pts_shapes', default=None)
 
         self.parameters.declare('eval_pts_option',default='auto')
         self.parameters.declare('eval_pts_location',default=0.25)
@@ -122,12 +122,11 @@ class EvalPtsVel(Model):
         circulation_names = [x + '_bdnwake_gamma' for x in surface_names]
         # print('eval pts vel bdnwake_shapes ', bdnwake_shapes)
         # print('eval pts vel eval_pts_shapes ', eval_pts_shapes)
+        if eval_pts_option=='auto':
+            eval_pts_shapes = [(num_nodes, x[1] - 1, x[2] - 1, 3) for x in surface_shapes]
 
         aic_shapes = [(num_nodes, x[1] * x[2] * (y[1] - 1) * (y[2] - 1), 3)
                       for x, y in zip(eval_pts_shapes, bdnwake_shapes)]
-
-
-
 
 
 
@@ -199,6 +198,12 @@ class EvalPtsVel(Model):
                 eval_pts_names[i] + x + '_induced_vel'
                 for x in bdnwake_coords_names
             ]
+
+            # this is used for computing the force point induced velocity induced by the bdnwake_coords_names
+            # the reason why we need vc (temp) for this is because the force points are on the leading edge
+            # of each vortex ring, which cases r1_norm*r2_norm=-dot(r1,r2), making the denominator to zeros
+            # this is fixed by finding the zeros and adding a small number to the denominator,
+            # this is more acurate than adding a pertubation to every line vortex
             self.add(BiotSavartComp(
                 eval_pt_names=eval_pts_name_repeat,
                 vortex_coords_names=bdnwake_coords_names,
@@ -207,7 +212,7 @@ class EvalPtsVel(Model):
                 vortex_coords_shapes=bdnwake_shapes,
                 output_names=output_names,
                 circulation_names=circulation_names,
-                vc=False,
+                vc=True,
                 eps=self.parameters['eps'],
 
             ),
@@ -216,7 +221,6 @@ class EvalPtsVel(Model):
             for j in range(len(bdnwake_coords_names)):
                 aic = self.declare_variable(output_names[j],
                                             shape=(aic_shapes[j]))
-            # print('eval pts vel mls aic_shapes', aic_shapes)
 
             self.add(InducedVelocity(
                 aic_names=output_names,
@@ -225,6 +229,7 @@ class EvalPtsVel(Model):
                 circulations_shapes=circulations_shapes,
                 v_induced_names=induced_vel_bdnwake_names),
                      name='eval_pts_ind_vel' + str(i))
+                     
             # !!!!!!!!!!!TODO: need to check what is this April 18 2022
             # 08/03 this is used to add up the induced velocites
             surface_total_induced_col = self.create_output(

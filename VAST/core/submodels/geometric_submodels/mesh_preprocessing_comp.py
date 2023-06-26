@@ -1,10 +1,8 @@
-from csdl import Model
 import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
+from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-
-class MeshPreprocessingComp(Model):
+class MeshPreprocessingComp(ModuleCSDL):
     """
     Compute various geometric properties for VLM analysis.
 
@@ -77,11 +75,10 @@ class MeshPreprocessingComp(Model):
             # this should come from CADDEE geometry if connected,
             # or up to the user to create an input if using the solver alone.
             if mesh_unit == 'm':
-                def_mesh = self.declare_variable(surface_name,
-                                                 shape=surface_shapes[i])
+                def_mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
             elif mesh_unit == 'ft':
-                def_mesh_ft = self.declare_variable(surface_name,
-                                                    shape=surface_shapes[i])
+                def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+
                 def_mesh = def_mesh_ft * 0.3048
             ################################################################################
             # create the output: 1. bd_vtx_coords
@@ -148,7 +145,6 @@ class MeshPreprocessingComp(Model):
 
             def_mesh_list.append(def_mesh)
 
-
         ################################################################################
         # create the output: 6. bd_vec_all: bd_vec of all lifting surfaces
         ################################################################################
@@ -177,11 +173,9 @@ class MeshPreprocessingComp(Model):
         if self.parameters['eval_pts_option'] == 'auto':
             for i in range(len(surface_shapes)):
                 if mesh_unit == 'm':
-                    mesh = self.declare_variable(surface_names[i],
-                                                shape=surface_shapes[i])
+                    mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
                 elif mesh_unit == 'ft':
-                    mesh_ft = self.declare_variable(surface_names[i],
-                                                    shape=surface_shapes[i])
+                    mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
                     mesh = mesh_ft * 0.3048
 
                 eval_pts_coords = (
@@ -199,9 +193,8 @@ class MeshPreprocessingComp(Model):
 
 
 if __name__ == "__main__":
-    import csdl_lite
-    # simulator_name = 'csdl_om'
-    simulator_name = 'csdl_lite'
+    import python_csdl_backend
+    simulator_name = 'python_csdl_backend'
 
     num_nodes = 2
     num_pts_chord = 3
@@ -244,8 +237,8 @@ if __name__ == "__main__":
         sim.visualize_implementation()
         sim.prob.check_config(checks=['unconnected_inputs'], out_file=None)
 
-    elif simulator_name == 'csdl_lite':
-        sim = csdl_lite.Simulator(model_1)
+    elif simulator_name == 'python_csdl_backend':
+        sim = python_csdl_backend.Simulator(model_1)
 
         sim.run()
         sim.check_partials(compact_print=True)

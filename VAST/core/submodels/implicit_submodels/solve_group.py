@@ -4,7 +4,7 @@ import numpy as np
 import csdl
 
 from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
-from VAST.utils.einsum_kij_kj_ki import EinsumKijKjKi
+from VAST.utils.custom_einsums import EinsumKijKjKi
 class SolveMatrix(Model):
     """
     Solve the AIC linear system to obtain the vortex ring circulations.

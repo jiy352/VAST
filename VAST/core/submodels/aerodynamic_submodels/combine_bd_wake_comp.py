@@ -1,11 +1,6 @@
-# from csdl_om import Simulator
-from csdl import Model
 import csdl
-import numpy as np
-from numpy.core.fromnumeric import shape, size
 
-
-class BdnWakeCombine(Model):
+class BdnWakeCombine(csdl.Model):
     """
     combine bd and wake coords for the BS evaluation of the wake rollup
     wake_vel = BS(wake_coords, bsnwake) @ gamma_w
@@ -51,6 +46,8 @@ S
 
             wake_shape = (num_nodes, n_wake_pts_chord, ny, 3)
             surface_gamma_b_shape = (num_nodes, (nx - 1) * (ny - 1))
+            # this if statement is to make sure that the wake coords is an ode state
+            # and we output the entire state for force computation
             if self.parameters['problem_type'] == 'fixed_wake':
                 wake_coords_name = surface_names[i] + '_wake_coords'
                 surface_gamma_w_name = surface_names[i] + '_gamma_w'
@@ -69,7 +66,9 @@ S
             # add_input name and shapes
             surface_gamma_b = self.declare_variable(
                 surface_gamma_b_name, shape=surface_gamma_b_shape)
+
             if self.parameters['problem_type'] == 'fixed_wake':
+                # for the fixed wake option, the wake gamma is the trailing edge gamma_b
                 surface_gamma_w = surface_gamma_b[:,
                                                 (nx - 1) * (ny - 1) - (ny - 1):]
                 # compute output bd_n_wake_coords
@@ -78,19 +77,20 @@ S
                     shape=(num_nodes, nx + n_wake_pts_chord - 1, ny, 3))
                 bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
                 bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, 1:, :, :]
+                # for the fixed wake option, the number of streamwise panels for the wake is always 1,
+                # which means two rows of wake_coords including the trailing edge,
+                # thus wake_coords[:, 1:, :, :] is used to remove the trailing edge from being duplicated
 
                 # compute output bd_n_wake_gamma
                 bd_n_wake_gamma = self.create_output(
                     bd_n_wake_circulation_name,
                     shape=(num_nodes, surface_gamma_b_shape[1] +
                         (n_wake_pts_chord - 1) * (ny - 1)))
-                # print('combine bd wake surface_gamma_b shape',
-                #       surface_gamma_b.shape)
-                # print('combine bd wake surface_gamma_w shape',
-                #       surface_gamma_w.shape)
                 bd_n_wake_gamma[:, :surface_gamma_b_shape[1]] = surface_gamma_b
-                bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = surface_gamma_w                    
+                bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = surface_gamma_w  
+                                 
             elif self.parameters['problem_type'] == 'prescribed_wake':
+                # for the dynamic cases, the wake gamma is the an state from the ode
                 surface_gamma_w = self.declare_variable(
                     surface_gamma_w_name, shape=surface_gamma_w_shape)
                 # compute output bd_n_wake_coords
@@ -99,23 +99,21 @@ S
                     shape=(num_nodes, nx + n_wake_pts_chord, ny, 3))
                 bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
                 bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, :, :, :]
+                # for the dyanmic cases, the number of streamwise panels for the wake is always num total time steps-1,
+                # this does not include the trailing edge,
+                # thus wake_coords[:, :, :, :] 
 
                 # compute output bd_n_wake_gamma
                 bd_n_wake_gamma = self.create_output(
                     bd_n_wake_circulation_name,
                     shape=(num_nodes, surface_gamma_b_shape[1] +
                         (n_wake_pts_chord ) * (ny - 1)))
-                # print('bd_n_wake_gamma shape',bd_n_wake_circulation_name,(num_nodes, surface_gamma_b_shape[1] +
-                #         (n_wake_pts_chord ) * (ny - 1)))
-                # print('combine bd wake surface_gamma_b shape',
-                #       surface_gamma_b.shape)
-                # print('combine bd wake surface_gamma_w shape',
-                #       surface_gamma_w.shape)
                 bd_n_wake_gamma[:, :surface_gamma_b_shape[1]] = surface_gamma_b
                 bd_n_wake_gamma[:, surface_gamma_b_shape[1]:] = csdl.reshape(surface_gamma_w,(num_nodes,(n_wake_pts_chord ) * (ny - 1)))
 
 
 if __name__ == "__main__":
+    import numpy as np
 
     def generate_simple_mesh(nx, ny, n_wake_pts_chord=None, delta_y=0):
         if n_wake_pts_chord == None:

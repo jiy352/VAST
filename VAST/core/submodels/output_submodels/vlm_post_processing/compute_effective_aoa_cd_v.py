@@ -67,13 +67,6 @@ class AOA_CD(Model):
 
             effective_aoa = (cl_span - coeff_aoa[0]) / coeff_aoa[1]
 
-            # print('effective_aoa shape', effective_aoa.shape)
-            # print('cl_span shape', cl_span.shape)
-
-            # cd_v = csdl.sum(coeff_cd[2] * effective_aoa**2 +
-            #                 coeff_cd[1] * effective_aoa + coeff_cd[0],
-            #                 axes=(1, )) / num_span
-            # print('cd_v shape', cd_v.shape)
 
             cd_v = coeff_cd[2] * effective_aoa**2 + coeff_cd[
                 1] * effective_aoa + coeff_cd[0]
@@ -93,16 +86,6 @@ class AOA_CD(Model):
             b = frame_vel[:, 0]**2 + frame_vel[:, 1]**2 + frame_vel[:, 2]**2
             rho_b_exp = csdl.expand(rho * b, (num_nodes, num_span, 1),
                                     'ik->ijk')
-            # print('shapes\n rho_b_exp', rho_b_exp.shape)
-            # print('shapes\n surface_span', surface_span.shape)
-            # print('shapes\n cd', cd.shape)
-            # print('shapes\n cd',
-            #       (csdl.sum(cd * (0.5 * rho_b_exp * surface_span),
-            #                 axes=(1, ))).shape)
-
-            # print('shapes\n rho', rho.shape)
-            # print('shapes\n b', b.shape)
-            # print('shapes\n cd', csdl.sum(surface_span, axes=(1, )).shape)
 
             C_D_total = csdl.sum(
                 cd * (0.5 * rho_b_exp * surface_span), axes=(1, )) / (

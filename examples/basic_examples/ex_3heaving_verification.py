@@ -65,10 +65,10 @@ if be == 'python_csdl_backend':
     
 t_start = time.time()
 sim.run()
-sim.compute_total_derivatives()
-sim.run()
-sim.compute_total_derivatives()
-exit()
+# sim.compute_total_derivatives()
+# sim.run()
+# sim.compute_total_derivatives()
+# exit()
 print('simulation time is', time.time() - t_start)
 # print('theta',sim['theta'])
 ######################################################
@@ -105,3 +105,7 @@ sim.compute_totals(of='wing_C_L',wrt='density')
 # sim.prob.check_totals(compact_print=True)
 
 # sim.check_totals(compact_print=True)
+
+
+
+

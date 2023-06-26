@@ -1,12 +1,6 @@
-from csdl import Model
 import csdl
-import numpy as np
-from numpy import random
-from numpy.core.fromnumeric import shape, size
-from numpy.random import gamma
 
-
-class SeperateGammab(Model):
+class SeperateGammab(csdl.Model):
     """
     seperate the whole solution vector gamma_b
     corresponding to different lifting surfaces
@@ -44,11 +38,12 @@ class SeperateGammab(Model):
             ny = surface_shape[2]
             surface_gamma_b = gamma_b[:, start:start + (nx - 1) * (ny - 1)]
             start += (nx - 1) * (ny - 1)
-            # print(surface_gamma_b_name, surface_gamma_b.shape)
             self.register_output(surface_gamma_b_name, surface_gamma_b)
 
 
 if __name__ == "__main__":
+    from numpy import random
+    import numpy as np
 
     surface_names = ['a', 'b', 'c']
     surface_shapes = [(3, 2, 3), (2, 4, 3), (2, 4, 3)]

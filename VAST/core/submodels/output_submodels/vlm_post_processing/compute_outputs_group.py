@@ -39,7 +39,7 @@ class Outputs(csdl.Model):
 
         self.parameters.declare('eval_pts_location')
         self.parameters.declare('eval_pts_option')
-        self.parameters.declare('eval_pts_shapes', types=list)
+        self.parameters.declare('eval_pts_shapes', default=None)
         self.parameters.declare('sprs')
 
         self.parameters.declare('n_wake_pts_chord', default=2)
@@ -48,7 +48,7 @@ class Outputs(csdl.Model):
         self.parameters.declare('coeffs_aoa', default=None)
         self.parameters.declare('coeffs_cd', default=None)
         self.parameters.declare('mesh_unit', default='m')
-        self.parameters.declare('cl0', types=list)
+        self.parameters.declare('cl0')
 
     def define(self):
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']

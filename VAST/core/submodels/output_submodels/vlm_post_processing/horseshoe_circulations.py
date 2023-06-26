@@ -6,7 +6,7 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 from scipy.sparse import csc_matrix
-from VAST.utils.einsum_ij_kj_ki import EinsumIjKjKi
+from VAST.utils.custom_einsums import EinsumIjKjKi
 
 class HorseshoeCirculations(Model):
     """ 

@@ -1,11 +1,28 @@
 from csdl import Model
-import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
+class CreateACSatesModel(Model):
+    '''
+    Create ACS states from the ACS inputs
 
-class CreateACSatesModel(csdl.Model):
+    parameters
+    ----------
+    u[num_nodes, 1] : csdl array
+    v[num_nodes, 1] : csdl array
+    w[num_nodes, 1] : csdl array
+    p[num_nodes, 1] : csdl array
+    q[num_nodes, 1] : csdl array
+    r[num_nodes, 1] : csdl array
+    phi[num_nodes, 1] : csdl array
+    theta[num_nodes, 1] : csdl array
+    psi[num_nodes, 1] : csdl array
+    x[num_nodes, 1] : csdl array
+    y[num_nodes, 1] : csdl array
+    z[num_nodes, 1] : csdl array
+    phiw[num_nodes, 1] : csdl array
+    gamma[num_nodes, 1] : csdl array
+    psiw[num_nodes, 1] : csdl array
+    '''
     def initialize(self):
         self.parameters.declare('v_inf', types=np.ndarray)
         self.parameters.declare('theta', types=np.ndarray)

@@ -4,8 +4,6 @@ import numpy as np
 import csdl
 from VAST.core.vlm_llt.NodalMapping import NodalMap,RadialBasisFunctions
 
-
-
 class VLMSolverModel(csdl.Model):
     def initialize(self):
         self.parameters.declare('surface_names', types=list)

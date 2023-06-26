@@ -1,7 +1,6 @@
 from csdl import Model
 import csdl
 import numpy as np
-from numpy.core.fromnumeric import size
 
 
 from VAST.utils.custom_explicit_mat_sprsmat import Explicit, compute_spars
@@ -90,7 +89,7 @@ class RHS(Model):
         m = Projection(
             input_vel_names=kinematic_vel_names,
             normal_names=bd_vtx_normal_names,
-            output_vel_names='b',  # this is b
+            output_vel_name='b',  # this is b
             input_vel_shapes=kinematic_vel_shapes,  # rotatonal_vel_shapes
             normal_shapes=bd_coll_pts_shapes,
         )
@@ -147,7 +146,7 @@ class RHS(Model):
         m = Projection(
             input_vel_names=['aic_M'],
             normal_names=bd_vtx_normal_names,
-            output_vel_names='M_mat',  # this is b
+            output_vel_name='M_mat',  # this is b
             input_vel_shapes=[(num_nodes, aic_shape_row, aic_shape_col, 3)
                               ],  #rotatonal_vel_shapes
             normal_shapes=bd_coll_pts_shapes)  # NOTE: need to fix this later
@@ -174,7 +173,7 @@ class RHS(Model):
             bd_coll_pts_shapes=bd_coll_pts_shapes,
             wake_vortex_pts_shapes=bd_vortex_shapes,
             full_aic_name='aic_bd',
-            vc = True,
+            vc = False,
             # delta_t=delta_t,  # one line of wake vortex for fix wake
         )
         self.add(m, name='AssembleAic_bd')
@@ -190,7 +189,7 @@ class RHS(Model):
         m = Projection(
             input_vel_names=['aic_bd'],
             normal_names=bd_vtx_normals,
-            output_vel_names=aic_bd_proj_name,  # this is b
+            output_vel_name=aic_bd_proj_name,  # this is b
             input_vel_shapes=[(num_nodes, aic_shape_row, aic_shape_col, 3)
                               ],  #rotatonal_vel_shapes
             normal_shapes=bd_coll_pts_shapes,

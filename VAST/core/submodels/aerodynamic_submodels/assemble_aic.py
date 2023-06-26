@@ -40,7 +40,7 @@ class AssembleAic(Model):
         self.parameters.declare('full_aic_name', types=str)
 
         self.parameters.declare('delta_t',default=None)
-        self.parameters.declare('vc',default=True)
+        self.parameters.declare('vc',default=False)
 
     def define(self):
         # add_input
@@ -90,13 +90,15 @@ class AssembleAic(Model):
         # print('assemble_aic l 87 vortex_coords_shapes', vortex_coords_shapes)
         # print('assemble_aic l 87 output_names', output_names)
 
+        # this vc needs to be true because we are computing induced velocity
+        # on the quarter chord of the mesh, which is just on the bound vortex lines
         m = BiotSavartComp(
             eval_pt_names=eval_pt_names,
             vortex_coords_names=vortex_coords_names,
             eval_pt_shapes=eval_pt_shapes,
             vortex_coords_shapes=vortex_coords_shapes,
             output_names=output_names,
-            vc=vc,
+            vc=False,
         )
         self.add(m, name='aic_bd_w_seperate')
 

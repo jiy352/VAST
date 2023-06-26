@@ -4,8 +4,9 @@ import csdl
 import numpy as np
 # from fluids import atmosphere as atmosphere
 # from lsdo_atmos.atmosphere_model import AtmosphereModel
+from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-class AdapterComp(Model):
+class AdapterComp(ModuleCSDL):
     """
     An adapter component that takes in 15 variables from CADDEE (not all are used), 
     and adaptes in to frame_vel(linear without rotation),
@@ -77,25 +78,25 @@ class AdapterComp(Model):
 
         num_nodes = surface_shapes[0][0]
 
-        u = self.declare_variable('u', shape=(num_nodes, 1))
-        v = self.declare_variable('v', shape=(num_nodes, 1))
-        w = self.declare_variable('w', shape=(num_nodes, 1))
+        u = self.register_module_input('u', shape=(num_nodes, 1))
+        v = self.register_module_input('v', shape=(num_nodes, 1))
+        w = self.register_module_input('w', shape=(num_nodes, 1))
 
-        p = self.declare_variable('p', shape=(num_nodes, 1))
-        q = self.declare_variable('q', shape=(num_nodes, 1))
-        r = self.declare_variable('r', shape=(num_nodes, 1))
+        p = self.register_module_input('p', shape=(num_nodes, 1))
+        q = self.register_module_input('q', shape=(num_nodes, 1))
+        r = self.register_module_input('r', shape=(num_nodes, 1))
 
-        phi = self.declare_variable('phi', shape=(num_nodes, 1))
-        theta = self.declare_variable('theta', shape=(num_nodes, 1))
-        psi = self.declare_variable('psi', shape=(num_nodes, 1))
+        phi = self.register_module_input('phi', shape=(num_nodes, 1))
+        theta = self.register_module_input('theta', shape=(num_nodes, 1))
+        psi = self.register_module_input('psi', shape=(num_nodes, 1))
 
-        x = self.declare_variable('x', shape=(num_nodes, 1))
-        y = self.declare_variable('y', shape=(num_nodes, 1))
-        z = self.declare_variable('z', shape=(num_nodes, 1))
+        x = self.register_module_input('x', shape=(num_nodes, 1))
+        y = self.register_module_input('y', shape=(num_nodes, 1))
+        z = self.register_module_input('z', shape=(num_nodes, 1))
 
-        phiw = self.declare_variable('phiw', shape=(num_nodes, 1))
-        gamma = self.declare_variable('gamma', shape=(num_nodes, 1))
-        psiw = self.declare_variable('psiw', shape=(num_nodes, 1))
+        phiw = self.register_module_input('phiw', shape=(num_nodes, 1))
+        gamma = self.register_module_input('gamma', shape=(num_nodes, 1))
+        psiw = self.register_module_input('psiw', shape=(num_nodes, 1))
 
         ################################################################################
         # compute the output: 3. v_inf_sq (num_nodes,1)
@@ -141,7 +142,7 @@ class AdapterComp(Model):
         #     shape=(num_nodes,1),
         # ),name='atmosphere_model')
 
-        self.create_input('density', val=1.*np.ones((num_nodes,1)))
+        self.register_module_input('density', val=1.*np.ones((num_nodes,1)))
 
         # self.create_input('rho', val=(num_nodes, 1))
 
