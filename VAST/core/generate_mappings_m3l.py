@@ -13,23 +13,27 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
     def initialize(self, kwargs):
         self.parameters.declare(surface_names, types=list)
         self.parameters.declare(surface_shapes, types=list)
+        self.parameters.declare(initial_mesh, default=list)
 
     def compute(self, nodal_displacements, nodal_displacements_mesh):
         surface_names = self.parameters['surface_names']  
         surface_shapes = self.parameters['surface_shapes']
+        initial_mesh = self.parameters['initial_mesh']
 
         csdl_model = ModuleCSDL()
 
-        force_map = self.fmap(mesh.value.reshape((-1,3)), oml=nodal_forces_mesh.value.reshape((-1,3)))
+        for i in range(len(surface_names)):
+            surface_name = surface_names[i]
+            surface_shape = surface_shapes[i]
+            out_shape = int((surface_shape[1]-1)*(surface_shape[2]-1))
+            initial_mesh = initial_mesh[i]
+            displacements_map = self.fmap(initial_mesh.reshape((-1,3)), oml=nodal_displacements_mesh.reshape((-1,3)))
 
-        flattened_nodal_forces_shape = (np.prod(nodal_forces.shape[:-1]), nodal_forces.shape[-1])
-        nodal_forces = csdl_model.register_module_input(name='nodal_forces', shape=nodal_forces.shape)
-        flattened_nodal_forces = csdl.reshape(nodal_forces, new_shape=flattened_nodal_forces_shape)
-        force_map_csdl = csdl_model.create_input(f'nodal_to_{beam_name}_forces_map', val=force_map)
-        flatenned_beam_mesh_forces = csdl.matmat(force_map_csdl, flattened_nodal_forces)
-        output_shape = tuple(mesh.shape[:-1]) + (nodal_forces.shape[-1],)
-        beam_mesh_forces = csdl.reshape(flatenned_beam_mesh_forces, new_shape=output_shape)
-        csdl_model.register_module_output(f'{beam_name}_forces', beam_mesh_forces)
+            nodal_displacements = csdl_model.register_module_input(name=surface_name+'nodal_forces', shape=nodal_displacements.shape)
+            displacements_map_csdl = csdl_model.create_input(f'nodal_to_{surface_name}_forces_map', val=displacements_map)
+            flatenned_vlm_mesh_displacements = csdl.matmat(displacements_map_csdl, nodal_displacements)
+            vlm_mesh_displacements = csdl.reshape(flatenned_vlm_mesh_forces, new_shape=(num_nodes,out_shape,3 ))
+            csdl_model.register_module_output(f'{surface_name}_displacements', vlm_mesh_displacements)
 
         return csdl_model
 
@@ -49,13 +53,15 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
         mesh_forces : m3l.Variable
             The forces on the mesh.
         '''
-        operation_csdl = self.compute(nodal_forces=nodal_forces, nodal_forces_mesh=nodal_forces_mesh)
+        operation_csdl = self.compute(nodal_displacements=nodal_displacements, nodal_displacements_mesh=nodal_displacements_mesh)
 
-        beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
-        mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
+        # beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
+        # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
+        arguments = {}
+        for i in range(len(surface_names)):
+            arguments[surface_names[i]+'_displacements'] = nodal_displacements[i]
 
-        arguments = {'nodal_forces': nodal_forces}
-        force_map_operation = m3l.CSDLOperation(name='ebbeam_force_map', arguments=arguments, operation_csdl=operation_csdl)
+        displacement_map_operation = m3l.CSDLOperation(name='ebbeam_force_map', arguments=arguments, operation_csdl=operation_csdl)
         output_shape = tuple(mesh.shape[:-1]) + (nodal_forces.shape[-1],)
         beam_forces = m3l.Variable(name=f'{beam_name}_forces', shape=output_shape, operation=force_map_operation)
         return beam_forces

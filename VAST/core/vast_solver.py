@@ -22,7 +22,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.parameters.declare('solve_option', default='direct')
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('cl0', default=None)
-        
+
     def compute(self):
         '''
         Creates a CSDL model to compute the solver outputs.
@@ -40,27 +40,38 @@ class VASTFluidSover(m3l.ExplicitOperation):
         num_nodes = surface_shapes[0][0]
         mesh_unit = self.parameters['mesh_unit']
         cl0 = self.parameters['cl0']
+        csdl_model = ModuleCSDL()
 
-        csdl_model = VASTCSDL(
+        self.displacements = []
+
+        # for i in range(len(surface_names)):
+        #     surface_name = surface_names[i]
+        #     surface_shape = self.parameters['surface_shapes'][i]
+        #     displacement = csdl_model.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
+        #     self.displacements.append(displacement)
+
+        submodule = VASTCSDL(
             module=self,
             fluid_problem=fluid_problem,
             surface_names=surface_names,  
             surface_shapes=surface_shapes,
             mesh_unit=mesh_unit,
             cl0=cl0)
+
+        csdl_model.add_module(submodule,'vast')
     
         return csdl_model      
 
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, displacements):
+    def evaluate(self,displacements):
         '''
         Evaluates the vast model.
         
         Parameters
         ----------
-        displacements : m3l.Variable = None
+        displacements : list of m3l.Variable = None
             The forces on the mesh nodes.
 
         Returns
@@ -80,13 +91,18 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
         arguments = {}
         print(displacements)
+
+        # displacements = self.displacements 
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
+
                 arguments[f'{surface_name}_displacements'] = displacements[i]
+        print(arguments)
 
         # Create the M3L graph operation
         vast_operation = m3l.CSDLOperation(name='vast_fluid_model', arguments=arguments, operation_csdl=operation_csdl)
+        
         # Create the M3L variables that are being output
         forces = []
         for i in range(len(surface_names)):
@@ -132,7 +148,9 @@ class VASTCSDL(ModuleCSDL):
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = self.parameters['surface_shapes'][i]
-            displacements = self.declare_variable(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
+            displacements = self.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
+            self.print_var(displacements)
+
             undef_mesh = self.declare_variable(f'{surface_name}_undef_mesh', shape=(surface_shape))
             mesh = undef_mesh  + displacements
             self.register_module_output(surface_name, mesh)
@@ -213,27 +231,27 @@ if __name__ == "__main__":
     fluid_model.set_module_input('psiw',val=np.zeros((num_nodes, 1)))
  
     fluid_model.set_module_input('wing_undef_mesh', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
-
     displacements = []
     for i in range(len(surface_names)):
         surface_name = surface_names[i]
         surface_shape = surface_shapes[i]
-        displacement = fluid_model.set_module_input(f'{surface_name}_displacements', val=np.zeros(surface_shape))
-        print(displacement)
+        displacement = m3l.Variable(f'{surface_name}_displacements',shape=surface_shape,value=np.zeros(surface_shape))
+        fluid_model.set_module_input(f'{surface_name}_displacements', val=np.zeros(surface_shape))
         displacements.append(displacement)
-
 
     ###########################################
     # 4. call fluid_model.evaluate to get
     # surface panel forces
     ###########################################
     forces = fluid_model.evaluate(displacements)
+
     ###########################################
     # 5. register outputs to dummy_model
     ###########################################
     for i in range(len(surface_names)):
         surface_name = surface_names[i]
         dummy_model.register_output(forces[i])
+        
     ###########################################
     # 6. call _assemble_csdl to get dummy_model_csdl
     ###########################################
@@ -242,7 +260,7 @@ if __name__ == "__main__":
     # 7. use sim.run to run the csdl model
     ###########################################    
 
-    sim = Simulator(dummy_model_csdl) # add simulator
+    sim = Simulator(dummy_model_csdl,analytics=False) # add simulator
     sim.run()
 
 

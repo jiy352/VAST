@@ -78,7 +78,7 @@ class AdapterComp(ModuleCSDL):
 
         num_nodes = surface_shapes[0][0]
 
-        u = self.register_module_input('u', shape=(num_nodes, 1))
+        u = self.register_module_input('u', shape=(num_nodes, 1),computed_upstream=False)
         v = self.register_module_input('v', shape=(num_nodes, 1))
         w = self.register_module_input('w', shape=(num_nodes, 1))
 
