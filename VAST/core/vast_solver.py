@@ -7,6 +7,7 @@ from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 
 from VAST.core.fluid_problem import FluidProblem
 import m3l
+from typing import List
 
 
 class VASTFluidSover(m3l.ExplicitOperation):
@@ -65,7 +66,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self,displacements):
+    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None):
         '''
         Evaluates the vast model.
         
@@ -99,6 +100,18 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
                 arguments[f'{surface_name}_displacements'] = displacements[i]
         print(arguments)
+        # new_arguments = {**arguments, **ac_states}
+        arguments['u'] = ac_states['u']
+        arguments['v'] = ac_states['v']
+        arguments['w'] = ac_states['w']
+        arguments['p'] = ac_states['p']
+        arguments['q'] = ac_states['q']
+        arguments['r'] = ac_states['r']
+        arguments['theta'] = ac_states['theta']
+        arguments['psi'] = ac_states['psi']
+        arguments['gamma'] = ac_states['gamma']
+        # arguments['psiw'] = ac_states['psi_w']
+
 
         # Create the M3L graph operation
         vast_operation = m3l.CSDLOperation(name='vast_fluid_model', arguments=arguments, operation_csdl=operation_csdl)
@@ -111,7 +124,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
             num_nodes = surface_shapes[0]
             nx = surface_shapes[1]
             ny = surface_shapes[2]
-            force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)),3), operation=vast_operation)
+            force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=vast_operation)
             forces.append(force)
 
         return forces
@@ -148,7 +161,8 @@ class VASTCSDL(ModuleCSDL):
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = self.parameters['surface_shapes'][i]
-            displacements = self.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
+
+            displacements = self.declare_variable(f'{surface_name}_displacements', shape=(surface_shape), val=0.0)
             self.print_var(displacements)
 
             undef_mesh = self.declare_variable(f'{surface_name}_undef_mesh', shape=(surface_shape))
