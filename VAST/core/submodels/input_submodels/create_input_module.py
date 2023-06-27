@@ -32,6 +32,6 @@ class CreateACSatesModule(ModuleCSDL):
 
         # print('theta',theta )
 
-        # dummy = self.register_module_output('dummy', u_all*theta)
+        dummy = self.register_module_output('dummy', u_all*theta)
         # a = self.re
 
