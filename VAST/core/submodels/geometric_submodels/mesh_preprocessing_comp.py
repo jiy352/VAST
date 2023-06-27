@@ -30,7 +30,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('eval_pts_option', default='auto')
-        self.parameters.declare('eval_pts_location')
+        self.parameters.declare('eval_pts_location',default=0.25)
 
     def define(self):
         # load options
@@ -83,8 +83,10 @@ class MeshPreprocessingComp(ModuleCSDL):
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
+            print(bd_vtx_coords_name)
             bd_vtx_coords = self.create_output(bd_vtx_coords_name,
                                                shape=(def_mesh.shape))
+            print(bd_vtx_coords.shape)
             # the 0th until the second last one chordwise is (0.75*left +0.25*right)
             bd_vtx_coords[:, 0:num_pts_chord -
                           1, :, :] = def_mesh[:, 0:num_pts_chord -
@@ -172,6 +174,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         ################################################################################
         if self.parameters['eval_pts_option'] == 'auto':
             for i in range(len(surface_shapes)):
+                surface_name = surface_names[i]
                 if mesh_unit == 'm':
                     mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
                 elif mesh_unit == 'ft':
@@ -186,10 +189,10 @@ class MeshPreprocessingComp(ModuleCSDL):
 
                 self.register_output(eval_pts_names[i], eval_pts_coords)
 
-        elif self.parameters['eval_pts_option'] == 'user_defined':
-            for i in range(len(eval_pts_shapes)):
-                eval_pts_coords = self.declare_variable(
-                    eval_pts_names[i], shape=(eval_pts_shapes[i]))
+        # elif self.parameters['eval_pts_option'] == 'user_defined':
+        #     for i in range(len(eval_pts_shapes)):
+        #         eval_pts_coords = self.declare_variable(
+        #             eval_pts_names[i], shape=(eval_pts_shapes[i]))
 
 
 if __name__ == "__main__":
@@ -213,7 +216,7 @@ if __name__ == "__main__":
     surface_names = ['wing_1', 'wing_2']
     surface_shapes = [(num_nodes, num_pts_chord, num_pts_span, 3),
                       (num_nodes, num_pts_chord + 1, num_pts_span + 1, 3)]
-    model_1 = Model()
+    model_1 = csdl.Model()
 
     wing_1_mesh = generate_simple_mesh(num_nodes, num_pts_chord, num_pts_span)
     wing_2_mesh = generate_simple_mesh(num_nodes, num_pts_chord + 1,
