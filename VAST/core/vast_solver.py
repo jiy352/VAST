@@ -150,22 +150,22 @@ class VASTCSDL(ModuleCSDL):
 
         # todo: connect the mesh to the solver
         # wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
-        # try:
-        #     input_dicts = self.parameters['input_dicts']
-        #     submodel = CreateACSatesModule(v_inf=input_dicts['v_inf'],theta=input_dicts['theta'],num_nodes=num_nodes)
-        #     self.add_module(submodel, 'ACSates')
+        try:
+            input_dicts = self.parameters['input_dicts']
+            submodel = CreateACSatesModule(v_inf=input_dicts['v_inf'],theta=input_dicts['theta'],num_nodes=num_nodes)
+            self.add_module(submodel, 'ACSates')
 
-        for i in range(len(surface_names)):
-            surface_name = surface_names[i]
-            surface_shape = self.parameters['surface_shapes'][i]
-            # displacements = self.declare_variable(f'{surface_name}_displacements', shape=(surface_shape),val=0.)
+            for i in range(len(surface_names)):
+                surface_name = surface_names[i]
+                surface_shape = self.parameters['surface_shapes'][i]
+                displacements = self.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=input_dicts['displacements'][i])
 
-            undef_mesh = self.declare_variable(f'{surface_name}_mesh', val=np.zeros(surface_shape))
-            # mesh = undef_mesh  #+ displacements
-            # self.register_module_output(surface_name, mesh)
+                undef_mesh = self.declare_variable(f'{surface_name}_undef_mesh', val=input_dicts['undef_mesh'][i])
+                mesh = undef_mesh  + displacements
+                self.register_module_output(surface_name, mesh)
 
-        # except:
-        #     pass
+        except:
+            pass
 
         if fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'fixed_wake':
             submodel = VLMSolverModel(
@@ -184,46 +184,40 @@ class VASTCSDL(ModuleCSDL):
 
 if __name__ == "__main__":
 
-    # import numpy as np
-    # from VAST.utils.generate_mesh import *
-    # from python_csdl_backend import Simulator
-    # import caddee.api as cd 
+    import numpy as np
+    from VAST.utils.generate_mesh import *
+    from python_csdl_backend import Simulator
+    import caddee.api as cd 
 
-    # fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
+    fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
 
-    # num_nodes=1; nx=3; ny=11
+    num_nodes=1; nx=3; ny=11
 
-    # v_inf = np.ones((num_nodes,1))*248.136
-    # theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
-
-
-    # surface_names = ['wing']
-    # surface_shapes = [(num_nodes, nx, ny, 3)]
-    # mesh_dict = {
-    #     "num_y": ny, "num_x": nx, "wing_type": "rect", "symmetry": False, "span": 10.0,
-    #     "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
-    # }
-    # # Generate mesh of a rectangular wing
-    # mesh = generate_mesh(mesh_dict)
-
-    # ###########################################
-    # # 1. Create a dummy m3l.Model()
-    # ###########################################
-    # dummy_model = m3l.Model()
-    # # fluid_model = VASTFluidSover(fluid_problem=fluid_problem, surface_names=surface_names, surface_shapes=surface_shapes, mesh_unit='m', cl0=0.0)
+    v_inf = np.ones((num_nodes,1))*248.136
+    theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
 
 
-    # # submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
-    # # model_1.add(submodel, 'InputsModule')
-    # fluid_model = VASTFluidSover(fluid_problem=fluid_problem,
-    #                              surface_names=surface_names,
-    #                              surface_shapes=surface_shapes,
-    #                              input_dicts=None,)
+    surface_names = ['wing']
+    surface_shapes = [(num_nodes, nx, ny, 3)]
+    mesh_dict = {
+        "num_y": ny, "num_x": nx, "wing_type": "rect", "symmetry": False, "span": 10.0,
+        "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
+    }
+    # Generate mesh of a rectangular wing
+    mesh = generate_mesh(mesh_dict)
+
+    ###########################################
+    # 1. Create a dummy m3l.Model()
+    ###########################################
+    dummy_model = m3l.Model()
 
 
-    # ###########################################
-    # # 3. set fluid_model inputs 
-    # ###########################################
+    # submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
+    # model_1.add(submodel, 'InputsModule')
+    
+    ###########################################
+    # 3. set fluid_model inputs 
+    ###########################################
     # fluid_model.set_module_input('u',val=v_inf)
     # fluid_model.set_module_input('v',val=np.zeros((num_nodes, 1)))
     # fluid_model.set_module_input('w',val=np.ones((num_nodes,1))*0)
@@ -242,95 +236,90 @@ if __name__ == "__main__":
  
     # fluid_model.set_module_input('wing_undef_mesh', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
 
-    # input_dicts = {}
-    # # input_dicts['v_inf'] = v_inf
-    # # input_dicts['theta'] = theta
-    # # input_dicts['undef_mesh'] = [np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh)]
-    # # input_dicts['displacements'] = [np.zeros((num_nodes, nx, ny, 3))]
+    input_dicts = {}
+    input_dicts['v_inf'] = v_inf
+    input_dicts['theta'] = theta
+    input_dicts['undef_mesh'] = [np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh)]
+    input_dicts['displacements'] = [np.zeros((num_nodes, nx, ny, 3))]
 
-    # ###########################################
-    # # 2. Create fluid_model as VASTFluidSover 
-    # # (msl.explicit operation)
-    # ###########################################
+    ###########################################
+    # 2. Create fluid_model as VASTFluidSover 
+    # (msl.explicit operation)
+    ###########################################
+    fluid_model = VASTFluidSover(fluid_problem=fluid_problem,
+                                 surface_names=surface_names,
+                                 surface_shapes=surface_shapes,
+                                 input_dicts=input_dicts,)
 
 
-    # displacements = []
-    # for i in range(len(surface_names)):
-    #     surface_name = surface_names[i]
-    #     surface_shape = surface_shapes[i]
-    #     displacement = m3l.Variable(f'{surface_name}_displacements',shape=surface_shape,value=np.ones(surface_shape)*10)
-    #     fluid_model.set_module_input(f'{surface_name}_displacements', val=np.ones(surface_shape)*100)
-    #     displacements.append(displacement)
+    displacements = []
+    for i in range(len(surface_names)):
+        surface_name = surface_names[i]
+        surface_shape = surface_shapes[i]
+        displacement = m3l.Variable(f'{surface_name}_displacements',shape=surface_shape,value=np.zeros(surface_shape))
+        fluid_model.set_module_input(f'{surface_name}_displacements', val=np.zeros(surface_shape))
+        displacements.append(displacement)
 
-    # ###########################################
-    # # 4. call fluid_model.evaluate to get
-    # # surface panel forces
-    # ###########################################
-    # forces = fluid_model.evaluate(displacements)
+    ###########################################
+    # 4. call fluid_model.evaluate to get
+    # surface panel forces
+    ###########################################
+    forces = fluid_model.evaluate(displacements)
 
-    # ###########################################
-    # # 5. register outputs to dummy_model
-    # ###########################################
-    # for i in range(len(surface_names)):
-    #     surface_name = surface_names[i]
-    #     dummy_model.register_output(forces[i])
+    ###########################################
+    # 5. register outputs to dummy_model
+    ###########################################
+    for i in range(len(surface_names)):
+        surface_name = surface_names[i]
+        dummy_model.register_output(forces[i])
         
-    # ###########################################
-    # # 6. call _assemble_csdl to get dummy_model_csdl
-    # ###########################################
-    # dummy_model_csdl = dummy_model._assemble_csdl()
-    # ###########################################
-    # # 7. use sim.run to run the csdl model
-    # ###########################################    
+    ###########################################
+    # 6. call _assemble_csdl to get dummy_model_csdl
+    ###########################################
+    dummy_model_csdl = dummy_model._assemble_csdl()
+    ###########################################
+    # 7. use sim.run to run the csdl model
+    ###########################################    
 
-    # sim = Simulator(dummy_model_csdl,analytics=False) # add simulator
-    # sim.run()
-
-
-
-
-    import numpy as np
-    from VAST.utils.generate_mesh import *
-    from python_csdl_backend import Simulator
-
-    fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
-
-    num_nodes=1; nx=5; ny=11
-
-    v_inf = np.ones((num_nodes,1))*248.136
-    theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
-
-    model_1 = ModuleCSDL()
-
-    submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
-    model_1.add(submodel, 'InputsModule')
-    
-    surface_names = ['wing','tail']
-    surface_shapes = [(num_nodes, nx, ny, 3),(num_nodes, nx-2, ny-2, 3)]
-
-    mesh_dict = {
-        "num_y": ny, "num_x": nx, "wing_type": "rect", "symmetry": False, "span": 10.0,
-        "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
-    }
-
-    mesh_dict_1 = {
-        "num_y": ny-2, "num_x": nx-2, "wing_type": "rect", "symmetry": False, "span": 10.0,
-        "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
-    }
-
-    # Generate mesh of a rectangular wing
-    mesh = generate_mesh(mesh_dict) 
-    mesh_1 = generate_mesh(mesh_dict_1) 
-    wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
-    wing = model_1.create_input('tail', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh_1))
-
-    # add VAST fluid solver
-
-    submodel = VASTCSDL(
-        fluid_problem=fluid_problem,
-        surface_names=surface_names,
-        surface_shapes=surface_shapes,
-    )
-    model_1.add_module(submodel, 'VASTSolverModule')
-    sim = Simulator(model_1) # add simulator
+    sim = Simulator(dummy_model_csdl,analytics=False) # add simulator
     sim.run()
+
+
+
+
+    # import numpy as np
+    # from VAST.utils.generate_mesh import *
+    # from python_csdl_backend import Simulator
+
+    # fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
+
+    # num_nodes=1; nx=3; ny=11
+
+    # v_inf = np.ones((num_nodes,1))*248.136
+    # theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
+
+    # model_1 = ModuleCSDL()
+
+    # submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
+    # model_1.add(submodel, 'InputsModule')
+    
+    # surface_names = ['wing']
+    # surface_shapes = [(num_nodes, nx, ny, 3)]
+    # mesh_dict = {
+    #     "num_y": ny, "num_x": nx, "wing_type": "rect", "symmetry": False, "span": 10.0,
+    #     "chord": 1, "span_cos_sppacing": 1.0, "chord_cos_sacing": 1.0,
+    # }
+    # # Generate mesh of a rectangular wing
+    # mesh = generate_mesh(mesh_dict) 
+    # wing = model_1.create_input('wing_undef_mesh', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
+
+    # # add VAST fluid solver
+
+    # submodel = VASTCSDL(
+    #     fluid_problem=fluid_problem,
+    #     surface_names=surface_names,
+    #     surface_shapes=surface_shapes,
+    # )
+    # model_1.add_module(submodel, 'VASTSolverModule')
+    # sim = Simulator(model_1) # add simulator
+    # sim.run()
