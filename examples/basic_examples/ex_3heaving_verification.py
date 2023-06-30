@@ -52,7 +52,7 @@ for i in range(num_nodes):
     mesh_val[i, :, :, 1] = mesh.copy()[:, :, 1] 
     mesh_val[i, :, :, 2] += z_offset[i]
 
-h_stepsize = delta_t = 1 
+h_stepsize = delta_t = t_vec[1] 
 
 if be == 'csdl_om':
     import csdl_om

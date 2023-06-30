@@ -39,11 +39,14 @@ class ReplaceZeros(csdl.CustomExplicitOperation):
         out_name = self.parameters['out_name']
 
         # find the flattened indices of the zero elements
-        outputs[out_name] = np.where(inputs[in_name] == 0, 1e-10, inputs[in_name])
+        zero_ind = np.nonzero(inputs[in_name] == 0)
+        outputs[out_name] = np.where(inputs[in_name] == 0, 1e-8, inputs[in_name])
 
     def compute_derivatives(self, inputs, derivatives):
+        out_name = self.parameters['out_name']
+        in_name = self.parameters['in_name']
         zero_ind = np.flatnonzero(inputs[in_name] != 0)
-        derivatives[out_name, in_name][zero_ind] = 1
+        derivatives[out_name, in_name][:] = 1
 
 if __name__ == "__main__":
     import python_csdl_backend
@@ -71,5 +74,6 @@ if __name__ == "__main__":
 
     sim.run()
     sim.check_partials(compact_print=True,step=1e-10)
+    # sim.check_partials(compact_print=False,step=1e-10,show_only_incorrect=True)
     print('in_mat:',sim['in_mat'].shape,'\n',sim['in_mat'])
     print('out_mat:',sim['out_mat'].shape,'\n',sim['out_mat'])

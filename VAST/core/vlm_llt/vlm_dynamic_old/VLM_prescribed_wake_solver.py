@@ -274,6 +274,7 @@ class UVLMSolver(csdl.Model):
             eps=4e-5,
         )
         self.add(submodel, name='EvalPtsVel')
+        print('delta_t-----',h_stepsize)
 
         submodel = ThrustDrag(
             surface_names=surface_names,
@@ -284,6 +285,8 @@ class UVLMSolver(csdl.Model):
             sprs=None,
             coeffs_aoa=None,
             coeffs_cd=None,
+            delta_t=h_stepsize,
+
         )
         self.add(submodel, name='ThrustDrag')
 

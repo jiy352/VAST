@@ -180,9 +180,10 @@ class BiotSavartComp(csdl.Model):
             dor_r1_r2 = csdl.sum(r_1*r_2,axes=(2,))
             dino = (r_1_norm * r_2_norm + dor_r1_r2)
             # deal with (r_1_norm * r_2_norm + dor_r1_r2) first
-            dino_non_singular = csdl.custom(dino, op=ReplaceZeros(in_name=dino.name,
-                                                                  in_shape=dino.shape,
-                                                                  out_name=dino.name + '_non_singular'))
+            # dino_non_singular = csdl.custom(dino, op=ReplaceZeros(in_name=dino.name,
+            #                                                       in_shape=dino.shape,
+            #                                                       out_name=dino.name + '_non_singular'))
+            dino_non_singular = dino + 1e-4
 
             num = (1/dino_non_singular) * (1/r_1_norm + 1/r_2_norm)
             # print('the name of num is', num.name)
