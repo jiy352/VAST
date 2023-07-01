@@ -98,6 +98,8 @@ class AdapterComp(ModuleCSDL):
         gamma = self.register_module_input('gamma', shape=(num_nodes, 1))
         psiw = self.register_module_input('psiw', shape=(num_nodes, 1))
 
+        self.print_var(theta)
+
         ################################################################################
         # compute the output: 3. v_inf_sq (num_nodes,1)
         ################################################################################

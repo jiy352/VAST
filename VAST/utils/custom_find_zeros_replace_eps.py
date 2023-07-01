@@ -23,8 +23,8 @@ class ReplaceZeros(csdl.CustomExplicitOperation):
         self.parameters.declare('out_name', types=str)
     def define(self):
         in_name = self.parameters['in_name']
-        in_shape = self.parameters['in_shape']
         out_name = self.parameters['out_name']
+        in_shape = self.parameters['in_shape']
 
         self.add_input(in_name,shape=in_shape)
         self.add_output(out_name,shape=in_shape)
@@ -42,6 +42,9 @@ class ReplaceZeros(csdl.CustomExplicitOperation):
         outputs[out_name] = np.where(inputs[in_name] == 0, 1e-10, inputs[in_name])
 
     def compute_derivatives(self, inputs, derivatives):
+        in_name = self.parameters['in_name']
+        out_name = self.parameters['out_name']
+        
         zero_ind = np.flatnonzero(inputs[in_name] != 0)
         derivatives[out_name, in_name][zero_ind] = 1
 
@@ -71,5 +74,6 @@ if __name__ == "__main__":
 
     sim.run()
     sim.check_partials(compact_print=True,step=1e-10)
+    sim.check_partials(compact_print=False,step=1e-10)
     print('in_mat:',sim['in_mat'].shape,'\n',sim['in_mat'])
     print('out_mat:',sim['out_mat'].shape,'\n',sim['out_mat'])
