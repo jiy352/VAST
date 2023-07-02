@@ -32,7 +32,12 @@ class NodalMap:
     def compute_distance_matrix(self):
         coord_dist_mat = np.zeros((self.map_shape + [3]))
         for i in range(3):
-            coord_dist_mat[:, :, i] = NodalMap.coord_diff(self.fluid_nodal_mesh[:, i], self.solid_nodal_mesh[:, i])
+            print('------------------------------------------------------------------------',self.fluid_nodal_mesh.shape)
+            # print(self.solid_nodal_mesh[:, i])
+            try:
+                coord_dist_mat[:, :, i] = NodalMap.coord_diff(self.fluid_nodal_mesh.value[:, i], self.solid_nodal_mesh.value[:, i])
+            except:
+                coord_dist_mat[:, :, i] = NodalMap.coord_diff(self.fluid_nodal_mesh[:, i], self.solid_nodal_mesh[:, i])
 
         coord_dist_mat = NodalMap.compute_pairwise_Euclidean_distance(coord_dist_mat)
         return coord_dist_mat

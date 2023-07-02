@@ -37,8 +37,6 @@ class LiftDrag(ModuleCSDL):
         self.parameters.declare('cl0', default=None)
 
 
-                
-
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
@@ -323,7 +321,7 @@ class LiftDrag(ModuleCSDL):
             # sum up the panel forces from VLM first:
             # panel_forces shape = (num_nodes, num_total_panels, 3)
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
-            F = self.create_output('F', shape=(num_nodes, 3))
+            F = self.create_output('F_VLM', shape=(num_nodes, 3))
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
             drag_coeff = 4*0.08
@@ -400,7 +398,7 @@ class LiftDrag(ModuleCSDL):
 
             # sum the moments of all surfaces
             total_moments_tmp = sum(total_moments_panels_list)
-            M = self.create_output('M', shape=total_moments_tmp.shape,val=0)
+            M = self.create_output('M_VLM', shape=total_moments_tmp.shape,val=0)
 
  
 

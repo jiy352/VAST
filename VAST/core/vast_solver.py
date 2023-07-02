@@ -46,14 +46,6 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
         csdl_model = ModuleCSDL()
 
-        self.displacements = []
-
-        # for i in range(len(surface_names)):
-        #     surface_name = surface_names[i]
-        #     surface_shape = self.parameters['surface_shapes'][i]
-        #     displacement = csdl_model.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
-        #     self.displacements.append(displacement)
-
         submodule = VASTCSDL(
             module=self,
             fluid_problem=fluid_problem,
@@ -61,7 +53,6 @@ class VASTFluidSover(m3l.ExplicitOperation):
             surface_shapes=surface_shapes,
             mesh_unit=mesh_unit,
             cl0=cl0)
-            # input_dicts=input_dicts)
 
         csdl_model.add_module(submodule,'vast')
     
@@ -70,7 +61,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self,displacements):
+    def evaluate(self, displacements):
         '''
         Evaluates the vast model.
         
@@ -88,22 +79,23 @@ class VASTFluidSover(m3l.ExplicitOperation):
         # Assembles the CSDL model
         operation_csdl = self.compute()
 
-        # Gets information for naming/shapes
-        # beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
-        # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
 
         arguments = {}
-        # print(displacements)
+        print(displacements)
 
-        # displacements = self.displacements 
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
 
                 arguments[f'{surface_name}_displacements'] = displacements[i]
-        # print(arguments)
+
+        # if surfaces is not None:
+        #     for i in range(len(surface_names)):
+        #         surface_name = surface_names[i]
+
+        #         arguments[f'{surface_name}_undef_mesh'] = surfaces[i]
 
         # Create the M3L graph operation
         vast_operation = m3l.CSDLOperation(name='vast_fluid_model', arguments=arguments, operation_csdl=operation_csdl)
@@ -135,7 +127,6 @@ class VASTCSDL(ModuleCSDL):
         self.parameters.declare('solve_option', default='direct')
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('cl0', default=None)
-        # self.parameters.declare('input_dicts', default=None)
 
     def define(self):
         fluid_problem = self.parameters['fluid_problem']
@@ -148,7 +139,7 @@ class VASTCSDL(ModuleCSDL):
         mesh_unit = self.parameters['mesh_unit']
         cl0 = self.parameters['cl0']
 
-        # todo: connect the mesh to the solver
+        # TODO: connect the mesh to the solver
         # wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
         # try:
             # input_dicts = self.parameters['input_dicts']
@@ -157,25 +148,26 @@ class VASTCSDL(ModuleCSDL):
 
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
-            surface_shape = self.parameters['surface_shapes'][i]
+            surface_shape = surface_shapes[i]
             displacements = self.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=np.zeros(surface_shape))
 
-            undef_mesh = self.register_module_input(f'{surface_name}_undef_mesh', shape=surface_shape)
+            undef_mesh = self.create_input(f'{surface_name}_undef_mesh', val=fluid_problem.mesh[i])
+            # print('undef_mesh',type(fluid_problem.mesh[i]))
+            # print('undef_mesh',fluid_problem.mesh[i].shape)
+            # print('undef_mesh',undef_mesh.shape)
+            # print('displacements',displacements.shape)
             mesh = undef_mesh  + displacements
             self.register_module_output(surface_name, mesh)
-
-        # except:
-        #     pass
 
         if fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'fixed_wake':
             submodel = VLMSolverModel(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,
-                AcStates='dummy',
+                AcStates='caddee',
                 mesh_unit=mesh_unit,
                 cl0=cl0,
             )
-            self.add(submodel, 'VLMSolverModel')
+            self.add(submodel, 'VLMSolverModel') 
 
         # TODO: make dynamic case works
         elif fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'prescribed_wake':

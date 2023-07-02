@@ -10,83 +10,109 @@ import m3l
 from VAST.core.vlm_llt.NodalMapping import NodalMap,RadialBasisFunctions
 
 
-# class VASTNodelDisplacements(m3l.ExplicitOperation):
-#     def initialize(self, kwargs):
-#         self.parameters.declare('surface_names', types=list)
-#         self.parameters.declare('surface_shapes', types=list)
-#         self.parameters.declare('initial_meshes', default=list)
+class VASTNodelDisplacements(m3l.ExplicitOperation):
+    def initialize(self, kwargs):
+        self.parameters.declare('surface_names', types=list)
+        self.parameters.declare('surface_shapes', types=list)
+        self.parameters.declare('initial_meshes', default=list)
 
-#     def compute(self, nodal_displacements, nodal_displacements_mesh):
-#         surface_names = self.parameters['surface_names']  
-#         surface_shapes = self.parameters['surface_shapes']
-#         initial_meshes = self.parameters['initial_meshes']
+    def compute(self, nodal_displacements, nodal_displacements_mesh):
+        surface_names = self.parameters['surface_names']  
+        surface_shapes = self.parameters['surface_shapes']
+        initial_meshes = self.parameters['initial_meshes']
 
-#         csdl_model = ModuleCSDL()
-
-#         for i in range(len(surface_names)):
-#             surface_name = surface_names[i]
-#             surface_shape = surface_shapes[i]
-#             initial_mesh = initial_meshes[i]
-
-#             displacements_map = self.disp_map(initial_mesh.reshape((-1,3)), oml=nodal_displacements_mesh.reshape((-1,3)))
+        if not isinstance(nodal_displacements, list):
+            raise TypeError('nodal_displacements must be a list of m3l.Variable in VASTNodelDisplacements.compute()')
+        if not isinstance(nodal_displacements_mesh, list):
+            raise TypeError('nodal_displacements_mesh must be a list of am.MappedArray in VASTNodelDisplacements.compute()')
 
 
-#             displacements_map_csdl = csdl_model.create_input(name=surface_name+'_displacements_map', val=displacements_map)
-#             nodal_displacements_csdl = csdl_model.register_module_input(name=surface_name+'_nodal_displacements', val=nodal_displacements[i].value.reshape((-1,3)))
+        csdl_model = ModuleCSDL()
+
+        for i in range(len(surface_names)):
+            surface_name = surface_names[i]
+            surface_shape = surface_shapes[i]
+            initial_mesh = initial_meshes[i]
             
+            nodal_displacements_surface = nodal_displacements[i]
+            nodal_displacements_mesh_surface = nodal_displacements_mesh[i]
 
-#             flatenned_vlm_mesh_displacements = csdl.matmat(displacements_map_csdl, nodal_displacements_csdl)
-#             # print('nodal_displacements_csdl', nodal_displacements_csdl.shape)
-#             # print('displacements_map_csdl', displacements_map_csdl.shape)
-#             # print('flatenned_vlm_mesh_displacements', flatenned_vlm_mesh_displacements.shape)
+            displacements_map = self.disp_map(initial_mesh.reshape((-1,3)), oml=nodal_displacements_mesh_surface.reshape((-1,3)))
 
-#             vlm_mesh_displacements = csdl.reshape(flatenned_vlm_mesh_displacements, new_shape=surface_shape)
-#             csdl_model.register_module_output(f'{surface_name}_displacements', vlm_mesh_displacements)
 
-#         return csdl_model
+            displacements_map_csdl = csdl_model.create_input(name=surface_name+'_displacements_map', val=displacements_map)
 
-#     def evaluate(self, nodal_displacements, nodal_displacements_mesh):
-#         '''
-#         Maps nodal displacements_mesh from arbitrary locations to the mesh nodes.
+            # register an input for the oml nodal displacements
+            nodal_displacements_csdl = csdl_model.register_module_input(name=surface_name+'_nodal_displacements', shape=nodal_displacements_surface.shape)
+            
+            flatenned_vlm_mesh_displacements = csdl.matmat(displacements_map_csdl, csdl.reshape(nodal_displacements_csdl,
+                                                            (nodal_displacements_surface.shape[0]*nodal_displacements_surface.shape[1],3)))
+            # print('nodal_displacements_csdl', nodal_displacements_csdl.shape)
+            # print('displacements_map_csdl', displacements_map_csdl.shape)
+            # print('flatenned_vlm_mesh_displacements', flatenned_vlm_mesh_displacements.shape)
+            # TODO: think about how to vectorize this across num_nodes
+
+            vlm_mesh_displacements = csdl.reshape(flatenned_vlm_mesh_displacements, new_shape=surface_shape)
+            csdl_model.register_module_output(f'{surface_name}_displacements', vlm_mesh_displacements)
+            print('vlm_mesh_displacements--------------------------name--------------------------------------------', vlm_mesh_displacements.name)
+
+        return csdl_model
+
+    def evaluate(self, nodal_displacements, nodal_displacements_mesh):
+        '''
+        Maps nodal displacements_mesh from arbitrary locations to the mesh nodes.
         
-#         Parameters
-#         ----------
-#         nodal_displacements : a list of m3l.Variable
-#             The nodal_displacements to be mapped to the mesh nodes.
-#         nodal_displacements_mesh : a list of am.MappedArray
-#             The mesh that the nodal displacements_mesh are currently defined over.
+        Parameters
+        ----------
+        nodal_displacements : a list of m3l.Variable
+            The nodal_displacements to be mapped to the mesh nodes.
+        nodal_displacements_mesh : a list of am.MappedArray
+            The mesh that the nodal displacements_mesh are currently defined over.
 
-#         Returns
-#         -------
-#         mesh_forces : m3l.Variable
-#             The forces on the mesh.
-#         '''
-#         operation_csdl = self.compute(nodal_displacements=nodal_displacements, nodal_displacements_mesh=nodal_displacements_mesh)
+        Returns
+        -------
+        mesh_forces : m3l.Variable
+            The forces on the mesh.
+        '''
 
-#         # beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
-#         # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
-#         arguments = {}
-#         for i in range(len(surface_names)):
-#             arguments[surface_names[i]+'_nodal_displacements'] = nodal_displacements[i]
+        if not isinstance(nodal_displacements, list):
+            raise TypeError('nodal_displacements must be a list of m3l.Variable in VASTNodelDisplacements.evaluate()')
+        if not isinstance(nodal_displacements_mesh, list):
+            raise TypeError('nodal_displacements_mesh must be a list of am.MappedArray in VASTNodelDisplacements.evaluate()')
 
-#         displacement_map_operation = m3l.CSDLOperation(name='vlm_disp_map', arguments=arguments, operation_csdl=operation_csdl)
-#         vlm_displacements = []
-#         for i in range(len(surface_names)):
-#             vlm_displacement = m3l.Variable(name=f'{surface_name}_displacements', shape=surface_shape, operation=displacement_map_operation)
-#             vlm_displacements.append(vlm_displacement)
-#         return vlm_displacements
+        surface_names = self.parameters['surface_names']  
+        surface_shapes = self.parameters['surface_shapes']
+        initial_meshes = self.parameters['initial_meshes']
+
+        arguments = {}
+
+        operation_csdl = self.compute(nodal_displacements=nodal_displacements, nodal_displacements_mesh=nodal_displacements_mesh)
+        for i in range(len(surface_names)):
+            surface_name = surface_names[i]
+            arguments[surface_name+'_nodal_displacements'] = nodal_displacements[i]
+
+        displacement_map_operation = m3l.CSDLOperation(name='vlm_disp_map', arguments=arguments, operation_csdl=operation_csdl)
+
+        vlm_displacements = []
+        for i in range(len(surface_names)):
+            surface_name = surface_names[i]
+            surface_shape = surface_shapes[i]
+            vlm_displacement = m3l.Variable(name=f'{surface_name}_displacements', shape=surface_shape, operation=displacement_map_operation)
+            vlm_displacements.append(vlm_displacement)
+
+        return vlm_displacements
 
 
-#     def disp_map(self, mesh, oml):
+    def disp_map(self, mesh, oml):
 
-#         # project the displacement on the oml mesh to the camber surface mesh
-#         # print('mesh', type(mesh))
-#         # print('oml', type(oml))
-#         # print('oml', type(oml))
-#         weights = NodalMap(oml.reshape(-1,3), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
+        # project the displacement on the oml mesh to the camber surface mesh
+        print('mesh', type(mesh))
+        print('mesh', mesh)
+        print('oml', type(oml))
+        weights = (NodalMap(oml.reshape((-1,3)), mesh.reshape((-1,3)), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map)
 
 
-#         return weights
+        return weights
 
 class VASTNodelForces(m3l.ExplicitOperation):
 
@@ -95,7 +121,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('initial_meshes', default=list)
 
-    def compute(self, vlm_forces, nodal_displacements_mesh):
+    def compute(self, vlm_forces, nodal_force_meshes):
         surface_names = self.parameters['surface_names']  
         surface_shapes = self.parameters['surface_shapes']
         initial_meshes = self.parameters['initial_meshes']
@@ -112,7 +138,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
             outshape = int((nx-1)*(ny-1))
             num_nodes = surface_shape[0]
             eval_pts_location = 0.25
-            initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3))
+            initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
 
             force_points_vlm = (
                     (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 0:-1, :] +
@@ -120,7 +146,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 0:-1, :] +
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 1:, :])
 
-            force_map = self.disp_map(nodal_displacements_mesh.reshape((-1,3)), force_points_vlm.reshape((-1,3)))   
+            force_map = self.disp_map(nodal_force_meshes[i].reshape((-1,3)), force_points_vlm.reshape((-1,3)))   
             # this is the inverse of the displacements_map in the displacements operation
 
 
@@ -133,12 +159,12 @@ class VASTNodelForces(m3l.ExplicitOperation):
             # print('flatenned_vlm_mesh_displacements', flatenned_vlm_mesh_displacements.shape)
             flatenned_oml_mesh_forces = csdl.matmat(force_map_csdl,csdl.reshape(vlm_forces_csdl,(outshape*num_nodes,3)))
 
-            oml_mesh_forces = csdl.reshape(flatenned_oml_mesh_forces, new_shape=nodal_displacements_mesh.shape)
+            oml_mesh_forces = csdl.reshape(flatenned_oml_mesh_forces, new_shape=nodal_force_meshes[i].shape)
             csdl_model.register_module_output(f'{surface_name}_oml_forces', oml_mesh_forces)
 
         return csdl_model
 
-    def evaluate(self, vlm_forces, nodal_displacements_mesh):
+    def evaluate(self, vlm_forces, nodal_force_meshes):
         '''
         Maps nodal displacements_mesh from arbitrary locations to the mesh nodes.
         
@@ -146,7 +172,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
         ----------
         nodal_displacements : a list of m3l.Variable
             The nodal_displacements to be mapped to the mesh nodes.
-        nodal_displacements_mesh : a list of am.MappedArray
+        nodal_force_meshes : a list of am.MappedArray
             The mesh that the nodal displacements_mesh are currently defined over.
 
         Returns
@@ -154,15 +180,27 @@ class VASTNodelForces(m3l.ExplicitOperation):
         mesh_forces : m3l.Variable
             The forces on the mesh.
         '''
-        operation_csdl = self.compute(vlm_forces=vlm_forces, nodal_displacements_mesh=nodal_displacements_mesh)
 
-        # beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
-        # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
+        surface_names = self.parameters['surface_names']  
+        surface_shapes = self.parameters['surface_shapes']
+        initial_meshes = self.parameters['initial_meshes']
+
+        if not isinstance(vlm_forces, list):
+            raise TypeError('vlm_forces must be a list of m3l.Variable in VASTNodelForces.evaluate()')
+        if not isinstance(nodal_force_meshes, list):
+            raise TypeError('nodal_force_meshes must be a list of am.MappedArray in VASTNodelForces.evaluate()')     
+
+
+
         arguments = {}
+        operation_csdl = self.compute(vlm_forces=vlm_forces, nodal_force_meshes=nodal_force_meshes)
+
         for i in range(len(surface_names)):
-            arguments[surface_names[i]+'_total_forces'] = vlm_forces[i]
+            surface_name = surface_names[i]
+            arguments[surface_name+'_total_forces'] = vlm_forces[i]
 
         force_map_operation = m3l.CSDLOperation(name='vlm_force_map', arguments=arguments, operation_csdl=operation_csdl)
+
         oml_forces = []
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
@@ -170,18 +208,20 @@ class VASTNodelForces(m3l.ExplicitOperation):
             nx = surface_shape[1]
             ny = surface_shape[0]
             outshape = int((nx-1)*(ny-1))  
-            num_nodes = surface_shape[0]          
-            oml_force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, outshape, 3), operation=force_map_operation)
+            num_nodes = surface_shape[0]  
+        
+            oml_force = m3l.Variable(name=f'{surface_name}_oml_forces', shape=(num_nodes, outshape, 3), operation=force_map_operation)
             oml_forces.append(oml_force)
+
         return oml_forces
 
 
     def disp_map(self, mesh, oml):
 
         # project the displacement on the oml mesh to the camber surface mesh
-        print('mesh', type(mesh))
-        print('oml', type(oml))
-        print('oml', type(oml))
+        # print('mesh', type(mesh))
+        # print('oml', type(oml))
+        # print('oml', type(oml))
         weights = NodalMap(oml.reshape(-1,3), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
 
 
