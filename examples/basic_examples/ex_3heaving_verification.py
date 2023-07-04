@@ -11,21 +11,36 @@ import numpy as np
 be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
+
+# This is a test case to check the prescribed wake solver
+
+
 ########################################
-# define mesh here
+# 1. define geometry
 ########################################
-nx = 15; ny = 5
+nx = 2; ny = 3
 chord = 1; span = 4
-num_nodes = 99;  nt = num_nodes
-n_period = 4
-omg=1
-h=0.1
-alpha = - np.deg2rad(5)
+num_nodes = 6;  nt = num_nodes
 
-t_vec = np.linspace(0, n_period*np.pi*2, num_nodes)
+mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False, "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
+mesh = generate_mesh(mesh_dict)
+# this is the same geometry as the dynamic_simple.ji
 
-u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1))
+########################################
+# 2. define kinematics
+########################################
+n_period = 1 
+omg=1 
+h=0.1 
+alpha = - np.deg2rad(0) 
+t_vec = np.linspace(0, n_period*np.pi*2, num_nodes) 
+
+u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
 w_vel = np.ones((num_nodes,1)) * np.sin(alpha) - h * np.cos(omg*t_vec).reshape((num_nodes,1))
+# In dynamic_simple.ji there are only the first five elements of the vector, last one is missing
+# signs are the same
+# TODO: check wake geometry and wake velocity
+
 
 alpha_equ = np.arctan2(w_vel, u_val)
 
@@ -37,14 +52,12 @@ states_dict = {
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
 
-mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False, "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
-mesh = generate_mesh(mesh_dict)
 
 surface_properties_dict = {'wing':(nx,ny,3)}
 
 # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
 mesh_val = np.zeros((num_nodes, nx, ny, 3))
-z_offset = h*sin(omg*t_vec)
+z_offset = omg*h*sin(omg*t_vec)
 
 for i in range(num_nodes):
     mesh_val[i, :, :, :] = mesh

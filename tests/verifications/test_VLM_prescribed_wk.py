@@ -86,6 +86,11 @@ def test_generate_model_vlm_fixed_wake():
     except:
         cl_ref = np.loadtxt('/home/lsdo/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
 
+    print('cl',cl)
+    print('cl_ref',cl_ref)
+    print(np.linalg.norm(
+            (cl-cl_ref)) / np.linalg.norm(cl_ref))
+
     np.testing.assert_array_almost_equal(np.linalg.norm(
             (cl-cl_ref)) / np.linalg.norm(cl_ref),
                                                 0,
@@ -94,7 +99,7 @@ def test_generate_model_vlm_fixed_wake():
     # t_start = time.time()
     return 0
 
-# test_generate_model_vlm_fixed_wake()
+test_generate_model_vlm_fixed_wake()
 
 
 
