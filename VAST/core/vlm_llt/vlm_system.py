@@ -60,7 +60,7 @@ class VLMSystem(ModuleCSDL):
         ]
         wake_vel_shapes = [(x[0] * x[1], 3) for x in wake_vortex_pts_shapes]
 
-        self.add(MeshPreprocessingComp(surface_names=surface_names,
+        self.add_module(MeshPreprocessingComp(surface_names=surface_names,
                                        surface_shapes=surface_shapes,
                                        mesh_unit=mesh_unit,
                                        eval_pts_option=eval_pts_option,

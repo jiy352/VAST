@@ -42,8 +42,11 @@ class ReplaceZeros(csdl.CustomExplicitOperation):
         outputs[out_name] = np.where(inputs[in_name] == 0, 1e-10, inputs[in_name])
 
     def compute_derivatives(self, inputs, derivatives):
+        in_name = self.parameters['in_name']
+        out_name = self.parameters['out_name']
+
         zero_ind = np.flatnonzero(inputs[in_name] != 0)
-        derivatives[out_name, in_name][zero_ind] = 1
+        derivatives[out_name, in_name][:] = 1
 
 if __name__ == "__main__":
     import python_csdl_backend

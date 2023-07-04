@@ -81,6 +81,7 @@ class AdapterComp(ModuleCSDL):
         u = self.register_module_input('u', shape=(num_nodes, 1))
         v = self.register_module_input('v', shape=(num_nodes, 1))
         w = self.register_module_input('w', shape=(num_nodes, 1))
+        # wing_incidence_angle = csdl.expand(self.register_module_input('wing_incidence', shape=(1, )), shape=(num_nodes, 1))
 
         p = self.register_module_input('p', shape=(num_nodes, 1))
         q = self.register_module_input('q', shape=(num_nodes, 1))

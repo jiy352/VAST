@@ -74,21 +74,21 @@ class MeshPreprocessingComp(ModuleCSDL):
             # declare the input variable lifting surface (deformed) mesh,
             # this should come from CADDEE geometry if connected,
             # or up to the user to create an input if using the solver alone.
-            print(surface_name, surface_shapes[i])
+            # print(surface_name, surface_shapes[i])
             if mesh_unit == 'm':
-                def_mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=False)
+                def_mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
             elif mesh_unit == 'ft':
-                def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=False)
+                def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
 
                 def_mesh = def_mesh_ft * 0.3048
-            print(def_mesh.shape)
+            # print(def_mesh.shape)
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
-            print(bd_vtx_coords_name)
+            # print(bd_vtx_coords_name)
             bd_vtx_coords = self.create_output(bd_vtx_coords_name,
                                                shape=(def_mesh.shape))
-            print(bd_vtx_coords.shape)
+            # print(bd_vtx_coords.shape)
             # the 0th until the second last one chordwise is (0.75*left +0.25*right)
             bd_vtx_coords[:, 0:num_pts_chord -
                           1, :, :] = def_mesh[:, 0:num_pts_chord -
@@ -112,7 +112,7 @@ class MeshPreprocessingComp(ModuleCSDL):
                                             bd_vtx_coords[:,0:num_pts_chord-1, 1:num_pts_span, :] +\
                                             bd_vtx_coords[:,1:, 0:num_pts_span-1, :]+\
                                             bd_vtx_coords[:,1:, 1:, :])
-            print(coll_pts_coords.shape)
+            # print(coll_pts_coords.shape)
             self.register_output(coll_pts_coords_name, coll_pts_coords)
 
             ################################################################################
@@ -148,7 +148,12 @@ class MeshPreprocessingComp(ModuleCSDL):
             self.register_output(s_panel_name, s_panels)
 
             def_mesh_list.append(def_mesh)
-        exit()
+        # print('\n')
+        # print(def_mesh_list[0].name)
+        # print(def_mesh_list[0].shape)
+        # print(def_mesh_list[1].name)
+        # print(def_mesh_list[1].shape)
+        # exit()
         ################################################################################
         # create the output: 6. bd_vec_all: bd_vec of all lifting surfaces
         ################################################################################

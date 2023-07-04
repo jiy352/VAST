@@ -16,7 +16,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.parameters.declare('component', default=None)
         self.parameters.declare('mesh', default=None)
         self.parameters.declare('fluid_solver', True)
-        self.parameters.declare('compute_mass_properties', default=True, types=bool)
+        self.parameters.declare('num_nodes', default=1, types=int)
 
         self.parameters.declare('fluid_problem', types=FluidProblem)
         self.parameters.declare('surface_names', types=list)
@@ -40,7 +40,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        num_nodes = surface_shapes[0][0]
+        num_nodes = self.parameters['num_nodes'] #surface_shapes[0][0]
         mesh_unit = self.parameters['mesh_unit']
         cl0 = self.parameters['cl0']
         input_dicts = self.parameters['input_dicts']
@@ -95,7 +95,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-
+        num_nodes = self.parameters['num_nodes']
         arguments = {}
         print(displacements)
 
@@ -103,9 +103,9 @@ class VASTFluidSover(m3l.ExplicitOperation):
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
-
                 arguments[f'{surface_name}_displacements'] = displacements[i]
-        print(arguments)
+        
+        # print(arguments)
         # new_arguments = {**arguments, **ac_states}
         arguments['u'] = ac_states['u']
         arguments['v'] = ac_states['v']
@@ -123,17 +123,20 @@ class VASTFluidSover(m3l.ExplicitOperation):
         vast_operation = m3l.CSDLOperation(name='vast_fluid_model', arguments=arguments, operation_csdl=operation_csdl)
         
         # Create the M3L variables that are being output
-        forces = []
-        for i in range(len(surface_names)):
-            surface_name = surface_names[i]
-            surface_shapes = self.parameters['surface_shapes'][i]
-            num_nodes = surface_shapes[0]
-            nx = surface_shapes[1]
-            ny = surface_shapes[2]
-            force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=vast_operation)
-            forces.append(force)
+        # forces = []
+        # for i in range(len(surface_names)):
+        #     surface_name = surface_names[i]
+        #     surface_shapes = self.parameters['surface_shapes'][i]
+        #     num_nodes = surface_shapes[0]
+        #     nx = surface_shapes[1]
+        #     ny = surface_shapes[2]
+        #     force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=vast_operation)
+        #     forces.append(force)
 
-        return forces
+        forces = m3l.Variable(name='F', shape=(num_nodes, 3), operation=vast_operation)
+        moments = m3l.Variable(name='M', shape=(num_nodes, 3), operation=vast_operation)
+
+        return forces, moments
 
 
 class VASTMesh(Module):
@@ -169,6 +172,8 @@ class VASTCSDL(ModuleCSDL):
         #     submodel = CreateACSatesModule(v_inf=input_dicts['v_inf'],theta=input_dicts['theta'],num_nodes=num_nodes)
         #     self.add_module(submodel, 'ACSates')
 
+        # wing_incidence_angle = self.register_module_input('wing_incidence', shape=(1, ), computed_upstream=False)
+
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = self.parameters['surface_shapes'][i]
@@ -189,7 +194,7 @@ class VASTCSDL(ModuleCSDL):
                 mesh_unit=mesh_unit,
                 cl0=cl0,
             )
-            self.add(submodel, 'VLMSolverModel')
+            self.add_module(submodel, 'VLMSolverModel')
 
         # TODO: make dynamic case works
         elif fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'prescribed_wake':
@@ -311,14 +316,17 @@ if __name__ == "__main__":
 
     num_nodes=1; nx=5; ny=11
 
-    v_inf = np.ones((num_nodes,1))*248.136
+    v_inf = np.ones((num_nodes,1))*57
     theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
 
     model_1 = ModuleCSDL()
 
-    submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
-    model_1.add(submodel, 'InputsModule')
-    
+    # submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
+    # model_1.add(submodel, 'InputsModule')
+    # model_1.add_design_variable('InputsModule.u')
+    model_1.create_input('u', val=70, shape=(num_nodes, 1))
+    model_1.add_design_variable('u', lower=50, upper=100, scaler=1e-2)
+
     surface_names = ['wing','tail']
     surface_shapes = [(num_nodes, nx, ny, 3),(num_nodes, nx-2, ny-2, 3)]
 
@@ -346,5 +354,9 @@ if __name__ == "__main__":
         surface_shapes=surface_shapes,
     )
     model_1.add_module(submodel, 'VASTSolverModule')
-    sim = Simulator(model_1) # add simulator
+    sim = Simulator(model_1, analytics=True) # add simulator
+
+    
+    model_1.add_objective('VASTSolverModule.VLMSolverModel.VLM_outputs.LiftDrag.total_drag')
     sim.run()
+    sim.check_totals()
