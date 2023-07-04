@@ -87,40 +87,36 @@ class VASTFluidSover(m3l.ExplicitOperation):
             The displacements of the mesh nodes.
 
         '''
-        # Assembles the CSDL model
-        operation_csdl = self.compute()
-
         # Gets information for naming/shapes
         # beam_name = list(self.parameters['beams'].keys())[0]   # this is only taking the first mesh added to the solver.
         # mesh = list(self.parameters['mesh'].parameters['meshes'].values())[0]   # this is only taking the first mesh added to the solver.
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = self.parameters['num_nodes']
-        arguments = {}
-        print(displacements)
+        
+        self.arguments = {}
+        self.name = f"{''.join(surface_names)}_vlm_model"
+        # print(displacements)
 
         # displacements = self.displacements 
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
-                arguments[f'{surface_name}_displacements'] = displacements[i]
+                self.arguments[f'{surface_name}_displacements'] = displacements[i]
         
         # print(arguments)
         # new_arguments = {**arguments, **ac_states}
-        arguments['u'] = ac_states['u']
-        arguments['v'] = ac_states['v']
-        arguments['w'] = ac_states['w']
-        arguments['p'] = ac_states['p']
-        arguments['q'] = ac_states['q']
-        arguments['r'] = ac_states['r']
-        arguments['theta'] = ac_states['theta']
-        arguments['psi'] = ac_states['psi']
-        arguments['gamma'] = ac_states['gamma']
-        # arguments['psiw'] = ac_states['psi_w']
+        self.arguments['u'] = ac_states['u']
+        self.arguments['v'] = ac_states['v']
+        self.arguments['w'] = ac_states['w']
+        self.arguments['p'] = ac_states['p']
+        self.arguments['q'] = ac_states['q']
+        self.arguments['r'] = ac_states['r']
+        self.arguments['theta'] = ac_states['theta']
+        self.arguments['psi'] = ac_states['psi']
+        self.arguments['gamma'] = ac_states['gamma']
+        # self.arguments['psiw'] = ac_states['psi_w']
 
-
-        # Create the M3L graph operation
-        vast_operation = m3l.CSDLOperation(name='vast_fluid_model', arguments=arguments, operation_csdl=operation_csdl)
         
         # Create the M3L variables that are being output
         # forces = []
@@ -133,8 +129,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
         #     force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=vast_operation)
         #     forces.append(force)
 
-        forces = m3l.Variable(name='F', shape=(num_nodes, 3), operation=vast_operation)
-        moments = m3l.Variable(name='M', shape=(num_nodes, 3), operation=vast_operation)
+        forces = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
+        moments = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
 
         return forces, moments
 
