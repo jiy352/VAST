@@ -119,20 +119,20 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
         
         # Create the M3L variables that are being output
-        # forces = []
-        # for i in range(len(surface_names)):
-        #     surface_name = surface_names[i]
-        #     surface_shapes = self.parameters['surface_shapes'][i]
-        #     num_nodes = surface_shapes[0]
-        #     nx = surface_shapes[1]
-        #     ny = surface_shapes[2]
-        #     force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=vast_operation)
-        #     forces.append(force)
+        forces = []
+        for i in range(len(surface_names)):
+            surface_name = surface_names[i]
+            surface_shapes = self.parameters['surface_shapes'][i]
+            num_nodes = surface_shapes[0]
+            nx = surface_shapes[1]
+            ny = surface_shapes[2]
+            force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=self)
+            forces.append(force)
 
-        forces = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
-        moments = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
+        total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
+        total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
 
-        return forces, moments
+        return forces, total_force, total_moment
 
 
 class VASTMesh(Module):
