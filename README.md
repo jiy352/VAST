@@ -18,6 +18,10 @@ This repository serves as a template for all LSDOlab projects with regard to doc
 
 *README.md file contains high-level information about your package: it's purpose, high-level instructions for installation and usage.*
 
+# TODO: 
+
+need to find out what specital treatment is made for the TE bound vtx
+
 # Installation
 
 ## Installation instructions for users

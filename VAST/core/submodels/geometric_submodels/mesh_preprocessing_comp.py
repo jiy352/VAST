@@ -93,23 +93,34 @@ class MeshPreprocessingComp(ModuleCSDL):
                                               1, :, :] * .75 + def_mesh[:, 1:
                                                                         num_pts_chord, :, :] * 0.25
             # the last one chordwise is 1/4 chord offset from the last chordwise def_mesh panel
-            bd_vtx_coords[:, num_pts_chord -
-                          1, :, :] = def_mesh[:, num_pts_chord -
-                                              1, :, :] + 0.25 * (
-                                                  def_mesh[:, num_pts_chord -
-                                                           1, :, :] -
-                                                  def_mesh[:, num_pts_chord -
-                                                           2, :, :])
+            # bd_vtx_coords[:, num_pts_chord -
+            #               1, :, :] = def_mesh[:, num_pts_chord -
+            #                                   1, :, :] + 0.25 * (
+            #                                       def_mesh[:, num_pts_chord -
+            #                                                1, :, :] -
+            #                                       def_mesh[:, num_pts_chord -
+            #                                                2, :, :])
+
+            # in BYU lab VortexLattice.ji, the last one chordwise bd_vtx is the same as the TE panel
+
+            bd_vtx_coords[:, num_pts_chord -1, :, 0] = def_mesh[:, num_pts_chord - 1, :, 0] + 0.3145926
+            bd_vtx_coords[:, num_pts_chord -1, :, 1] = def_mesh[:, num_pts_chord - 1, :, 1] 
+            bd_vtx_coords[:, num_pts_chord -1, :, 2] = def_mesh[:, num_pts_chord - 1, :, 2] - 0.03145926
 
             ################################################################################
             # compute the output: 2. coll_pts_coords (center point of the bd_vtx panels,
             # approx 3/4 chord middle span of def_mesh)
             ################################################################################
+            # coll_pts_coords = def_mesh[:, 0:num_pts_chord -1, :, :] * .25 + def_mesh[:, 1:num_pts_chord, :, :] * 0.75
 
-            coll_pts_coords = 0.25 * (bd_vtx_coords[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +\
-                                            bd_vtx_coords[:,0:num_pts_chord-1, 1:num_pts_span, :] +\
-                                            bd_vtx_coords[:,1:, 0:num_pts_span-1, :]+\
-                                            bd_vtx_coords[:,1:, 1:, :])
+            # TODO: this might not work very well for the panels that are not rectangular
+            coll_pts_coords = 0.25/2 * (def_mesh[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +def_mesh[:,0:num_pts_chord-1, 1:num_pts_span, :]) +\
+                                         0.75/2 * (def_mesh[:,1:, 0:num_pts_span-1, :]+def_mesh[:,1:, 1:, :])
+
+            # coll_pts_coords = 0.25 * (bd_vtx_coords[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +\
+            #                                 bd_vtx_coords[:,0:num_pts_chord-1, 1:num_pts_span, :] +\
+            #                                 bd_vtx_coords[:,1:, 0:num_pts_span-1, :]+\
+            #                                 bd_vtx_coords[:,1:, 1:, :])
 
             self.register_output(coll_pts_coords_name, coll_pts_coords)
 

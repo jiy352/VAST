@@ -193,6 +193,7 @@ class BiotSavartComp(csdl.Model):
             num_expand = csdl.expand(num, (num_nodes, num.shape[1], 3), 'ij->ijl')
             # num_expand = jnp.einsum('ij,l->ijl', num, jnp.ones(3))
             v_induced_line = num_expand * one_over_den
+            self.print_var(v_induced_line)
 
         return v_induced_line
 
@@ -251,6 +252,7 @@ class SymmetryFlip(csdl.CustomExplicitOperation):
 
 
 if __name__ == "__main__":
+    '''
     # import timeit
     # from python_csdl_backend import Simulator
     # import numpy as onp
@@ -264,7 +266,9 @@ if __name__ == "__main__":
     # m.register_output(output_name, AIC)
     # sim = Simulator(m)
     # sim.run()
+    '''
 
+    '''
     import time
     import timeit
     ts = time.time()
@@ -328,3 +332,4 @@ if __name__ == "__main__":
     sim.compute_totals(of='aic',wrt='vtx_pts')
     print('time', time.time() - ts)
     exit()
+    '''

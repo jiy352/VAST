@@ -67,6 +67,10 @@ for i in range(num_nodes):
 
 h_stepsize = delta_t = t_vec[1] 
 
+# z_disp = np.zeros((num_nodes,1))
+# for i in range(num_nodes):
+#     z_disp[i] = h_stepsize * np.array([u_val[i], np.zeros(1), w_vel[i]])*0.25
+
 if be == 'csdl_om':
     import csdl_om
     sim = csdl_om.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
@@ -122,3 +126,6 @@ sim.compute_totals(of='wing_C_L',wrt='density')
 
 
 
+aic = np.array([[-0.6789233991543593, 0.03501997676068566, 0.03501997676068566, -0.6789233991543593]]).reshape((2,2))
+
+gam = np.linalg.inv(aic)@np.array([0.1,0.1])
