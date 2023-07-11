@@ -87,10 +87,10 @@ class MeshPreprocessingComp(ModuleCSDL):
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
-            print(bd_vtx_coords_name)
+            # print(bd_vtx_coords_name)
             bd_vtx_coords = self.create_output(bd_vtx_coords_name,
                                                shape=(def_mesh.shape))
-            print(bd_vtx_coords.shape)
+            # print(bd_vtx_coords.shape)
             # the 0th until the second last one chordwise is (0.75*left +0.25*right)
             bd_vtx_coords[:, 0:num_pts_chord -
                           1, :, :] = def_mesh[:, 0:num_pts_chord -

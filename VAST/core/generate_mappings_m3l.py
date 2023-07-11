@@ -114,18 +114,19 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
 
         return weights
 
-class VASTNodelForces(m3l.ExplicitOperation):
+class VASTNodalForces(m3l.ExplicitOperation):
 
     def initialize(self, kwargs):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('initial_meshes', default=list)
 
-    def compute(self, vlm_forces, nodal_force_meshes):
+    def compute(self):
         surface_names = self.parameters['surface_names']  
         surface_shapes = self.parameters['surface_shapes']
         initial_meshes = self.parameters['initial_meshes']
         
+        nodal_force_meshes = self.nodal_forces_meshes
 
         csdl_model = ModuleCSDL()
 
@@ -146,7 +147,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 0:-1, :] +
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 1:, :])
 
-            force_map = self.disp_map(nodal_force_meshes[i].reshape((-1,3)), force_points_vlm.reshape((-1,3)))   
+            force_map = self.disp_map(nodal_force_meshes[i].value.reshape((-1,3)), force_points_vlm.reshape((-1,3)))   
             # this is the inverse of the displacements_map in the displacements operation
 
 
@@ -190,27 +191,27 @@ class VASTNodelForces(m3l.ExplicitOperation):
         if not isinstance(nodal_force_meshes, list):
             raise TypeError('nodal_force_meshes must be a list of am.MappedArray in VASTNodelForces.evaluate()')     
 
+        self.nodal_forces_meshes = nodal_force_meshes
 
+        self.name = f"{''.join(surface_names)}_vlm_force_mapping_model"
 
-        arguments = {}
-        operation_csdl = self.compute(vlm_forces=vlm_forces, nodal_force_meshes=nodal_force_meshes)
+        self.arguments = {}
 
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
-            arguments[surface_name+'_total_forces'] = vlm_forces[i]
-
-        force_map_operation = m3l.CSDLOperation(name='vlm_force_map', arguments=arguments, operation_csdl=operation_csdl)
+            self.arguments[surface_name+'_total_forces'] = vlm_forces[i]
 
         oml_forces = []
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
-            nx = surface_shape[1]
-            ny = surface_shape[0]
-            outshape = int((nx-1)*(ny-1))  
+            nx = surface_shape[2]
+            ny = surface_shape[1]
+            outshape = int((nx-1)*(ny-1))
             num_nodes = surface_shape[0]  
+            oml_mesh = nodal_force_meshes[i]
         
-            oml_force = m3l.Variable(name=f'{surface_name}_oml_forces', shape=(num_nodes, outshape, 3), operation=force_map_operation)
+            oml_force = m3l.Variable(name=f'{surface_name}_oml_forces', shape=oml_mesh.shape, operation=self)
             oml_forces.append(oml_force)
 
         return oml_forces
@@ -222,7 +223,7 @@ class VASTNodelForces(m3l.ExplicitOperation):
         # print('mesh', type(mesh))
         # print('oml', type(oml))
         # print('oml', type(oml))
-        weights = NodalMap(oml.reshape(-1,3), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
+        weights = NodalMap(oml.reshape((-1,3)), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
 
 
         return weights
@@ -276,7 +277,7 @@ if __name__ == "__main__":
     # 2. Create fluid_model as VASTFluidSover 
     # (msl.explicit operation)
     ###########################################
-    fluid_model = VASTNodelForces(
+    fluid_model = VASTNodalForces(
                                  surface_names=surface_names,
                                  surface_shapes=surface_shapes,
                                  initial_meshes=[input_dicts['undef_mesh'][0].reshape(-1,3)],)
@@ -411,6 +412,3 @@ if __name__ == "__main__":
 
 #     sim = Simulator(dummy_model_csdl,analytics=False) # add simulator
 #     sim.run()
-
-
-
