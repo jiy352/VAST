@@ -9,12 +9,13 @@ from VAST.core.fluid_problem import FluidProblem
 import m3l
 from VAST.core.vlm_llt.NodalMapping import NodalMap,RadialBasisFunctions
 
+import numpy as np
 
 class VASTNodelDisplacements(m3l.ExplicitOperation):
     def initialize(self, kwargs):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
-        self.parameters.declare('initial_meshes', default=list)
+        self.parameters.declare('initial_meshes', default=list) # vlm mesh before optimization
 
     def compute(self, nodal_displacements, nodal_displacements_mesh):
         surface_names = self.parameters['surface_names']  
@@ -34,8 +35,8 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
             surface_shape = surface_shapes[i]
             initial_mesh = initial_meshes[i]
             
-            nodal_displacements_surface = nodal_displacements[i]
-            nodal_displacements_mesh_surface = nodal_displacements_mesh[i]
+            nodal_displacements_surface = nodal_displacements[i] # nodal displacement on the oml mesh for the current surface
+            nodal_displacements_mesh_surface = nodal_displacements_mesh[i] # oml mesh for the current surface on which the displacement is defined
 
             displacements_map = self.disp_map(initial_mesh.reshape((-1,3)), oml=nodal_displacements_mesh_surface.reshape((-1,3)))
 
@@ -44,6 +45,11 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
 
             # register an input for the oml nodal displacements
             nodal_displacements_csdl = csdl_model.register_module_input(name=surface_name+'_nodal_displacements', shape=nodal_displacements_surface.shape)
+            # print('shapes')
+            # print('displacements_map_csdl shape', displacements_map_csdl.shape)
+            # print('nodal_displacements_csdl shape', nodal_displacements_csdl.shape)
+            # print('nodal_displacements_surface', nodal_displacements_surface.shape)
+            # print('nodal_displacements_mesh_surface', nodal_displacements_mesh_surface.shape)
             
             flatenned_vlm_mesh_displacements = csdl.matmat(displacements_map_csdl, csdl.reshape(nodal_displacements_csdl,
                                                             (nodal_displacements_surface.shape[0]*nodal_displacements_surface.shape[1],3)))
@@ -106,9 +112,9 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
     def disp_map(self, mesh, oml):
 
         # project the displacement on the oml mesh to the camber surface mesh
-        print('mesh', type(mesh))
-        print('mesh', mesh)
-        print('oml', type(oml))
+        # print('mesh', type(mesh))
+        # print('mesh', mesh)
+        # print('oml', type(oml))
         weights = (NodalMap(oml.reshape((-1,3)), mesh.reshape((-1,3)), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map)
 
 
@@ -139,15 +145,20 @@ class VASTNodalForces(m3l.ExplicitOperation):
             outshape = int((nx-1)*(ny-1))
             num_nodes = surface_shape[0]
             eval_pts_location = 0.25
-            initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
+            if type(initial_mesh)==np.ndarray: # NOTE: this is just for testing purpose, in the long term, we should raise an error if oml_mesh is not a m3l.MappedArray
+                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3))
+            else:
+                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
 
             force_points_vlm = (
                     (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 0:-1, :] +
                     (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 1:, :] +
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 0:-1, :] +
                     eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 1:, :])
-
-            force_map = self.disp_map(nodal_force_meshes[i].value.reshape((-1,3)), force_points_vlm.reshape((-1,3)))   
+            if type(initial_mesh)==np.ndarray:
+                force_map = self.disp_map(force_points_vlm.reshape((-1,3)),nodal_force_meshes[i].reshape((-1,3)),save_map=True)   
+            else:
+                force_map = self.disp_map(force_points_vlm.reshape((-1,3)),nodal_force_meshes[i].value.reshape((-1,3)))   
             # this is the inverse of the displacements_map in the displacements operation
 
 
@@ -217,16 +228,24 @@ class VASTNodalForces(m3l.ExplicitOperation):
         return oml_forces
 
 
-    def disp_map(self, mesh, oml):
+    def disp_map(self, mesh, oml,save_map=False):
 
         # project the displacement on the oml mesh to the camber surface mesh
         # print('mesh', type(mesh))
         # print('oml', type(oml))
         # print('oml', type(oml))
+        # print(mesh)
+        # print(oml)
         weights = NodalMap(oml.reshape((-1,3)), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
+        # np.savetxt('weights.txt',weights)
+        # print(weights.shape)
+        # print((np.sum(weights,axis=0)))
+        # print(np.sum(weights,axis=1))
+        if save_map:
+            np.savetxt('weights.txt',weights)
 
 
-        return weights
+        return weights.T
 
 
 if __name__ == "__main__":
