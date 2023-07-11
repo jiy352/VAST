@@ -72,6 +72,7 @@ class ODEProblemTest(ODEProblem):
             self.add_parameter(surface_name,
                                dynamic=True,
                                shape=(self.num_times, nx, ny, 3))
+
             ####################################
             # ode states names
             ####################################
@@ -223,10 +224,13 @@ class UVLMSolver(csdl.Model):
             tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
             for item in ode_surface_shapes
         ]
+
         self.add(MeshPreprocessingComp(surface_names=surface_names,
                                        surface_shapes=ode_surface_shapes,
                                        eval_pts_location=0.25,
-                                       eval_pts_option='auto'),
+                                       eval_pts_option='auto',
+                                       delta_t=h_stepsize,
+                                       problem_type='prescribed_wake'),
                  name='MeshPreprocessing_comp')
 
         m = AdapterComp(

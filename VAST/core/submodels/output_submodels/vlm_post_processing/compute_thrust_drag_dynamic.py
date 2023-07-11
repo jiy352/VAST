@@ -45,6 +45,7 @@ class ThrustDrag(Model):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         delta_t = self.parameters['delta_t']
+        # print('delta_t-------------------------------',delta_t)
 
 
         num_nodes = surface_shapes[0][0]
@@ -81,9 +82,11 @@ class ThrustDrag(Model):
         circulation_repeat = csdl.expand(circulations,
                                          (num_nodes, system_size, 3),
                                          'ki->kij')
+        
+        # b = self.declare_variable('b',shape=(num_nodes,system_size))
 
-        gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-        gamma_b_repeat = csdl.expand(gamma_b, (num_nodes, system_size, 3),'ki->kij')
+
+        # gamma_b_repeat = csdl.expand(gamma_b/csdl.reshape(((b**2)**0.5),(num_nodes,system_size)), (num_nodes, system_size, 3),'ki->kij')
         # gamma_b_repeat = circulation_repeat
 
         # print('beta shape', beta.shape)
@@ -154,16 +157,30 @@ class ThrustDrag(Model):
             self.register_output('panel_forces', panel_forces)
             wing_inital = self.declare_variable(surface_names[0],shape=(num_nodes,nx,ny,3))
             # TODO: delete this hardcoding
+
+
+            gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
+            gamma_b_repeat = csdl.expand(gamma_b* s_panels_all,(num_nodes, system_size, 3),'ki->kij')   
+
+
+
+            gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')  
+          
             c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,nx-2,0,0]
             # self.print_var(c_bar)
             c_bar_exp = csdl.reshape(csdl.expand(csdl.reshape(c_bar,(1,)), (num_nodes*system_size*3,1),'i->ji'),(num_nodes,system_size,3))
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
             # print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
-            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[1,:,:]-gamma_b_repeat[0,:,:])/delta_t
+            # dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[1,:,:]-gamma_b_repeat[0,:,:])/delta_t
+            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/delta_t
             dcirculation_repeat_dt[1:num_nodes-1,:,:] = (gamma_b_repeat[2:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-2,:,:])/(delta_t*2)
             dcirculation_repeat_dt[num_nodes-1,:,:] = (gamma_b_repeat[num_nodes-1,:,:]-gamma_b_repeat[num_nodes-2,:,:])/delta_t
-            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
-                velocities, bd_vec, axis=2)
+
+            # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+                # velocities, bd_vec, axis=2)
+
+            normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
+            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
 
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]
@@ -181,6 +198,8 @@ class ThrustDrag(Model):
 
             s_panels_sum = csdl.reshape(csdl.sum(s_panels_all, axes=(1, )),
                                         (num_nodes, 1))
+
+
 
             start = 0
             for i in range(len(surface_names)):
@@ -309,8 +328,8 @@ class ThrustDrag(Model):
             ]
 
 
-            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
-                velocities, bd_vec, axis=2)
+            # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+            #     velocities, bd_vec, axis=2)
             total_forces_temp_dynamic = csdl.sum(panel_forces_dynamic, axes=(1, ))
             self.register_output('rho_expand',rho_expand)
             # self.register_output('dcirculation_repeat_dt',dcirculation_repeat_dt)

@@ -65,6 +65,7 @@ class VLMSystem(ModuleCSDL):
                                        mesh_unit=mesh_unit,
                                        eval_pts_option=eval_pts_option,
                                        eval_pts_location=eval_pts_location,
+                                    #    problem_type='fixed_wake',
                                        ),
                  name='MeshPreprocessing_comp')
         AcStates = self.parameters["AcStates"]

@@ -9,7 +9,7 @@ import numpy as np
 # Script to create optimization problem
 
 be = 'python_csdl_backend'
-make_video = 0
+make_video = 1
 plot_cl = 1
 
 # This is a test case to check the prescribed wake solver
@@ -18,11 +18,12 @@ plot_cl = 1
 ########################################
 # 1. define geometry
 ########################################
-nx = 5; ny = 7
-# chord = 1; span = 4
-chord = 0.2; span = 0.8
+nx = 3; ny = 7
+# nx = 2; ny = 3
+chord = 1; span = 4
+# chord = 0.2; span = 0.8
 # chord = 0.6; span = 2.4
-num_nodes = 99;  nt = num_nodes
+num_nodes = 30;  nt = num_nodes
 
 mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False, "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
 mesh = generate_mesh(mesh_dict)
@@ -31,10 +32,10 @@ mesh = generate_mesh(mesh_dict)
 ########################################
 # 2. define kinematics
 ########################################
-n_period = 4 
+n_period = 1
 omg=1 
-h=0.1 * chord
-alpha = - np.deg2rad(5) 
+h=0.1 * chord*0
+alpha =  np.deg2rad(10) 
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes) 
 
 u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
@@ -59,7 +60,7 @@ surface_properties_dict = {'wing':(nx,ny,3)}
 
 # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
 mesh_val = np.zeros((num_nodes, nx, ny, 3))
-z_offset = omg*h*sin(omg*t_vec) * 0
+z_offset = omg*h*sin(omg*t_vec)
 # z_offset = omg*h*sin(omg*t_vec) 
 
 for i in range(num_nodes):
@@ -74,10 +75,6 @@ h_stepsize = delta_t = t_vec[1]
 # for i in range(num_nodes):
 #     z_disp[i] = h_stepsize * np.array([u_val[i], np.zeros(1), w_vel[i]])*0.25
 
-if be == 'csdl_om':
-    import csdl_om
-    sim = csdl_om.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
-                                        surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
 if be == 'python_csdl_backend':
     import python_csdl_backend
     sim = python_csdl_backend.Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
@@ -85,11 +82,9 @@ if be == 'python_csdl_backend':
     
 t_start = time.time()
 sim.run()
-# sim.compute_total_derivatives()
-# sim.run()
-# sim.compute_total_derivatives()
-# exit()
+
 print('simulation time is', time.time() - t_start)
+exit()
 # print('theta',sim['theta'])
 ######################################################
 # make video
@@ -111,20 +106,12 @@ if plot_cl == 1:
     plt.legend(['VAST','BYU_UVLM'])
     plt.gca().invert_yaxis()
     plt.show()
-# exit()
+exit()
 
 cl_ref = cl_ref.flatten()
 print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
 sim.compute_totals(of='wing_C_L',wrt='density')
-######################################################
-# end make video
-######################################################
 
-# sim.visualize_implementation()
-# partials = sim.check_partials(compact_print=True)
-# sim.prob.check_totals(compact_print=True)
-
-# sim.check_totals(compact_print=True)
 
 
 
@@ -132,3 +119,64 @@ sim.compute_totals(of='wing_C_L',wrt='density')
 aic = np.array([[-0.6789233991543593, 0.03501997676068566, 0.03501997676068566, -0.6789233991543593]]).reshape((2,2))
 
 gam = np.linalg.inv(aic)@np.array([0.1,0.1])
+
+import pyvista as pv
+cat_mesh = np.concatenate((mesh_val,sim['op_wing_wake_coords']), axis=1)
+
+grid_mesh = pv.StructuredGrid(cat_mesh[-1,:,:,0], cat_mesh[-1,:,:,1], cat_mesh[-1,:,:,2])
+# grid = pv.StructuredGrid(sim['op_wing_wake_coords'][9,:,:,0], sim['op_wing_wake_coords'][9,:,:,1], sim['op_wing_wake_coords'][9,:,:,2])
+grid_mesh.save('d.vtk')
+# Create a plotter object and set the scalars to the Z height
+plotter = pv.Plotter()
+plotter.add_mesh(
+    grid_mesh,
+    # scalars=z.ravel(),
+    lighting=False,
+    show_edges=False,
+    scalar_bar_args={"title": "Height"},
+    clim=[-1, 1],
+    color='red',
+    opacity=0.0,
+)
+plotter.add_mesh(
+    grid_mesh,
+    # scalars=z.ravel(),
+    lighting=False,
+    show_edges=True,
+    scalar_bar_args={"title": "Height"},
+    clim=[-1, 1],
+)
+plotter.set_background("white")
+plotter.add_axes()
+plotter.bounds = (-0.5, 3.170018838495248, -1.052461965466036, 2.0872241742687794, -1.107604303006731, -2.4492935982947065e-17)
+# plotter.show()
+
+# Open a gif
+plotter.open_gif("wave.gif")
+
+pts = grid.points.copy()
+# Update Z and write a frame for each updated position
+nframe = num_nodes
+i=0
+plotter.write_frame()
+
+for phase in np.linspace(0, 2 * np.pi, nframe + 1)[:nframe]:
+    # z = np.sin(r + phase)
+    # pts[:, -1] = z.ravel()
+    # x = sim['op_wing_wake_coords'][i,:,:,0]
+    # y = sim['op_wing_wake_coords'][i,:,:,1]
+    # z = sim['op_wing_wake_coords'][i,:,:,2]
+    x_m = cat_mesh[i,:,:,0]
+    y_m = cat_mesh[i,:,:,1]
+    z_m = cat_mesh[i,:,:,2]
+    # grid = pv.StructuredGrid(x,y,z)
+    grid_mesh = pv.StructuredGrid(x_m,y_m,z_m)
+    # print(i,grid.points.shape)
+    plotter.update_coordinates(grid_mesh.points.copy(), render=False)
+    # plotter.update_scalars(z.ravel(), render=False)
+    # Write a frame. This triggers a render.
+    plotter.write_frame()
+    i+=1
+
+# Closes and finalizes movie
+plotter.close()

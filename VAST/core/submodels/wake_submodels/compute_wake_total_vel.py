@@ -19,7 +19,7 @@ from scipy.sparse import csc_matrix
 
 
 from VAST.core.submodels.wake_submodels.compute_wake_kinematic_vel_temp import ComputeWakeKinematicVel
-# from VAST.core.submodels.wake_submodels.eval_pts_velocities_mls import EvalPtsVel
+from VAST.core.submodels.wake_submodels.eval_pts_velocities_mls import EvalPtsVel
 
 class ComputeWakeTotalVel(Model):
     """
@@ -106,13 +106,13 @@ class ComputeWakeTotalVel(Model):
         for i in range(len(surface_names)):
             wake_kinematic_vel = self.declare_variable(wake_kinematic_vel_names[i],shape=wake_vortex_pts_shapes[i])
             # wake_induced_vel = self.declare_variable(eval_induced_velocities_names[i],shape=wake_vortex_pts_shapes[i])
-            wake_induced_vel = 0
+            wake_induced_vel = 0.
 
             # print('vars-------------')
             # self.print_var(wake_kinematic_vel)
             # self.print_var(wake_induced_vel)
             ''''TODO: fix this hardcoding'''
-            wake_total_vel = wake_kinematic_vel + wake_induced_vel*0
+            wake_total_vel = wake_kinematic_vel + wake_induced_vel
             # wake_kinematic_vel * 0
             # wake_kinematic_vel+0#+wake_induced_vel
             

@@ -31,6 +31,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('eval_pts_option', default='auto')
         self.parameters.declare('eval_pts_location',default=0.25)
+        self.parameters.declare('delta_t',default=0)
+        self.parameters.declare('problem_type',default='fixed_wake')
 
     def define(self):
         # load options
@@ -40,6 +42,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         num_nodes = surface_shapes[0][0]
         eval_pts_option = self.parameters['eval_pts_option']
         eval_pts_location = self.parameters['eval_pts_location']
+        delta_t = self.parameters['delta_t']
+        problem_type = self.parameters['problem_type']
 
         system_size = sum((i[1] - 1) * (i[2] - 1) for i in surface_shapes)
         def_mesh_list = []
@@ -93,23 +97,42 @@ class MeshPreprocessingComp(ModuleCSDL):
                                               1, :, :] * .75 + def_mesh[:, 1:
                                                                         num_pts_chord, :, :] * 0.25
             # the last one chordwise is 1/4 chord offset from the last chordwise def_mesh panel
-            bd_vtx_coords[:, num_pts_chord -
-                          1, :, :] = def_mesh[:, num_pts_chord -
-                                              1, :, :] + 0.25 * (
-                                                  def_mesh[:, num_pts_chord -
-                                                           1, :, :] -
-                                                  def_mesh[:, num_pts_chord -
-                                                           2, :, :])
+            if problem_type == 'fixed_wake':
+                bd_vtx_coords[:, num_pts_chord -
+                            1, :, :] = def_mesh[:, num_pts_chord -
+                                                1, :, :] + 0.25 * (
+                                                    def_mesh[:, num_pts_chord -
+                                                            1, :, :] -
+                                                    def_mesh[:, num_pts_chord -
+                                                            2, :, :])
+
+                # in BYU lab VortexLattice.ji, the last one chordwise bd_vtx is the same as the TE panel
+
+
+            elif problem_type == 'prescribed_wake':
+                # delta_t = 0.06411414
+                frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
+                fs = -frame_vel
+                eta = 0.25
+                add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
+                # self.print_var(fs*eta*delta_t,)
+
+                bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 
             ################################################################################
             # compute the output: 2. coll_pts_coords (center point of the bd_vtx panels,
             # approx 3/4 chord middle span of def_mesh)
             ################################################################################
+            # coll_pts_coords = def_mesh[:, 0:num_pts_chord -1, :, :] * .25 + def_mesh[:, 1:num_pts_chord, :, :] * 0.75
 
-            coll_pts_coords = 0.25 * (bd_vtx_coords[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +\
-                                            bd_vtx_coords[:,0:num_pts_chord-1, 1:num_pts_span, :] +\
-                                            bd_vtx_coords[:,1:, 0:num_pts_span-1, :]+\
-                                            bd_vtx_coords[:,1:, 1:, :])
+            # TODO: this might not work very well for the panels that are not rectangular
+            coll_pts_coords = 0.25/2 * (def_mesh[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +def_mesh[:,0:num_pts_chord-1, 1:num_pts_span, :]) +\
+                                         0.75/2 * (def_mesh[:,1:, 0:num_pts_span-1, :]+def_mesh[:,1:, 1:, :])
+
+            # coll_pts_coords = 0.25 * (bd_vtx_coords[:,0:num_pts_chord-1, 0:num_pts_span-1, :] +\
+            #                                 bd_vtx_coords[:,0:num_pts_chord-1, 1:num_pts_span, :] +\
+            #                                 bd_vtx_coords[:,1:, 0:num_pts_span-1, :]+\
+            #                                 bd_vtx_coords[:,1:, 1:, :])
 
             self.register_output(coll_pts_coords_name, coll_pts_coords)
 

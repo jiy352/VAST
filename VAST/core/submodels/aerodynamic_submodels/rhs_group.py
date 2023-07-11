@@ -69,8 +69,10 @@ class RHS(Model):
         )
         self.add(m, name='KinematicVelocityComp')
 
+        # note changed here from bd_vtx_coords_names tp surface_names
+
         m = ComputeNormal(
-            vortex_coords_names=bd_vtx_coords_names,
+            vortex_coords_names=surface_names,
             normals_names=bd_vtx_normal_names,
             vortex_coords_shapes=bd_vortex_shapes,
         )

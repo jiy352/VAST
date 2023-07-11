@@ -22,6 +22,6 @@ class EelViscousModel(Model):
 
     def define(self):
         v_x = self.declare_variable(name='v_x')
-        C_F = 3.66/1000*(v_x)**(-0.5) * 0.2944404050399099/0.13826040386294708
+        C_F = 3.66/1000*(v_x)**(-0.5) * 0.2944404050399099 /0.13826040386294708 * 6
 
         self.register_output('C_F', C_F)
