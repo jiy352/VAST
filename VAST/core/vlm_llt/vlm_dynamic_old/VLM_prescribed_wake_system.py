@@ -56,13 +56,8 @@ class ODESystemModel(csdl.Model):
             
 
             surface = self.declare_variable(surface_name, shape=(n, nx, ny, 3))
-        # 1.1.2 from the declared surface mesh, compute 6 preprocessing outputs
-        # surface_bd_vtx_coords,coll_pts,l_span,l_chord,s_panel,bd_vec_all
-        self.add(MeshPreprocessingComp(surface_names=surface_names,
-                                       surface_shapes=ode_surface_shapes,
-                                       eval_pts_location=0.25,
-                                       eval_pts_option='auto'),
-                 name='MeshPreprocessing_comp')
+
+
         # 1.2.1 declare the ode parameter AcStates for the current time step
         u = self.declare_variable('u',  shape=(n,1))
         v = self.declare_variable('v',  shape=(n,1))
@@ -87,6 +82,18 @@ class ODESystemModel(csdl.Model):
             surface_shapes=ode_surface_shapes,
         )
         self.add(m, name='adapter_comp')
+
+
+        # 1.1.2 from the declared surface mesh, compute 6 preprocessing outputs
+        # surface_bd_vtx_coords,coll_pts,l_span,l_chord,s_panel,bd_vec_all
+        self.add(MeshPreprocessingComp(surface_names=surface_names,
+                                       surface_shapes=ode_surface_shapes,
+                                       eval_pts_location=0.25,
+                                       eval_pts_option='auto',
+                                       delta_t=delta_t,
+                                       problem_type='prescribed_wake'),
+                 name='MeshPreprocessing_comp')
+
 
         self.add(CombineGammaW(surface_names=surface_names, surface_shapes=ode_surface_shapes, n_wake_pts_chord=nt-1),
             name='combine_gamma_w')

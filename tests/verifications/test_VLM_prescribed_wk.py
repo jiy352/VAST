@@ -75,7 +75,7 @@ def test_generate_model_vlm_fixed_wake():
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
     sim.run()
     
-    cl = sim['wing_C_L'][-int(num_nodes/4)*2:-int(num_nodes/4)-1].flatten()
+    cl = sim['wing_C_L'][75:-1].flatten()
     try:
         cl_ref = np.loadtxt('/Users/jyan/Documents/packages/VAST/tests/verifications/uvlm_plunging.txt').flatten()
     # try:

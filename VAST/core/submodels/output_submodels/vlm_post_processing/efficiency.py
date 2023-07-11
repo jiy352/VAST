@@ -36,21 +36,41 @@ class EfficiencyModel(csdl.Model):
         thrust = self.declare_variable('thrust',shape=(num_nodes,1))
         panel_forces_all_x = panel_forces_all[:,:,0]
         velocities_x = self.create_output('velocities_x',shape=velocities.shape,val=0)
-        velocities_x[:,:,0] = velocities[:,:,0] - csdl.expand(v_x,shape=velocities[:,:,0].shape)
+        velocities_x[:,:,0] = velocities[:,:,0] #- csdl.expand(v_x,shape=velocities[:,:,0].shape)
         velocities_x[:,:,1] = velocities[:,:,1]
         velocities_x[:,:,2] = velocities[:,:,2]
 
 
-        panel_thrust_power = -csdl.sum(csdl.dot(panel_forces_all,velocities_x,axis=2))
+        panel_thrust_power = csdl.sum(csdl.dot(panel_forces_all,-velocities_x,axis=2))
         thrust_power = csdl.sum(csdl.sum(thrust,axes=(1,))*csdl.expand(v_x,shape=(num_nodes,)))
 
-        # self.print_var(panel_thrust_power)
-        # self.print_var(thrust_power)
+        self.print_var(panel_thrust_power)
+        self.print_var(thrust_power)
 
-        efficiency = thrust_power/(panel_thrust_power+thrust_power)
-        # self.print_var(efficiency)
+        # efficiency = thrust_power/(panel_thrust_power+thrust_power)
+        efficiency = thrust_power/(panel_thrust_power)
+        self.print_var(efficiency)
         self.register_output('efficiency',efficiency)
 
+# panel_forces_all = sim['panel_forces_all']
+# velocities_panel = - sim['eel_kinematic_vel']
+# panel_forces_dynamic = sim['panel_forces_dynamic']
+# panel_acc = np.gradient(velocities_panel,axis=0)/h_stepsize
+
+# mid_panel_vel = velocities_panel[:,int(velocities_panel.shape[1]/2),:]*0.5
+# mid_panel_acc = panel_acc[:,int(panel_acc.shape[1]/2),:]*0.1
+# mid_panel_forces = panel_forces_all[:,int(panel_forces_all.shape[1]/2),:]
+# mid_panel_forces_dynamic = panel_forces_dynamic[:,int(panel_forces_dynamic.shape[1]/2),:]
+# import matplotlib.pyplot as plt
+# import matplotlib as mpl
+# mpl.rcParams.update(mpl.rcParamsDefault)
+# plt.plot(mid_panel_vel[:,1])
+# plt.plot(mid_panel_acc[:,1])
+# plt.plot(mid_panel_forces[:,1])
+# plt.plot(mid_panel_forces_dynamic[:,1])
+# plt.plot(mid_panel_forces[:,1]-mid_panel_forces_dynamic[:,1])
+# plt.legend(['vel','acc','force','force_dynamic','force_static'])
+# plt.show()
 
 
         # compute energy efficiency here

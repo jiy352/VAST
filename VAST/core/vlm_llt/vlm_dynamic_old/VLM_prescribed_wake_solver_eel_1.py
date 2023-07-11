@@ -1,7 +1,6 @@
 import time
 
 import matplotlib.pyplot as plt
-import openmdao.api as om
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
@@ -247,7 +246,10 @@ class UVLMSolver(csdl.Model):
         self.add(MeshPreprocessingComp(surface_names=surface_names,
                                        surface_shapes=ode_surface_shapes,
                                        eval_pts_location=0.25,
-                                       eval_pts_option='auto'),
+                                       eval_pts_option='auto',
+                                       delta_t=h_stepsize,
+                                       problem_type='prescribed_wake',
+                                       ),
                  name='MeshPreprocessing_comp')
 
         m = AdapterComp(
@@ -304,6 +306,7 @@ class UVLMSolver(csdl.Model):
             sprs=None,
             coeffs_aoa=None,
             coeffs_cd=None,
+            delta_t=h_stepsize,
         )
         self.add(submodel, name='ThrustDrag')
         self.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')

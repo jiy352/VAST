@@ -10,7 +10,8 @@ def make_video(surface_properties_dict,num_nodes, sim):
         yrange=(-10, 10),
         zrange=(-3, 0.5),
     )
-    video = Video("fixvd.gif",backend='imageio')
+    # video = Video("fixvd.gif",backend='imageio')
+    video = Video("fixvd.gif",backend='ffmpeg')
     for i in range(nt - 1):
         plt = Plotter(
             bg='beige',

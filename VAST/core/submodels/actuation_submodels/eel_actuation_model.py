@@ -54,6 +54,12 @@ class EelActuationModel(csdl.Model):
         wave_number = self.declare_variable('wave_number', val=lambda_)
         linear_relation = self.declare_variable('linear_relation', val=0.03125)
 
+
+        
+        self.print_var(tail_amplitude)
+        self.print_var(tail_frequency)
+        self.print_var(wave_number)
+
         t_temp_val = np.linspace(0,N_period,num_nodes)
         t_temp = self.create_input('t_temp',val = t_temp_val)
         # print()

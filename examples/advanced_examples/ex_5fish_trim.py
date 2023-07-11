@@ -48,7 +48,7 @@ import python_csdl_backend
 model = csdl.Model()
 v_x = model.create_input('v_x', val=0.2)
 #v_x = model.create_input('v_x', val=0.35)
-tail_amplitude = model.create_input('tail_amplitude', val=A)
+# v_x = model.create_input('tail_amplitude', val=A)
 tail_frequency = model.create_input('tail_frequency', val=f)
 wave_number = model.create_input('wave_number', val=lambda_)
 linear_relation = model.create_input('linear_relation', val=lambda_)
@@ -59,11 +59,10 @@ density = model.create_input('density',val=np.ones((num_nodes,1))*997)
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
 
-
-model.add_design_variable('v_x',upper=0.25,lower=0.05)
-model.add_design_variable('tail_amplitude',upper=0.15,lower=0.1)
-model.add_design_variable('tail_frequency',upper=0.50,lower=0.46)
-model.add_design_variable('wave_number',upper=1.1,lower=0.9)
+model.add_design_variable('v_x',upper=0.8,lower=0.05)
+# model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+# model.add_design_variable('tail_frequency',upper=0.5,lower=0.2)
+# model.add_design_variable('wave_number',upper=2,lower=1)
 # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
 thrust = model.declare_variable('thrust',shape=(num_nodes,1))
 C_F = model.declare_variable('C_F')
@@ -74,8 +73,8 @@ model.register_output('avg_C_T', avg_C_T)
 thrust_coeff_avr = (avg_C_T - C_F)**2
 
 model.register_output('thrust_coeff_avr', thrust_coeff_avr)
-model.add_constraint('thrust_coeff_avr',equals=0.,scaler=1e2)
-model.add_objective('efficiency',scaler=-1)
+# model.add_constraint('thrust_coeff_avr',equals=0.)
+model.add_objective('thrust_coeff_avr',scaler=1e3)
 
 sim = python_csdl_backend.Simulator(model)
     
@@ -107,10 +106,10 @@ prob = CSDLProblem(
 # optimizer = SLSQP(prob, maxiter=1)
 optimizer = SNOPT(
     prob, 
-    Major_iterations=30,
+    Major_iterations=10,
     # Major_optimality=1e-6,
-    Major_optimality=1e-5,
-    Major_feasibility=1e-5,
+    Major_optimality=1e-9,
+    Major_feasibility=1e-9,
     append2file=True,
     Major_step_limit=.25,
 )
@@ -130,20 +129,9 @@ ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
 print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
 
 
-# thrust = np.sum(sim['thrust'])
-# v_x = sim['v_x']
+thrust = np.sum(sim['thrust'])
+v_x = sim['v_x']
 
-# # Force_sum = thrust
+# Force_sum = thrust
 
-# effi = thrust*v_x/np.sum(sim['panel_power'])
-
-# t = np.linspace(0,np.pi*2,24)
-# cl_1 = np.loadtxt('cl_1')[:-1]
-# cl_02 = np.loadtxt('cl_02')[:-1]
-# cl_06 = np.loadtxt('cl_06')[:-1]
-# plt.plot(t,cl_1,'o-',label='1')
-# plt.plot(t,cl_02,'o-',label='0.2')
-# plt.plot(t,cl_06,'o-',label='0.6')
-# plt.legend(['k=0.5','k=0.1','k=0.3'])
-
-# plt.gca().invert_yaxis()
+effi = thrust*v_x/np.sum(sim['panel_power'])
