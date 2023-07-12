@@ -45,6 +45,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             num_nodes=num_nodes,
             eval_pts_shapes=eval_pts_shapes,
             AcStates='dummy',
+            cl0 = [0.0],
         )
     # wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
@@ -57,9 +58,9 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
 sim = ex1_generate_model_vlm_fixed_wake(num_nodes=1,nx=3, ny=11)
 sim.run()
 
-print('The number of nan in num_00e9 is: ', np.count_nonzero(np.isinf(sim['num_00e9'])))
-print('The number of nan in num_00eB is: ', np.count_nonzero(np.isinf(sim['num_00eB'])))
-print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
-print('The number of nan in num_00fu is: ', np.count_nonzero(np.isinf(sim['num_00fu'])))
+# print('The number of nan in num_00e9 is: ', np.count_nonzero(np.isinf(sim['num_00e9'])))
+# print('The number of nan in num_00eB is: ', np.count_nonzero(np.isinf(sim['num_00eB'])))
+# print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
+# print('The number of nan in num_00fu is: ', np.count_nonzero(np.isinf(sim['num_00fu'])))
 
 

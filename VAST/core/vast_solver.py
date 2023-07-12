@@ -120,6 +120,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         
         # Create the M3L variables that are being output
         forces = []
+        cl_spans = []
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shapes = self.parameters['surface_shapes'][i]
@@ -127,12 +128,14 @@ class VASTFluidSover(m3l.ExplicitOperation):
             nx = surface_shapes[1]
             ny = surface_shapes[2]
             force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=self)
+            cl_span = m3l.Variable(name=f'{surface_name}_cl_span_total', shape=(num_nodes, int(ny-1)), operation=self)
             forces.append(force)
+            cl_spans.append(cl_span)
 
         total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
         total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
-
-        return forces, total_force, total_moment
+        # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
+        return cl_spans, forces, total_force, total_moment
 
 
 class VASTMesh(Module):

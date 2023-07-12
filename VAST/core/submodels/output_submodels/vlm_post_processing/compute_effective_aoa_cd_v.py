@@ -49,9 +49,6 @@ class AOA_CD(Model):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
 
-            # CD_v_name = surface_names[i] + '_C_D_v'
-            # CD_name = surface_names[i] + '_C_D'
-
             effective_aoa_name = effective_aoa_names[i]
             cd_v_name = cd_v_names[i]
 
@@ -92,7 +89,7 @@ class AOA_CD(Model):
                     0.5 * rho * b * csdl.sum(surface_span, axes=(1, )))
             cd_0 = csdl.reshape(cd_v, (num_nodes, num_span, 1))
             D_0 = csdl.sum(cd_0 * (0.5 * rho_b_exp * surface_span), axes=(1, ))
-            # C_D = cd_v + self.declare_variable(CD_name, shape=(num_nodes, ))
+
             self.register_output(CD_total_names[i], C_D_total)
             self.register_output(
                 D_total_names[i],
