@@ -57,6 +57,7 @@ class MeshPreprocessingComp(ModuleCSDL):
 
         # loop through lifting surfaces to compute outputs
         start = 0
+        chord_lengths = []
         for i in range(len(surface_names)):
             # load name of the geometry mesh, number of points in chord and spanwise direction
             surface_name = surface_names[i]
@@ -146,6 +147,7 @@ class MeshPreprocessingComp(ModuleCSDL):
                                                    0:num_pts_span - 1, :]
             chords = csdl.pnorm(chords_vec, axis=(3))
             self.register_output(chord_name, chords)
+            chord_lengths.append(chords)
 
             ################################################################################
             # compute the output: 4. spans
@@ -216,6 +218,25 @@ class MeshPreprocessingComp(ModuleCSDL):
         #     for i in range(len(eval_pts_shapes)):
         #         eval_pts_coords = self.declare_variable(
         #             eval_pts_names[i], shape=(eval_pts_shapes[i]))
+
+
+        ################################################################################
+        # create the output: 7. re_span: Reynolds # of each strip
+        ################################################################################
+        rho = self.register_module_input('density', shape=(num_nodes, 1), val=1.1)
+        v_inf_sq = self.register_module_input('v_inf_sq', shape=(num_nodes, 1), val=1.1)
+
+        mu = 1.8e-5
+
+        for i in range(len(surface_names)):
+            chord_length = chord_lengths[i]
+            ny = chord_length.shape[2]
+            chord_length_span = csdl.reshape(csdl.sum(chord_length, axes=(1,)), new_shape=(num_nodes, ny, 1))
+
+            rho_v_exp = csdl.expand(rho * (v_inf_sq**0.5), (num_nodes,chord_length_span.shape[1],1),'ik->ijk')
+
+            re_span = rho_v_exp * chord_length_span / mu
+            self.register_module_output(surface_names[i] + '_re_span', re_span)
 
 
 if __name__ == "__main__":

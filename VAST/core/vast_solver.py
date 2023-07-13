@@ -72,7 +72,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None):
+    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None, ML=False):
         '''
         Evaluates the vast model.
         
@@ -121,21 +121,29 @@ class VASTFluidSover(m3l.ExplicitOperation):
         # Create the M3L variables that are being output
         forces = []
         cl_spans = []
+        re_spans = []   
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shapes = self.parameters['surface_shapes'][i]
             num_nodes = surface_shapes[0]
             nx = surface_shapes[1]
             ny = surface_shapes[2]
+
             force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=self)
-            cl_span = m3l.Variable(name=f'{surface_name}_cl_span_total', shape=(num_nodes, int(ny-1)), operation=self)
+            cl_span = m3l.Variable(name=f'{surface_name}_cl_span_total', shape=(num_nodes, int(ny-1),1), operation=self)
+            re_span = m3l.Variable(name=f'{surface_name}_re_span', shape=(num_nodes, int(ny-1),1), operation=self)
+
             forces.append(force)
             cl_spans.append(cl_span)
+            re_spans.append(re_span)
 
         total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
         total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
         # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
-        return cl_spans, forces, total_force, total_moment
+        if ML:
+            return cl_spans, re_spans, forces, total_force, total_moment
+        else:
+            return forces, total_force, total_moment
 
 
 class VASTMesh(Module):
@@ -359,3 +367,4 @@ if __name__ == "__main__":
     model_1.add_objective('VASTSolverModule.VLMSolverModel.VLM_outputs.LiftDrag.total_drag')
     sim.run()
     sim.check_totals()
+

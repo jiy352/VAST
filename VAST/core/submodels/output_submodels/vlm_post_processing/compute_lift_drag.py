@@ -326,13 +326,18 @@ class LiftDrag(ModuleCSDL):
                 # I will rewrite it later!!!!!!!!!!!!!!!!!!!!!!!!!!
                 ####################################################
                 total_forces_surface_cl_span = self.create_output(surface_names[i]+'_total_forces_for_cl_spane',shape=(num_nodes,delta,3))
-                total_forces_surface_cl_span[:,:,0] = panel_forces[:,start:start+delta,0] - csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
+                # total_forces_surface_cl_span[:,:,0] = panel_forces[:,start:start+delta,0] - csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
+                # total_forces_surface_cl_span[:,:,1] = panel_forces[:,start:start+delta,1] * 0
+                # total_forces_surface_cl_span[:,:,2] = panel_forces[:,start:start+delta,2] - csdl.expand(-D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
+
+                total_forces_surface_cl_span[:,:,0] = panel_forces[:,start:start+delta,0] - csdl.expand(-D_0 * csdl.cos(alpha), (num_nodes,delta,1),'ik->ijk')
                 total_forces_surface_cl_span[:,:,1] = panel_forces[:,start:start+delta,1] * 0
-                total_forces_surface_cl_span[:,:,2] = panel_forces[:,start:start+delta,2] - csdl.expand(-D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
+                total_forces_surface_cl_span[:,:,2] = panel_forces[:,start:start+delta,2] - csdl.expand(-D_0 * csdl.sin(alpha), (num_nodes,delta,1),'ik->ijk')
+
                 # print('total_forces_surface_cl_span',total_forces_surface_cl_span[:,:,0])
                 # print('cosa',cosa.shape)
                 L_panel_cl = -total_forces_surface_cl_span[:,:,0] * sina[:,start:start+delta,:] + total_forces_surface_cl_span[:,:,2] * cosa[:,start:start+delta,:]
-                L_panel_cl_strip = csdl.sum(csdl.reshape(L_panel_cl,(num_nodes,nx-1,ny-1)),axes=(1,))
+                L_panel_cl_strip = csdl.sum(csdl.reshape(L_panel_cl,(num_nodes,nx-1,ny-1)),axes=(1,)) 
                 # D_panel = total_forces_surface_cl_span[:,:,0] * cosa * cosb + total_forces_surface_cl_span[:,:,2] * sina * cosb - total_forces_surface_cl_span[:,:,1] * sinb
                 # L_spanwise_sum = csdl.sum(L_panel,axes=(1,))
                 s_panels = self.declare_variable(surface_names[i] + '_s_panel', shape=(num_nodes, nx - 1, ny - 1))
@@ -341,7 +346,7 @@ class LiftDrag(ModuleCSDL):
                 # print('s_panels_strip',s_panels_strip.shape)
                 # print('rho_b_exp',rho_b_exp.shape)
                 # print('L_panel_cl_strip',L_panel_cl_strip.shape)
-                cl_span_total = L_panel_cl_strip/(s_panels_strip*rho_b_exp*0.5)
+                cl_span_total = csdl.reshape(L_panel_cl_strip/(s_panels_strip*rho_b_exp*0.5)+ cl0[i],(s_panels_strip.shape+(1,)))
                 self.print_var(cl_span_total)
 
                 self.register_output(surface_names[i]+'_cl_span_total', cl_span_total)
