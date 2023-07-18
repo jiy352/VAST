@@ -19,8 +19,8 @@ plot_cl = 1
 # 1. define geometry
 ########################################
 nx = 5; ny = 7
-# chord = 1; span = 4
-chord = 0.2; span = 0.8
+chord = 1; span = 4
+# chord = 0.2; span = 0.8
 # chord = 0.6; span = 2.4
 num_nodes = 99;  nt = num_nodes
 
