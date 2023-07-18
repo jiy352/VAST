@@ -130,7 +130,7 @@ class ViscousCorrectionCSDL(ModuleCSDL):
         num_nodes = surface_shapes[0][0] 
 
         submodel = AdapterComp(surface_names=surface_names, surface_shapes=surface_shapes)
-        self.add_submodel(submodel, 'adapter_comp')
+        self.add_module(submodel, 'adapter_comp')
 
         rho = self.declare_variable('density', shape=(num_nodes,1))
         v_inf_sq = self.declare_variable('v_inf_sq', shape=(num_nodes,1))
