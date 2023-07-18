@@ -164,7 +164,7 @@ class ThrustDrag(Model):
 
 
 
-            gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')  
+            # gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')  
           
             c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,nx-2,0,0]
             # self.print_var(c_bar)
@@ -180,7 +180,7 @@ class ThrustDrag(Model):
                 # velocities, bd_vec, axis=2)
 
             normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
-            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
+            panel_forces_dynamic = -rho_expand * dcirculation_repeat_dt * normals
 
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]

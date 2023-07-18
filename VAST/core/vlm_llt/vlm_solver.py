@@ -33,6 +33,8 @@ class VLMSolverModel(ModuleCSDL):
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('cl0', default=[0])
 
+        self.parameters.declare('ML', default=False)
+
     def define(self):
         # add the mesh info
         surface_names = self.parameters['surface_names']
@@ -88,6 +90,7 @@ class VLMSolverModel(ModuleCSDL):
             coeffs_cd=coeffs_cd,
             mesh_unit=mesh_unit,
             cl0=cl0,
+            ML=self.parameters['ML'],
         )
         self.add(sub, name='VLM_outputs')
 

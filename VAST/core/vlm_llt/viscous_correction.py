@@ -11,23 +11,11 @@ from typing import List
 import numpy as np
 
 
-class VASTFluidSover(m3l.ExplicitOperation):
+class ViscousCorrectionModel(m3l.ExplicitOperation):
     def initialize(self, kwargs):
         self.parameters.declare('component', default=None)
-        self.parameters.declare('mesh', default=None)
-        self.parameters.declare('fluid_solver', True)
-        self.parameters.declare('num_nodes', default=1, types=int)
-
-        self.parameters.declare('fluid_problem', types=FluidProblem)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
-        self.parameters.declare('solve_option', default='direct')
-        self.parameters.declare('mesh_unit', default='m')
-        self.parameters.declare('cl0', default=None)
-        self.parameters.declare('input_dicts', default=None)
-
-        self.parameters.declare('ML', default=False)
-
 
     def compute(self):
         '''
@@ -38,47 +26,30 @@ class VASTFluidSover(m3l.ExplicitOperation):
         csdl_model : csdl.Model
             The csdl model which computes the outputs (the normal solver)
         '''
-        fluid_problem = self.parameters['fluid_problem']
 
 
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        num_nodes = self.parameters['num_nodes'] #surface_shapes[0][0]
-        mesh_unit = self.parameters['mesh_unit']
-        cl0 = self.parameters['cl0']
-        input_dicts = self.parameters['input_dicts']
-
-        ML = self.parameters['ML']
-
+        num_nodes = surface_shapes[0][0]
 
         csdl_model = ModuleCSDL()
 
-        self.displacements = []
+        self.F = []
+        self.M = []
 
-        # for i in range(len(surface_names)):
-        #     surface_name = surface_names[i]
-        #     surface_shape = self.parameters['surface_shapes'][i]
-        #     displacement = csdl_model.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
-        #     self.displacements.append(displacement)
-
-        submodule = VASTCSDL(
+        submodule = ViscousCorrectionCSDL(
             module=self,
-            fluid_problem=fluid_problem,
             surface_names=surface_names,  
-            surface_shapes=surface_shapes,
-            mesh_unit=mesh_unit,
-            cl0=cl0,
-            input_dicts=input_dicts,
-            ML=ML,)
+            surface_shapes=surface_shapes)
 
-        csdl_model.add_module(submodule,'vast')
+        csdl_model.add_module(submodule,'viscous_correction_ml')
     
         return csdl_model      
 
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None):
+    def evaluate(self, ac_states, forces, cd_v, panel_area, moment_pt, evaluation_pt):
         '''
         Evaluates the vast model.
         
@@ -99,17 +70,11 @@ class VASTFluidSover(m3l.ExplicitOperation):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = self.parameters['num_nodes']
-        ML = self.parameters['ML']
         
         self.arguments = {}
-        self.name = f"{''.join(surface_names)}_vlm_model"
+        self.name = f"{''.join(surface_names)}_viscous_correction_model"
         # print(displacements)
 
-        # displacements = self.displacements 
-        if displacements is not None:
-            for i in range(len(surface_names)):
-                surface_name = surface_names[i]
-                self.arguments[f'{surface_name}_displacements'] = displacements[i]
         
         # print(arguments)
         # new_arguments = {**arguments, **ac_states}
@@ -123,107 +88,112 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.arguments['psi'] = ac_states['psi']
         self.arguments['gamma'] = ac_states['gamma']
         # self.arguments['psiw'] = ac_states['psi_w']
-
-        
-        # Create the M3L variables that are being output
-        forces = []
-        cl_spans = []
-        re_spans = []  
-        panel_areas = [] 
-        evaluation_pts = []
-        for i in range(len(surface_names)):
-            surface_name = surface_names[i]
-            surface_shapes = self.parameters['surface_shapes'][i]
-            num_nodes = surface_shapes[0]
-            nx = surface_shapes[1]
-            ny = surface_shapes[2]
-
-            force = m3l.Variable(name=f'{surface_name}_total_forces', shape=(num_nodes, int((nx-1)*(ny-1)), 3), operation=self)
-            cl_span = m3l.Variable(name=f'{surface_name}_cl_span_total', shape=(num_nodes, int(ny-1),1), operation=self)
-            re_span = m3l.Variable(name=f'{surface_name}_re_span', shape=(num_nodes, int(ny-1),1), operation=self)
-            panel_area = m3l.Variable(name=f'{surface_name}_s_panel', shape=(num_nodes,nx-1,ny-1), operation=self)
-            evaluation_pt = m3l.Variable(name=f'{surface_name}_eval_pts_coords', shape=(num_nodes,nx-1,ny-1,3), operation=self)
-
-            forces.append(force)
-            cl_spans.append(cl_span)
-            re_spans.append(re_span)
-            panel_areas.append(panel_area)
-            evaluation_pts.append(evaluation_pt)
+        if forces is not None:
+            for i in range(len(surface_names)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_total_forces'] = forces[i]
+        if cd_v is not None:
+            for i in range(len(surface_names)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_cd_v_span'] = cd_v[i]
+        if panel_area is not None:
+            for i in range(len(surface_names)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_s_panel'] = panel_area[i]
+        if moment_pt is not None:
+            self.arguments['evaluation_pt'] = moment_pt[0]
+        if evaluation_pt is not None:
+            for i in range(len(surface_names)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_eval_pts_coords'] = evaluation_pt[i]
 
         total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
         total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
         # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
-        if ML:
-            return cl_spans, re_spans, forces, panel_areas, evaluation_pt, total_force, total_moment
-        else:
-            return forces, total_force, total_moment
+        return total_force, total_moment
 
 
-class VASTMesh(Module):
-    def initialize(self, kwargs):
-        self.parameters.declare('meshes', types=dict)
-        self.parameters.declare('mesh_units', default='m')
 
-class VASTCSDL(ModuleCSDL):
+
+class ViscousCorrectionCSDL(ModuleCSDL):
+    """
+    Computes the viscous correction to the forces and moments.
+    """
     def initialize(self):
-        self.parameters.declare('fluid_problem',default=None)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
-        self.parameters.declare('solve_option', default='direct')
-        self.parameters.declare('mesh_unit', default='m')
-        self.parameters.declare('cl0', default=None)
-        self.parameters.declare('input_dicts', default=None)
-        self.parameters.declare('ML', default=False)
+        self.parameters.declare('eval_pts_shapes',default=None)
 
     def define(self):
-        fluid_problem = self.parameters['fluid_problem']
-        solver_options = fluid_problem.solver_option
-        problem_type = fluid_problem.problem_type
-
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        num_nodes = surface_shapes[0][0]
-        mesh_unit = self.parameters['mesh_unit']
-        cl0 = self.parameters['cl0']
+        num_nodes = surface_shapes[0][0] 
 
-        ML = self.parameters['ML']
+        rho = self.declare_variable('density', shape=(num_nodes,1))
+        v_inf_sq = self.declare_variable('v_inf_sq', shape=(num_nodes,1))
+        alpha = self.declare_variable('alpha', shape=(num_nodes, 1))
 
-        # todo: connect the mesh to the solver
-        # wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
-        # try:
-        #     input_dicts = self.parameters['input_dicts']
-        #     submodel = CreateACSatesModule(v_inf=input_dicts['v_inf'],theta=input_dicts['theta'],num_nodes=num_nodes)
-        #     self.add_module(submodel, 'ACSates')
-
-        # wing_incidence_angle = self.register_module_input('wing_incidence', shape=(1, ), computed_upstream=False)
+        F_total_surface_list = []
+        M_total_surface_list = []
 
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
-            surface_shape = self.parameters['surface_shapes'][i]
-            # displacements = self.declare_variable(f'{surface_name}_displacements', shape=(surface_shape),val=0.)
+            surface_shape = surface_shapes[i]
+            nx = surface_shape[1]
+            ny = surface_shape[2]
 
-            undef_mesh = self.declare_variable(f'{surface_name}_mesh', val=np.zeros(surface_shape))
-            # mesh = undef_mesh  #+ displacements
-            # self.register_module_output(surface_name, mesh)
+            panel_size = int((surface_shape[1]-1) * (surface_shape[2]-1))
+            num_span = surface_shape[2]-1
 
-        # except:
-        #     pass
+            surface_cd_v = self.declare_variable(surface_name + '_cd_v_span', shape=(num_nodes,num_span,1),val=np.random.random((num_nodes,num_span,1))*1e-2)
+            panel_area = self.declare_variable(surface_name + '_s_panel', shape=(num_nodes,nx-1,ny-1))
 
-        if fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'fixed_wake':
-            submodel = VLMSolverModel(
-                surface_names=surface_names,
-                surface_shapes=surface_shapes,
-                AcStates='dummy',
-                mesh_unit=mesh_unit,
-                cl0=cl0,
-                ML=ML
-            )
-            self.add_module(submodel, 'VLMSolverModel')
+            rho_v_sq_expand = csdl.expand(rho * v_inf_sq, (num_nodes,nx-1,num_span,1), 'il->ijkl')
 
-        # TODO: make dynamic case works
-        elif fluid_problem.solver_option == 'VLM' and fluid_problem.problem_type == 'prescribed_wake':
-            sim = Simulator(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
-                                            surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), mode='rev')
+            panel_drag = csdl.expand(surface_cd_v, (num_nodes,nx-1,num_span,1), 'ikl->ijkl') * csdl.reshape(panel_area,(num_nodes,nx-1,ny-1,1)) * 0.5 * rho_v_sq_expand
+            panel_drag_flatten = csdl.reshape(panel_drag, (num_nodes,panel_size,1))
+
+            self.register_output(surface_name + '_panel_drag', panel_drag_flatten)
+
+
+            panel_forces_total = self.declare_variable(surface_name + '_total_forces', shape=(num_nodes,panel_size,3))
+
+            cosa = csdl.expand(csdl.cos(alpha),(num_nodes,panel_size,1), 'il->ijl')
+            sina = csdl.expand(csdl.sin(alpha),(num_nodes,panel_size,1), 'il->ijl')
+
+
+            panel_forces_viscous = self.create_output(surface_name + '_total_forces_viscous', shape=(num_nodes,panel_size,3))
+            panel_forces_viscous[:,:,0] = panel_forces_total[:,:,0]-panel_drag_flatten*cosa
+            panel_forces_viscous[:,:,1] = panel_forces_total[:,:,1]
+            panel_forces_viscous[:,:,2] = panel_forces_total[:,:,2]+panel_drag_flatten*sina
+
+            F_total_surface = csdl.sum(panel_forces_viscous,axes=(1,))
+
+            self.register_output(surface_name + '_F', F_total_surface)
+            moment_pt = self.declare_variable('evaluation_pt',
+                                                  val=np.zeros(3, ))
+
+            evaluation_pt = self.declare_variable(surface_name+'_eval_pts_coords',shape=(num_nodes,nx-1,ny-1,3))
+            evaluation_pt_exp = csdl.expand(moment_pt,(evaluation_pt.shape),'l->ijkl')          
+            r_M = evaluation_pt - evaluation_pt_exp
+
+            total_moments_surface = self.create_output(surface_names[i]+'_total_moments_surface_visvous',shape=(num_nodes,panel_size,3))
+            print('panel_forces_viscous',panel_forces_viscous.shape)
+            print('r_M',r_M.shape)
+            total_moments_surface_temp = csdl.cross(csdl.reshape(r_M,(num_nodes,panel_size,3)), panel_forces_viscous, axis=2)
+            total_moments_surface[:,:,0] = total_moments_surface_temp[:,:,0] * 0 # NOTE: hard coded
+            total_moments_surface[:,:,1] = total_moments_surface_temp[:,:,1]
+            total_moments_surface[:,:,2] = total_moments_surface_temp[:,:,2] * 0
+
+            total_moments_surface_visvous = csdl.sum(total_moments_surface,axes=(1,))
+
+            F_total_surface_list.append(F_total_surface)
+            M_total_surface_list.append(total_moments_surface_visvous)
+        
+        F = sum(F_total_surface_list)
+        M = sum(M_total_surface_list)
+        self.register_output('F', F)
+        self.register_output('M', M)
 
 if __name__ == "__main__":
 
@@ -385,3 +355,4 @@ if __name__ == "__main__":
     sim.run()
     sim.check_totals()
 
+s
