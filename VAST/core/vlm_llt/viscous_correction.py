@@ -4,7 +4,7 @@ from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
-
+from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.fluid_problem import FluidProblem
 import m3l
 from typing import List
@@ -128,6 +128,9 @@ class ViscousCorrectionCSDL(ModuleCSDL):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = surface_shapes[0][0] 
+
+        submodel = AdapterComp(surface_names=surface_names, surface_shapes=surface_shapes)
+        self.add_submodel(submodel, 'adapter_comp')
 
         rho = self.declare_variable('density', shape=(num_nodes,1))
         v_inf_sq = self.declare_variable('v_inf_sq', shape=(num_nodes,1))
