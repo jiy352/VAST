@@ -167,7 +167,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
         
         if ML:
-            return cl_spans, re_spans, forces, panel_areas, evaluation_pt, total_force, total_moment
+            return cl_spans, re_spans, forces, panel_areas, evaluation_pts, total_force, total_moment
         else:
             return forces, total_force, total_moment
 

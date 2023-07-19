@@ -205,10 +205,10 @@ class VASTNodalForces(m3l.ExplicitOperation):
         self.nodal_forces_meshes = nodal_force_meshes
 
         if design_condition:
-            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_model"
+            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_nodal_forces_model"
 
         else:
-            self.name = f"{''.join(surface_names)}_vlm_model"
+            self.name = f"{''.join(surface_names)}_vlm_nodal_forces_model"
         # self.name = f"{''.join(surface_names)}_vlm_force_mapping_model"
 
         self.arguments = {}

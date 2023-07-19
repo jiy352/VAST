@@ -4,7 +4,7 @@ import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_effective_aoa_cd_v import AOA_CD
 from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
+# from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
 class LiftDrag(ModuleCSDL):
     """
     L,D,cl,cd
