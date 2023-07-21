@@ -4,7 +4,7 @@ import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_effective_aoa_cd_v import AOA_CD
 from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
+# from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
 class LiftDrag(ModuleCSDL):
     """
     L,D,cl,cd
@@ -258,8 +258,8 @@ class LiftDrag(ModuleCSDL):
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
-            drag_coeff = 17*0.08
-            other_viscous_drag = 0.5*rho*b*drag_coeff
+            drag_area= 1.65 #0*0.08
+            other_viscous_drag = 0.5*rho*b*drag_area
             self.register_output('other_viscous_drag',other_viscous_drag)
 
             ML = self.parameters['ML']

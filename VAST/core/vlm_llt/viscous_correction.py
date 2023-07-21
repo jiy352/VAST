@@ -16,6 +16,7 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
         self.parameters.declare('component', default=None)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
+        self.parameters.declare('num_nodes', types=int, default=1)
 
     def compute(self):
         '''
@@ -49,7 +50,7 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, forces, cd_v, panel_area, moment_pt, evaluation_pt):
+    def evaluate(self, ac_states, forces, cd_v, panel_area, moment_pt, evaluation_pt, design_condition=None):
         '''
         Evaluates the vast model.
         
@@ -72,7 +73,11 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
         num_nodes = self.parameters['num_nodes']
         
         self.arguments = {}
-        self.name = f"{''.join(surface_names)}_viscous_correction_model"
+        if design_condition:
+            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_viscous_correction_model"
+
+        else:
+            self.name = f"{''.join(surface_names)}_viscous_correction_model"
         # print(displacements)
 
         
@@ -81,9 +86,9 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
         self.arguments['u'] = ac_states['u']
         self.arguments['v'] = ac_states['v']
         self.arguments['w'] = ac_states['w']
-        self.arguments['p'] = ac_states['p']
-        self.arguments['q'] = ac_states['q']
-        self.arguments['r'] = ac_states['r']
+        # self.arguments['p'] = ac_states['p']
+        # self.arguments['q'] = ac_states['q']
+        # self.arguments['r'] = ac_states['r']
         self.arguments['theta'] = ac_states['theta']
         self.arguments['psi'] = ac_states['psi']
         self.arguments['gamma'] = ac_states['gamma']
@@ -358,4 +363,3 @@ if __name__ == "__main__":
     sim.run()
     sim.check_totals()
 
-s

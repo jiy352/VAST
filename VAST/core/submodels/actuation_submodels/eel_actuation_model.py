@@ -53,15 +53,13 @@ class EelActuationModel(csdl.Model):
         tail_frequency = self.declare_variable('tail_frequency', val=f)
         wave_number = self.declare_variable('wave_number', val=lambda_)
         linear_relation = self.declare_variable('linear_relation', val=0.03125)
-
-
         
         self.print_var(tail_amplitude)
         self.print_var(tail_frequency)
         self.print_var(wave_number)
 
-        t_temp_val = np.linspace(0,N_period,num_nodes)
-        t_temp = self.create_input('t_temp',val = t_temp_val)
+        t_temp_val = np.linspace(0, N_period, num_nodes)
+        t_temp = self.create_input('t_temp', val = t_temp_val)
         # print()
 
         t = t_temp/csdl.expand(tail_frequency,shape=t_temp.shape)
@@ -98,14 +96,6 @@ class EelActuationModel(csdl.Model):
 
             height = np.einsum('ik,j->ijk',np.ones((num_nodes,ny)),b*(1-((x-a)/a)**2)**0.5).reshape(num_nodes,nx,ny,1)
 
-            # print('height',height.shape)
-            # print('height is',height[0][:,0,:])
-
-            # exit()
-            
-            # y = np.zeros((num_nodes,nx,ny,1))
-            # y_dot = np.zeros((num_nodes,nx,ny,1))
-
             t_exp = csdl.expand(t, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             tail_amplitude_exp = csdl.expand(tail_amplitude, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             wave_number_exp = csdl.expand(wave_number, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
@@ -113,8 +103,8 @@ class EelActuationModel(csdl.Model):
 
             x_exp = tensor_x_csdl
 
-            y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp)
-            y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg*t_exp)*(-omg)
+            y = -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg*t_exp)
+            y_dot =  -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg*t_exp)*(-omg)
 
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))
             

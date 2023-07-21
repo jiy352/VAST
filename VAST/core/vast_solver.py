@@ -78,7 +78,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None):
+    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None, ML=False, design_condition=None):
         '''
         Evaluates the vast model.
         
@@ -102,7 +102,11 @@ class VASTFluidSover(m3l.ExplicitOperation):
         ML = self.parameters['ML']
         
         self.arguments = {}
-        self.name = f"{''.join(surface_names)}_vlm_model"
+        if design_condition:
+            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_model"
+
+        else:
+            self.name = f"{''.join(surface_names)}_vlm_model"
         # print(displacements)
 
         # displacements = self.displacements 
@@ -150,11 +154,20 @@ class VASTFluidSover(m3l.ExplicitOperation):
             panel_areas.append(panel_area)
             evaluation_pts.append(evaluation_pt)
 
-        total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
-        total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
+        if False: # design_condition:
+            prepend = design_condition.parameters['name']
+            total_force = m3l.Variable(name=f'{prepend}F', shape=(num_nodes, 3), operation=self)
+            total_moment = m3l.Variable(name=f'{prepend}M', shape=(num_nodes, 3), operation=self)
+        else:
+            total_force = m3l.Variable(name='F', shape=(num_nodes, 3), operation=self)
+            total_moment = m3l.Variable(name='M', shape=(num_nodes, 3), operation=self)
+
+    
+
         # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
+        
         if ML:
-            return cl_spans, re_spans, forces, panel_areas, evaluation_pt, total_force, total_moment
+            return cl_spans, re_spans, forces, panel_areas, evaluation_pts, total_force, total_moment
         else:
             return forces, total_force, total_moment
 

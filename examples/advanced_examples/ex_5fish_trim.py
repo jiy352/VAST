@@ -51,7 +51,7 @@ v_x = model.create_input('v_x', val=0.2)
 # v_x = model.create_input('tail_amplitude', val=A)
 tail_frequency = model.create_input('tail_frequency', val=f)
 wave_number = model.create_input('wave_number', val=lambda_)
-linear_relation = model.create_input('linear_relation', val=lambda_)
+linear_relation = model.create_input('linear_relation', val=0.03125)
 # v_x = model.create_input('v_x', val=0.8467351)
 u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
 density = model.create_input('density',val=np.ones((num_nodes,1))*997)
@@ -135,3 +135,18 @@ v_x = sim['v_x']
 # Force_sum = thrust
 
 effi = thrust*v_x/np.sum(sim['panel_power'])
+
+import pyvista as pv
+
+def save_fish_mesh():
+    surface = sim['eel']
+    vel = sim['eel_kinematic_vel']
+    vel[:,:,0] = 0
+    for i in range(num_nodes):
+        x = surface[i,:,:,0]
+        y = surface[i,:,:,1]
+        z = surface[i,:,:,2]
+        grid = pv.StructuredGrid(x,y,z)
+        # grid.cell_data.set_vectors(np.flip(vel[i].reshape(nx-1,ny-1,3), (0,1)).reshape(-1,3),'test')
+        grid.cell_data.set_vectors(np.flip(vel[i].reshape(nx-1,ny-1,3), (0,1)).reshape(-1,3),'test')
+        grid.save(filename='fish_vtk/fish_'+str(i)+'.vtk')
