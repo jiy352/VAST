@@ -106,7 +106,7 @@ if plot_cl == 1:
     plt.legend(['VAST','BYU_UVLM'])
     plt.gca().invert_yaxis()
     plt.show()
-exit()
+# exit()
 
 cl_ref = cl_ref.flatten()
 print('the error is', np.linalg.norm(cl-cl_ref)/np.linalg.norm(cl_ref)*100,'%')
@@ -121,10 +121,11 @@ aic = np.array([[-0.6789233991543593, 0.03501997676068566, 0.03501997676068566, 
 gam = np.linalg.inv(aic)@np.array([0.1,0.1])
 
 import pyvista as pv
-cat_mesh = np.concatenate((mesh_val,sim['op_wing_wake_coords']), axis=1)
+# cat_mesh = np.concatenate((mesh_val,sim['op_wing_wake_coords']), axis=1)
+cat_mesh = sim['op_wing_wake_coords']
 
 grid_mesh = pv.StructuredGrid(cat_mesh[-1,:,:,0], cat_mesh[-1,:,:,1], cat_mesh[-1,:,:,2])
-# grid = pv.StructuredGrid(sim['op_wing_wake_coords'][9,:,:,0], sim['op_wing_wake_coords'][9,:,:,1], sim['op_wing_wake_coords'][9,:,:,2])
+grid = pv.StructuredGrid(mesh_val[-1,:,:,0], mesh_val[-1,:,:,1], mesh_val[-1,:,:,2])
 grid_mesh.save('d.vtk')
 # Create a plotter object and set the scalars to the Z height
 plotter = pv.Plotter()
@@ -139,7 +140,7 @@ plotter.add_mesh(
     opacity=0.0,
 )
 plotter.add_mesh(
-    grid_mesh,
+    grid,
     # scalars=z.ravel(),
     lighting=False,
     show_edges=True,
@@ -161,18 +162,20 @@ i=0
 plotter.write_frame()
 
 for phase in np.linspace(0, 2 * np.pi, nframe + 1)[:nframe]:
-    # z = np.sin(r + phase)
-    # pts[:, -1] = z.ravel()
-    # x = sim['op_wing_wake_coords'][i,:,:,0]
-    # y = sim['op_wing_wake_coords'][i,:,:,1]
-    # z = sim['op_wing_wake_coords'][i,:,:,2]
     x_m = cat_mesh[i,:,:,0]
     y_m = cat_mesh[i,:,:,1]
     z_m = cat_mesh[i,:,:,2]
+    x = mesh_val[i,:,:,0]
+    y = mesh_val[i,:,:,1]
+    z = mesh_val[i,:,:,2]
     # grid = pv.StructuredGrid(x,y,z)
     grid_mesh = pv.StructuredGrid(x_m,y_m,z_m)
+    grid = pv.StructuredGrid(x,y,z)
     # print(i,grid.points.shape)
-    plotter.update_coordinates(grid_mesh.points.copy(), render=False)
+    grid_mesh.save('d'+str(i)+'.vtk')
+    grid.save('dmesh'+str(i)+'.vtk')
+    plotter.update_coordinates(grid_mesh.points.copy(),grid_mesh, render=False)
+    plotter.update_coordinates(grid.points.copy(),grid, render=False)
     # plotter.update_scalars(z.ravel(), render=False)
     # Write a frame. This triggers a render.
     plotter.write_frame()

@@ -10,7 +10,7 @@ from VAST.core.submodels.aerodynamic_submodels.assemble_aic import AssembleAic
 from VAST.core.submodels.aerodynamic_submodels.compute_normal_comp import ComputeNormal
 from VAST.core.submodels.aerodynamic_submodels.projection_comp import Projection
 
-class RHS(Model):
+class RHSEND(Model):
     """
     Compute various geometric properties for VLM analysis.
     These are used primarily to help compute postprocessing quantities,
@@ -48,7 +48,8 @@ class RHS(Model):
         bd_vtx_coords_names = [x + '_bd_vtx_coords' for x in surface_names]
         bd_vtx_normal_names = [x + '_bd_vtx_normals' for x in surface_names]
         coll_pts_coords_names = [x + '_coll_pts_coords' for x in surface_names]
-        wake_coords_names = [x + '_wake_coords' for x in surface_names]
+        wake_coords_names = ['op_'+x + '_wake_coords' for x in surface_names]
+        # wake_coords_names = [x + '_wake_coords' for x in surface_names]
         bd_coll_pts_shapes = [
             tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
             for item in bd_vortex_shapes

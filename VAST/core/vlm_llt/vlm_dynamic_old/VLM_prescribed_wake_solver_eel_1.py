@@ -265,7 +265,8 @@ class UVLMSolver(csdl.Model):
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
                                 delta_t=h_stepsize,
-                                problem_type='prescribed_wake'),
+                                problem_type='prescribed_wake',
+                                end=True,),
                     name='solve_gamma_b_group')
         self.add(SeperateGammab(surface_names=surface_names,
                                 surface_shapes=ode_surface_shapes),

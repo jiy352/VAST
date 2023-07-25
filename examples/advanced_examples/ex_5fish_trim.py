@@ -7,6 +7,9 @@ import numpy as np
 import resource
 import csdl
 
+run_optimizaton=0
+
+
 ########################################
 # define mesh resolution and num_nodes
 ########################################
@@ -80,7 +83,7 @@ sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
 sim.run()
-exit()
+# exit()
 # np.sum(thrust)/(0.5*np.reshape(997,(1,))*v_x**2*0.13826040386294708)/num_nodes 
 
 # make_video_vedo(ssurface_properties_dict,num_nodes, sim)
@@ -90,63 +93,73 @@ exit()
 
 # panel_forces = sim['panel_forces_all']
 
+if run_optimizaton:
 
-#####################
-# optimizaton
-#####################
-from modopt.csdl_library import CSDLProblem
+    #####################
+    # optimizaton
+    #####################
+    from modopt.csdl_library import CSDLProblem
 
-from modopt.scipy_library import SLSQP
-from modopt.snopt_library import SNOPT
-# Define problem for the optimization
-prob = CSDLProblem(
-    problem_name='ee',
-    simulator=sim,
-)
-# optimizer = SLSQP(prob, maxiter=1)
-optimizer = SNOPT(
-    prob, 
-    Major_iterations=10,
-    # Major_optimality=1e-6,
-    Major_optimality=1e-9,
-    Major_feasibility=1e-9,
-    append2file=True,
-    Major_step_limit=.25,
-)
+    from modopt.scipy_library import SLSQP
+    from modopt.snopt_library import SNOPT
+    # Define problem for the optimization
+    prob = CSDLProblem(
+        problem_name='ee',
+        simulator=sim,
+    )
+    # optimizer = SLSQP(prob, maxiter=1)
+    optimizer = SNOPT(
+        prob, 
+        Major_iterations=10,
+        # Major_optimality=1e-6,
+        Major_optimality=1e-9,
+        Major_feasibility=1e-9,
+        append2file=True,
+        Major_step_limit=.25,
+    )
 
-optimizer.solve()
-optimizer.print_results(summary_table=True)
-print('total time is', time.time() - t_start)
+    optimizer.solve()
+    optimizer.print_results(summary_table=True)
+    print('total time is', time.time() - t_start)
 
-#####################
-# memory usage
-#####################
-after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
+    #####################
+    # memory usage
+    #####################
+    after_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
-# ALLOCATED_MEMORY = (after_mem - before_mem)*1e-6 # for linux
+    ALLOCATED_MEMORY = (after_mem - before_mem)/(1024**3) # for mac
+    # ALLOCATED_MEMORY = (after_mem - before_mem)*1e-6 # for linux
 
-print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
+    print('Allocated memory: ', ALLOCATED_MEMORY, 'Gib')
 
 
-thrust = np.sum(sim['thrust'])
-v_x = sim['v_x']
+    thrust = np.sum(sim['thrust'])
+    v_x = sim['v_x']
 
-# Force_sum = thrust
+    # Force_sum = thrust
 
-effi = thrust*v_x/np.sum(sim['panel_power'])
+    effi = thrust*v_x/np.sum(sim['panel_power'])
 
 import pyvista as pv
 
-def save_fish_mesh():
-    surface = sim['eel']
-    vel = sim['eel_kinematic_vel']
-    vel[:,:,0] = 0
-    for i in range(num_nodes):
-        x = surface[i,:,:,0]
-        y = surface[i,:,:,1]
-        z = surface[i,:,:,2]
-        grid = pv.StructuredGrid(x,y,z)
-        # grid.cell_data.set_vectors(np.flip(vel[i].reshape(nx-1,ny-1,3), (0,1)).reshape(-1,3),'test')
-        grid.cell_data.set_vectors(np.flip(vel[i].reshape(nx-1,ny-1,3), (0,1)).reshape(-1,3),'test')
-        grid.save(filename='fish_vtk/fish_'+str(i)+'.vtk')
+# def save_fish_mesh():
+surface = sim['eel']
+vel = sim['eel_kinematic_vel'].copy()
+# forces = sim['eel_forces'].copy()
+vel[:,:,0] = 0
+# vel[:,:,2] = 0
+# vel[:,:,1] = np.arange(100)
+for i in range(num_nodes):
+    x = surface[i,:,:,0]
+    y = surface[i,:,:,1]
+    z = surface[i,:,:,2]
+    grid = pv.StructuredGrid(x,y,z)
+    grid.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'normal_kinematic_vel')
+    # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
+    # print(vel[i].reshape(-1,3)[:50,1])
+    # print(vel[i].reshape(-1,3)[:50,1] - vel[i].reshape(-1,3)[50:,1])
+    # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
+    grid.save(filename='fish_vtk/fish_'+str(i)+'.vtk')
+#     return grid
+
+# grid = save_fish_mesh()
