@@ -6,22 +6,11 @@ from numpy.core.fromnumeric import size
 class EelActuationModel(csdl.Model):
     """
     Compute the mesh at each time step for the eel actuation model given the kinematic variables.
-
-    Inputs
+    parameters
     ----------
     tail_amplitude : csdl variable [1,]
     tail_frequency : csdl variable [1,]
-    wave_number : csdl variable [1,]
-    linear_relation : csdl variable [1,]
-
-    Parameters
-    ----------
-    surface_names : list
-    surface_shapes : list
-    n_period : int
-    s_1_ind : int
-    s_2_ind : int
-
+    v_x : csdl variable [1,]
     Returns
     -------
     1. mesh[num_nodes,num_pts_chord, num_pts_span, 3] : csdl array
@@ -30,6 +19,7 @@ class EelActuationModel(csdl.Model):
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
+        self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('n_period')
         self.parameters.declare('s_1_ind',default=3)
         self.parameters.declare('s_2_ind',default=None)
@@ -38,6 +28,7 @@ class EelActuationModel(csdl.Model):
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
+        mesh_unit = self.parameters['mesh_unit']
         N_period = self.parameters['n_period']
         s_1_ind = self.parameters['s_1_ind'] # head region
         s_2_ind = self.parameters['s_2_ind'] # tail region
@@ -56,14 +47,12 @@ class EelActuationModel(csdl.Model):
         st = 0.15
         A = 0.125
         f = st*v_inf/A 
-        # omg = 2*np.pi*f
+        omg = 2*np.pi*f
 
         tail_amplitude = self.declare_variable('tail_amplitude', val=A)
         tail_frequency = self.declare_variable('tail_frequency', val=f)
         wave_number = self.declare_variable('wave_number', val=lambda_)
         linear_relation = self.declare_variable('linear_relation', val=0.03125)
-
-        omg = 2*np.pi*tail_frequency
         
         self.print_var(tail_amplitude)
         self.print_var(tail_frequency)
@@ -111,18 +100,14 @@ class EelActuationModel(csdl.Model):
             tail_amplitude_exp = csdl.expand(tail_amplitude, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             wave_number_exp = csdl.expand(wave_number, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             linear_relation_exp = csdl.expand(linear_relation, shape=(num_nodes,nx,ny,1),indices='i->ijkl') 
-            omg_exp = csdl.expand(omg, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
-
 
             x_exp = tensor_x_csdl
             
             # y = -A(x+0.03/1.03)*sin(2pix/lambda - omg*t)
             # ydot = -A(x+0.03/1.03)*cos(2pix/lambda - omg*t)*(-omg)
 
-            # print('t_exp',t_exp.shape)
-
-            y = -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)
-            y_dot =  -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)*(-omg_exp)
+            y = -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin( - omg*t_exp)
+            y_dot =  -tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos( - omg*t_exp)*(-omg)
 
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))
             

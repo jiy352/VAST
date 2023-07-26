@@ -15,6 +15,7 @@ import numpy as np
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+# from VAST.core.submodels.actuation_submodels.pitching_actuation_model import EelActuationModel
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW
 from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix

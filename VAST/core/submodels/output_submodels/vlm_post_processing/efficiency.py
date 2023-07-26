@@ -41,8 +41,8 @@ class EfficiencyModel(csdl.Model):
         velocities_x[:,:,2] = velocities[:,:,2]
 
 
-        panel_thrust_power = csdl.sum(csdl.dot(panel_forces_all,-velocities_x,axis=2))
-        thrust_power = csdl.sum(csdl.sum(thrust,axes=(1,))*csdl.expand(v_x,shape=(num_nodes,)))
+        panel_thrust_power = csdl.sum(csdl.dot(panel_forces_all[1:,:,:],-velocities_x[1:,:,:],axis=2))
+        thrust_power = csdl.sum(csdl.sum(thrust[1:,:],axes=(1,))*csdl.expand(v_x,shape=(num_nodes-1,)))
 
         self.print_var(panel_thrust_power)
         self.print_var(thrust_power)

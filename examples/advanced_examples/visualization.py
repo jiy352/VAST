@@ -29,9 +29,9 @@ panel_forces_dynamic = sim['panel_forces_dynamic'].copy()
 panel_forces = sim['panel_forces'].copy()
 
 acc = np.zeros(vel.shape)
-
-acc[:-1,:,:] = (vel[1:,:,:] - vel[:-1,:,:])/h_stepsize
-acc[-1,:,:] = (vel[-1,:,:] - vel[-2,:,:])/h_stepsize
+# we added a nagetive sign here to calculate the acceleration of the fish body
+acc[:-1,:,:] = -(vel[1:,:,:] - vel[:-1,:,:])/h_stepsize
+acc[-1,:,:] = -(vel[-1,:,:] - vel[-2,:,:])/h_stepsize
 
 # forces = sim['eel_forces'].copy()
 vel[:,:,0] = 0
