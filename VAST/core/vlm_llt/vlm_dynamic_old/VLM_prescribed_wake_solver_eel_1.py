@@ -3,7 +3,7 @@ import time
 import matplotlib.pyplot as plt
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
-from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
+from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust import ThrustDrag
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
 from ozone.api import ODEProblem
 import csdl
@@ -12,7 +12,7 @@ import numpy as np
 
 
 # from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
-from VAST.utils.make_video_vedo import make_video as make_video_vedo
+# from VAST.utils.make_video_vedo import make_video as make_video_vedo
 
 from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
 # from VAST.core.submodels.actuation_submodels.pitching_actuation_model import EelActuationModel
@@ -168,7 +168,8 @@ class UVLMSolver(csdl.Model):
                                     surface_shapes=ode_surface_shapes,
                                     n_period=n_period,
                                     s_1_ind=s_1_ind,
-                                    s_2_ind=s_2_ind),name='EelActuationModel')
+                                    s_2_ind=s_2_ind,
+                                    ),name='EelActuationModel')
 
         ####################################
         # Create parameters

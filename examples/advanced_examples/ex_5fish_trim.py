@@ -7,6 +7,7 @@ import numpy as np
 import resource
 import csdl
 
+from visualization import run_visualization
 run_optimizaton=0
 
 
@@ -16,7 +17,7 @@ run_optimizaton=0
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 # nx = 12; ny = 3
-nx = 51; ny = 3
+nx = 21; ny = 3
 num_nodes = 40;  
 nt = num_nodes
 
@@ -49,9 +50,9 @@ h_stepsize = t_vec[1]
 #####################
 import python_csdl_backend
 model = csdl.Model()
-v_x = model.create_input('v_x', val=0.2)
+v_x = model.create_input('v_x', val=v_inf)
 #v_x = model.create_input('v_x', val=0.35)
-# v_x = model.create_input('tail_amplitude', val=A)
+tail_amplitude = model.create_input('tail_amplitude', val=A)
 tail_frequency = model.create_input('tail_frequency', val=f)
 wave_number = model.create_input('wave_number', val=lambda_)
 linear_relation = model.create_input('linear_relation', val=0.03125)
@@ -142,24 +143,24 @@ if run_optimizaton:
 
 import pyvista as pv
 
-# def save_fish_mesh():
-surface = sim['eel']
-vel = sim['eel_kinematic_vel'].copy()
-# forces = sim['eel_forces'].copy()
-vel[:,:,0] = 0
-# vel[:,:,2] = 0
-# vel[:,:,1] = np.arange(100)
-for i in range(num_nodes):
-    x = surface[i,:,:,0]
-    y = surface[i,:,:,1]
-    z = surface[i,:,:,2]
-    grid = pv.StructuredGrid(x,y,z)
-    grid.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'normal_kinematic_vel')
-    # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
-    # print(vel[i].reshape(-1,3)[:50,1])
-    # print(vel[i].reshape(-1,3)[:50,1] - vel[i].reshape(-1,3)[50:,1])
-    # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
-    grid.save(filename='fish_vtk/fish_'+str(i)+'.vtk')
-#     return grid
+# # def save_fish_mesh():
+# surface = sim['eel']
+# vel = sim['eel_kinematic_vel'].copy()
+# # forces = sim['eel_forces'].copy()
+# vel[:,:,0] = 0
+# # vel[:,:,2] = 0
+# # vel[:,:,1] = np.arange(100)
+# for i in range(num_nodes):
+#     x = surface[i,:,:,0]
+#     y = surface[i,:,:,1]
+#     z = surface[i,:,:,2]
+#     grid = pv.StructuredGrid(x,y,z)
+#     grid.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'normal_kinematic_vel')
+#     # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
+#     # print(vel[i].reshape(-1,3)[:50,1])
+#     # print(vel[i].reshape(-1,3)[:50,1] - vel[i].reshape(-1,3)[50:,1])
+#     # grid.cell_data.set_vectors(vel[i].reshape(-1,3),'test')
+#     grid.save(filename='fish_vtk/fish_'+str(i)+'.vtk')
+# #     return grid
 
-# grid = save_fish_mesh()
+# # grid = save_fish_mesh()

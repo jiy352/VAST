@@ -1,4 +1,12 @@
 from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+import csdl
+
+v_inf = 0.4
+lambda_ = 1
+st = 0.15
+A = 0.125
+f = st*v_inf/A 
+# omg = 2*np.pi*f
 
 
 import python_csdl_backend
@@ -13,16 +21,18 @@ N_period=1
 # tail_frequency = 0.48
 # vx = 0.38643524
 
-tail_amplitude = 0.06939378
-tail_frequency = 0.2
+tail_amplitude = 0.125
+tail_frequency = 0.48
 vx = 0.38108754
 
 model = csdl.Model()
-# model.create_input('tail_amplitude',val=0.06939378)
-# model.create_input('tail_frequency',val=0.2)
 
-model.create_input('tail_amplitude',val=tail_amplitude)
-model.create_input('tail_frequency',val=tail_frequency)
+tail_amplitude = model.create_input('tail_amplitude', val=A)
+tail_frequency = model.create_input('tail_frequency', val=f)
+wave_number = model.create_input('wave_number', val=lambda_)
+linear_relation = model.create_input('linear_relation', val=0.03125)
+
+
 
 t_temp_val = np.linspace(0,N_period/0.48,num_nodes)
 
@@ -37,9 +47,11 @@ print(surface.shape)
 
 for i in range(num_nodes):
     # x = surface[i,:,:,0] - t_temp_val[i]*0.38108754
-    x = surface[i,:,:,0] - t_temp_val[i]*vx
+    x = surface[i,:,:,0]# - t_temp_val[i]*vx
     y = surface[i,:,:,1]
     z = surface[i,:,:,2]
 
     grid = pv.StructuredGrid(x,y,z)
-    grid.save(filename=f'eel_actuation_{i}.vtk')
+    # grid.plot()
+    grid.save(f'eel_actuation_{i}.vtk')
+    # filename=f'eel_actuation_{i}.vtk'

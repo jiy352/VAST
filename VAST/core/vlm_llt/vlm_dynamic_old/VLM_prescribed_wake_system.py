@@ -74,7 +74,6 @@ class ODESystemModel(csdl.Model):
         gamma = self.declare_variable('gamma',  shape=(n,1))
         psiw = self.declare_variable('psiw',  shape=(n,1))
 
-
         #  1.2.2 from the AcStates, compute 5 preprocessing outputs
         # frame_vel, alpha, v_inf_sq, beta, rho
         m = AdapterComp(
@@ -130,7 +129,7 @@ class ODESystemModel(csdl.Model):
             surface_gamma_b = self.declare_variable(surface_gamma_b_name,
                                                     shape=(n, (nx - 1) *
                                                            (ny - 1), ))
-            self.print_var(surface_gamma_b)
+            # self.print_var(surface_gamma_b)
             #outputs for state 1
             surface_dgammaw_dt = self.create_output(surface_dgammaw_dt_name,
                                                     shape=(n, nt - 1, ny - 1))

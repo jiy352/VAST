@@ -54,7 +54,6 @@ class MeshPreprocessingComp(ModuleCSDL):
         else:
             eval_pts_names=self.parameters['eval_pts_names']
 
-
         # loop through lifting surfaces to compute outputs
         start = 0
         chord_lengths = []
@@ -88,15 +87,10 @@ class MeshPreprocessingComp(ModuleCSDL):
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
-            # print(bd_vtx_coords_name)
-            bd_vtx_coords = self.create_output(bd_vtx_coords_name,
-                                               shape=(def_mesh.shape))
-            # print(bd_vtx_coords.shape)
+            bd_vtx_coords = self.create_output(bd_vtx_coords_name, shape=(def_mesh.shape))
             # the 0th until the second last one chordwise is (0.75*left +0.25*right)
-            bd_vtx_coords[:, 0:num_pts_chord -
-                          1, :, :] = def_mesh[:, 0:num_pts_chord -
-                                              1, :, :] * .75 + def_mesh[:, 1:
-                                                                        num_pts_chord, :, :] * 0.25
+            bd_vtx_coords[:, 0:num_pts_chord - 1, :, :] = def_mesh[:, 0:num_pts_chord - 1, :, :] * .75 +\
+                                                             def_mesh[:, 1:num_pts_chord, :, :] * 0.25
             # the last one chordwise is 1/4 chord offset from the last chordwise def_mesh panel
             if problem_type == 'fixed_wake':
                 bd_vtx_coords[:, num_pts_chord -
@@ -116,7 +110,6 @@ class MeshPreprocessingComp(ModuleCSDL):
                 fs = -frame_vel
                 eta = 0.25
                 add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
-                # self.print_var(fs*eta*delta_t,)
 
                 bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 
@@ -153,9 +146,9 @@ class MeshPreprocessingComp(ModuleCSDL):
             # (a vector that contains the span lengths of each panel)
             ################################################################################
             # compute the spans:
-            span_vec = def_mesh[:, 0:num_pts_chord - 1, 0:num_pts_span -
-                                1, :] - def_mesh[:, 0:num_pts_chord - 1, 1:, :]
-            spans = csdl.pnorm(span_vec, axis=(3))
+            span_vec = def_mesh[:, :, 0:num_pts_span -1, :] - def_mesh[:, :, 1:, :]
+            spans_temp = csdl.pnorm(span_vec, axis=(3))
+            spans = 0.5*(spans_temp[:, 0:num_pts_chord-1, :] + spans_temp[:, 1:, :])
             self.register_output(span_name, spans)
 
             ################################################################################
