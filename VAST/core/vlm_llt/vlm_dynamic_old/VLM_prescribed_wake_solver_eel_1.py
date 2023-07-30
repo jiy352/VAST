@@ -156,20 +156,7 @@ class UVLMSolver(csdl.Model):
         surface_shapes = list(surface_properties_dict.values())
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
 
-        s_1_ind = self.parameters['s_1_ind'] # head region
-        s_2_ind = self.parameters['s_2_ind'] # tail region
-        if s_2_ind==None:
-            s_2_ind = int(ode_surface_shapes[0][1]-2)
-        
 
-        self.add(EelViscousModel(),name='EelViscousModel')
-
-        self.add(EelActuationModel(surface_names=surface_names,
-                                    surface_shapes=ode_surface_shapes,
-                                    n_period=n_period,
-                                    s_1_ind=s_1_ind,
-                                    s_2_ind=s_2_ind,
-                                    ),name='EelActuationModel')
 
         ####################################
         # Create parameters

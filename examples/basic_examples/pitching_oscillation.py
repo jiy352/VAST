@@ -11,6 +11,12 @@ from visualization import run_visualization
 run_optimizaton=0
 
 
+from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+
+
+
+from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel
+
 ########################################
 # define mesh resolution and num_nodes
 ########################################
@@ -59,6 +65,26 @@ linear_relation = model.create_input('linear_relation', val=0.03125)
 # v_x = model.create_input('v_x', val=0.8467351)
 u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
 density = model.create_input('density',val=np.ones((num_nodes,1))*997)
+
+
+
+surface_names = list(surface_properties_dict.keys())
+surface_shapes = list(surface_properties_dict.values())
+ode_surface_shapes = [(num_nodes, ) + item for item in surface_shapes]
+
+s_1_ind = 3
+s_2_ind = None
+if s_2_ind==None:
+    s_2_ind = int(ode_surface_shapes[0][1]-2)
+
+model.add(EelViscousModel(),name='EelViscousModel')
+
+model.add(EelActuationModel(surface_names=surface_names,
+                            surface_shapes=ode_surface_shapes,
+                            n_period=N_period,
+                            s_1_ind=s_1_ind,
+                            s_2_ind=s_2_ind,
+                            ),name='EelActuationModel')
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
