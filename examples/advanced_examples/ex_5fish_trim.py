@@ -17,7 +17,7 @@ run_optimizaton=0
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 # nx = 12; ny = 3
-nx = 21; ny = 3
+nx = 15; ny = 3
 num_nodes = 40;  
 nt = num_nodes
 

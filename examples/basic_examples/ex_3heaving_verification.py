@@ -22,7 +22,7 @@ nx = 5; ny = 7
 chord = 1; span = 4
 # chord = 0.2; span = 0.8
 # chord = 0.6; span = 2.4
-num_nodes = 5;  nt = num_nodes
+num_nodes = 19;  nt = num_nodes
 
 mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False, "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
 mesh = generate_mesh(mesh_dict)
@@ -31,7 +31,7 @@ mesh = generate_mesh(mesh_dict)
 ########################################
 # 2. define kinematics
 ########################################
-n_period = 4 
+n_period = 1 
 omg=1 
 h=0.1 * chord
 alpha = - np.deg2rad(5) 

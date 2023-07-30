@@ -7,6 +7,9 @@ from VAST.core.submodels.input_submodels.create_input_model import CreateACSates
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
 from python_csdl_backend import Simulator
 
+from visualization import run_visualization
+
+
 def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
 

@@ -247,6 +247,8 @@ class EvalPtsVel(Model):
                 eval_induced_velocities_names[i],
                 csdl.sum(surface_total_induced_col, axes=(1, )))
 
+            # print('eval_induced_velocity----------',eval_induced_velocities_names)
+
         # kinematic_vel_names = [
         #     x + '_kinematic_vel' for x in self.parameters['surface_names']
         # ]

@@ -119,6 +119,9 @@ class EelActuationModel(csdl.Model):
 
             y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)
             y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)*(-omg_exp)
+
+
+
             # velocity of the fish on its collocation points
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))
             
