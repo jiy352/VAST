@@ -3,7 +3,7 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 
-class EelActuationModel(csdl.Model):
+class PitchingActuationModel(csdl.Model):
     """
     Compute the mesh at each time step for the eel actuation model given the kinematic variables.
     # the geometry and kinematics of the eel
@@ -21,8 +21,8 @@ class EelActuationModel(csdl.Model):
     surface_names : list
     surface_shapes : list
     n_period : int
-    s_1_ind : int
-    s_2_ind : int
+    s_1_ind : int (num_pts for the head region)
+    s_2_ind : int (num_pts for the tail region)
 
     Returns
     -------

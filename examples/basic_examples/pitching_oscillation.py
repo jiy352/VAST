@@ -7,12 +7,12 @@ import numpy as np
 import resource
 import csdl
 
-from visualization import run_visualization
+from visualization import run_visualization_eel
 run_optimizaton=0
 
 
-from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
-
+# from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+from VAST.core.submodels.actuation_submodels.pitching_actuation_model import PitchingActuationModel
 
 
 from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel
@@ -79,12 +79,12 @@ if s_2_ind==None:
 
 model.add(EelViscousModel(),name='EelViscousModel')
 
-model.add(EelActuationModel(surface_names=surface_names,
+model.add(PitchingActuationModel(surface_names=surface_names,
                             surface_shapes=ode_surface_shapes,
                             n_period=N_period,
                             s_1_ind=s_1_ind,
                             s_2_ind=s_2_ind,
-                            ),name='EelActuationModel')
+                            ),name='ActuationModel')
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')

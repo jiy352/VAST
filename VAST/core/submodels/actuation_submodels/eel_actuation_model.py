@@ -21,8 +21,8 @@ class EelActuationModel(csdl.Model):
     surface_names : list
     surface_shapes : list
     n_period : int
-    s_1_ind : int
-    s_2_ind : int
+    s_1_ind : int (num_pts for the head region)
+    s_2_ind : int (num_pts for the tail region)
 
     Returns
     -------
