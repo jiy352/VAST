@@ -355,7 +355,7 @@ class LiftDrag(ModuleCSDL):
                 # print('rho_b_exp',rho_b_exp.shape)
                 # print('L_panel_cl_strip',L_panel_cl_strip.shape)
                 cl_span_total = csdl.reshape(L_panel_cl_strip/(s_panels_strip*rho_b_exp*0.5)+ cl0[i],(s_panels_strip.shape+(1,)))
-                self.print_var(cl_span_total)
+                # self.print_var(cl_span_total)
 
                 self.register_output(surface_names[i]+'_cl_span_total', cl_span_total)
                 ####################################################
@@ -365,7 +365,7 @@ class LiftDrag(ModuleCSDL):
 
             # sum the moments of all surfaces
             total_moments_tmp = sum(total_moments_panels_list)
-            self.print_var(total_moments_tmp)
+            # self.print_var(total_moments_tmp)
             if ML ==False:
                 M = self.create_output('M', shape=total_moments_tmp.shape,val=0)
 
@@ -381,7 +381,7 @@ class LiftDrag(ModuleCSDL):
                 self.register_module_output('total_lift', L_total)
                 L_over_D = L_total / D_total
                 self.register_output('L_over_D', L_over_D)
-                self.print_var(L_over_D)
+                # self.print_var(L_over_D)
                 self.register_output('total_CD', C_D_total)
                 self.register_output('total_CL', C_L_total)
 
