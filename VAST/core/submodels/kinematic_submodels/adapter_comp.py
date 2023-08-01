@@ -133,6 +133,12 @@ class AdapterComp(ModuleCSDL):
         frame_vel[:, 1] = v_inf * csdl.sin(beta)
 
         frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
+
+        # frame_vel[:, 0] = -u
+        # frame_vel[:, 1] = -v
+
+        # frame_vel[:, 2] = -w
+
         ################################################################################
         # compute the output: 5. rho
         # TODO: replace this hard coding
