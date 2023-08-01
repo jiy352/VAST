@@ -26,7 +26,7 @@ def run_visualization(sim, h_stepsize):
 
     plotter = pv.Plotter()
 
-    vel = sim['wing_eval_pts_coords_eval_pts_induced_vel']
+    # vel = sim['wing_eval_pts_coords_eval_pts_induced_vel']
 
 
     panel_forces = sim['panel_forces'].copy()
@@ -45,7 +45,7 @@ def run_visualization(sim, h_stepsize):
         mesh_grid = pv.StructuredGrid(mesh[-1,:,:,0], mesh[-1,:,:,1], mesh[-1,:,:,2])
         bound_mesh = sim[surface_name+'_bd_vtx_coords']
         bound_grid = pv.StructuredGrid(bound_mesh[-1,:,:,0], bound_mesh[-1,:,:,1], bound_mesh[-1,:,:,2])
-        wake_mesh = sim[surface_name+'_wake_coords']
+        wake_mesh = sim['op_'+surface_name+'_wake_coords']
         wake_grid = pv.StructuredGrid(wake_mesh[-1,:,:,0], wake_mesh[-1,:,:,1], wake_mesh[-1,:,:,2])
         plotter.add_mesh(
             mesh_grid,
@@ -87,7 +87,7 @@ def run_visualization(sim, h_stepsize):
             for vars in visualize_var_names:
                 var = sim[surface_name+'_'+vars]
                 var[:,:,0] = 0
-            grid_bdmesh.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),vars)
+            # grid_bdmesh.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),vars)
             # grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces_all[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces_all')
             # grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces_dynamic[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces_dynamic')
             grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces')

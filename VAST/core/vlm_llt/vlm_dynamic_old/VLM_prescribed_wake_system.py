@@ -204,7 +204,6 @@ class ODESystemModel(csdl.Model):
                 surface_wake_coords[:, 1:, :, :] +
                 wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
 
-
 if __name__ == "__main__":
     import enum
     from csdl_om import Simulator

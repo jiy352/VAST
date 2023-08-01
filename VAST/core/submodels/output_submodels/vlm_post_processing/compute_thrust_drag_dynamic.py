@@ -180,7 +180,8 @@ class ThrustDrag(Model):
                 # velocities, bd_vec, axis=2)
 
             normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
-            panel_forces_dynamic = -rho_expand * dcirculation_repeat_dt * normals
+            # NOTE: this direction needs some verification
+            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
 
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]

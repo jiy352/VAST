@@ -84,3 +84,4 @@ class KinematicVelocityComp(csdl.Model):
 
             kinematic_vel = -(rot_vel + frame_vel_expand + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3)))
             self.register_output(kinematic_vel_name, kinematic_vel)
+

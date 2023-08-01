@@ -27,7 +27,7 @@ mesh = generate_mesh(mesh_dict)
 ########################################
 # 2. define kinematics
 ########################################
-n_period = 2 
+n_period = 3 
 omg=1 
 h=0.1 * chord
 alpha = np.deg2rad(5) 
@@ -92,6 +92,10 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
 
+plt.plot(t_vec, sim['wing_C_L'])
+plt.ylim([0,0.6])
+plt.xlim([0,t_vec.max()+1])
+plt.show()
 ######################################################
 # end make video
 ######################################################
@@ -109,3 +113,5 @@ plt.legend(['z','z_vel','z_acc'])
 
 # plot force properties
 
+from visualization import run_visualization
+run_visualization(sim,h_stepsize)

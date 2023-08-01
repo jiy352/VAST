@@ -72,6 +72,9 @@ class ODEProblemTest(ODEProblem):
             self.add_parameter(surface_name,
                                dynamic=True,
                                shape=(self.num_times, nx, ny, 3))
+            self.add_parameter(surface_name + '_coll_vel',
+                               dynamic=True,
+                               shape=(self.num_times, nx-1, ny-1, 3))
 
             ####################################
             # ode states names

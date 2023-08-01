@@ -5,6 +5,7 @@ from VAST.utils.generate_mesh import *
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
+from visualization import run_visualization
 # Script to create optimization problem
 
 be = 'python_csdl_backend'
@@ -27,7 +28,7 @@ mesh = generate_mesh(mesh_dict)
 ########################################
 # 2. define kinematics
 ########################################
-n_period = 2 
+n_period = 3 
 omg=1 
 h=0.1 * chord
 alpha = np.deg2rad(5) 
@@ -43,7 +44,7 @@ w_vel = np.zeros((num_nodes,1)) *np.tan(np.deg2rad(5))
 states_dict = {
     'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
     'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
-    'theta': alpha* np.zeros((num_nodes,1)), 'psi': np.zeros((num_nodes, 1)),
+    'theta': alpha* np.ones((num_nodes,1)), 'psi': np.zeros((num_nodes, 1)),
     'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
@@ -52,7 +53,7 @@ surface_properties_dict = {'wing':(nx,ny,3)}
 
 # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
 mesh_val = np.zeros((num_nodes, nx, ny, 3))
-z_offset = -w_vel.flatten()*t_vec
+z_offset = (-np.ones((num_nodes,1)) *np.tan(np.deg2rad(5))).flatten()*t_vec
 # z_offset = omg*h*sin(omg*t_vec) 
 
 for i in range(num_nodes):
@@ -109,3 +110,4 @@ plt.legend(['z','z_vel','z_acc'])
 
 # plot force properties
 
+run_visualization(sim,h_stepsize)
