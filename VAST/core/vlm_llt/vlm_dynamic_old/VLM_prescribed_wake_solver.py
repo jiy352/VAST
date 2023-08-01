@@ -27,8 +27,14 @@ class ODEProblemTest(ODEProblem):
         # profile outputs are outputs from the ode integrator that are not states. 
         # instead they are outputs of a function of the solved states and parameters
         nt = self.num_times
-        surface_names = list(self.dictionary_inputs.keys())
-        surface_shapes = list(self.dictionary_inputs.values())
+        # surface_names = list(self.dictionary_inputs.keys())
+        # surface_shapes = list(self.dictionary_inputs.values())
+        # frame = self.dictionary_inputs.values()
+
+        surface_shapes = self.dictionary_inputs['surface_shapes']
+        surface_names = list(self.dictionary_inputs['surface_names'])
+        frame = self.dictionary_inputs['frame']
+
 
         # self.add_profile_output('density')
         # self.add_profile_output('alpha')
@@ -141,6 +147,7 @@ class UVLMSolver(csdl.Model):
         self.parameters.declare('surface_properties_dict')
         self.parameters.declare('mesh_val')
         self.parameters.declare('problem_type',default='fixed_wake')
+        # self.parameters.declare('frame',default='wing_fixed')
 
     def define(self):
         num_times = self.parameters['num_times']
@@ -150,8 +157,9 @@ class UVLMSolver(csdl.Model):
 
         AcStates_val_dict = self.parameters['states_dict']
         surface_properties_dict = self.parameters['surface_properties_dict']
-        surface_names = list(surface_properties_dict.keys())
-        surface_shapes = list(surface_properties_dict.values())
+        surface_names = list(surface_properties_dict['surface_names'])
+        surface_shapes = list(surface_properties_dict['surface_shapes'])
+        frame = surface_properties_dict['frame']
 
         ####################################
         # Create parameters
@@ -199,6 +207,7 @@ class UVLMSolver(csdl.Model):
             'surface_shapes': surface_shapes,
             'delta_t': h_stepsize,
             'nt': num_times,
+            'frame': frame,
         }
 
         profile_params_dict = {
@@ -239,6 +248,7 @@ class UVLMSolver(csdl.Model):
         m = AdapterComp(
             surface_names=surface_names,
             surface_shapes=ode_surface_shapes,
+            frame=frame,
         )
         self.add(m, name='adapter_comp')
 

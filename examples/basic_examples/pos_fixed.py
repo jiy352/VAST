@@ -49,7 +49,9 @@ states_dict = {
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
 
-surface_properties_dict = {'wing':(nx,ny,3)}
+surface_properties_dict = {'surface_names':['wing'],
+                            'surface_shapes':[(nx, ny, 3)],
+                           'frame':'inertia',}
 
 # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
 mesh_val = np.zeros((num_nodes, nx, ny, 3))
@@ -93,6 +95,10 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
 
+plt.plot(t_vec, sim['wing_C_L'])
+plt.ylim([0,0.6])
+plt.xlim([0,t_vec.max()+1])
+plt.show()
 ######################################################
 # end make video
 ######################################################

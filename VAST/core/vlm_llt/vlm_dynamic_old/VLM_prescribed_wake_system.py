@@ -26,6 +26,7 @@ class ODESystemModel(csdl.Model):
         self.parameters.declare('surface_shapes', types=list)
         self.parameters.declare('delta_t')
         self.parameters.declare('nt')
+        self.parameters.declare('frame', default='wing_fixed')
 
     def define(self):
         # rename parameters
@@ -79,6 +80,7 @@ class ODESystemModel(csdl.Model):
         m = AdapterComp(
             surface_names=surface_names,
             surface_shapes=ode_surface_shapes,
+            frame=self.parameters['frame'],
         )
         self.add(m, name='adapter_comp')
 

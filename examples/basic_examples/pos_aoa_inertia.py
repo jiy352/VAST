@@ -48,7 +48,9 @@ states_dict = {
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
 
-surface_properties_dict = {'wing':(nx,ny,3)}
+surface_properties_dict = {'surface_names':['wing'],
+                            'surface_shapes':[(nx, ny, 3)],
+                           'frame':'wing_fixed',}
 
 # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
 mesh_val = np.zeros((num_nodes, nx, ny, 3))
@@ -69,10 +71,11 @@ import csdl
 
 model = csdl.Model()
 
-# vz = -np.ones((num_nodes,nx-1,ny-1,3))*np.tan(np.deg2rad(5)).copy()
-# vz[:,:,:,0] = 0
-# vz[:,:,:,1] = 0
-# model.create_input('wing_coll_vel', val = vz)
+vz = -np.zeros((num_nodes,nx-1,ny-1,3))*np.tan(np.deg2rad(5)).copy()
+
+model.create_input('wing_coll_vel', val = vz)
+
+
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                     surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), 'uvlm_solver')
