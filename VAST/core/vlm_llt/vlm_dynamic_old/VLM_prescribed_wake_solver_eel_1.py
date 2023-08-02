@@ -3,30 +3,20 @@ import time
 import matplotlib.pyplot as plt
 
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_system import ODESystemModel
-from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust import ThrustDrag
-from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
+from VAST.core.submodels.output_submodels.vlm_post_processing.compute_thrust_drag_dynamic import ThrustDrag
 from ozone.api import ODEProblem
 import csdl
 
 import numpy as np
 
 
-# from VLM_package.examples.run_vlm.utils.generate_mesh import generate_mesh
-# from VAST.utils.make_video_vedo import make_video as make_video_vedo
-
-from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
-# from VAST.core.submodels.actuation_submodels.pitching_actuation_model import EelActuationModel
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW
 from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix
-
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
 from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import MeshPreprocessingComp
 from VAST.core.submodels.output_submodels.vlm_post_processing.horseshoe_circulations import HorseshoeCirculations
 from VAST.core.submodels.output_submodels.vlm_post_processing.eval_pts_velocities_mls import EvalPtsVel
-
-
-from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel
 
 class ODEProblemTest(ODEProblem):
     def setup(self):
@@ -34,8 +24,23 @@ class ODEProblemTest(ODEProblem):
         # profile outputs are outputs from the ode integrator that are not states. 
         # instead they are outputs of a function of the solved states and parameters
         nt = self.num_times
-        surface_names = list(self.dictionary_inputs.keys())
-        surface_shapes = list(self.dictionary_inputs.values())
+        # surface_names = list(self.dictionary_inputs.keys())
+        # surface_shapes = list(self.dictionary_inputs.values())
+        # frame = self.dictionary_inputs.values()
+
+        surface_shapes = self.dictionary_inputs['surface_shapes']
+        surface_names = list(self.dictionary_inputs['surface_names'])
+        frame = self.dictionary_inputs['frame']
+
+
+        # self.add_profile_output('density')
+        # self.add_profile_output('alpha')
+        # self.add_profile_output('beta')
+        # self.add_profile_output('frame_vel',shape=(3,))
+        # self.add_profile_output('evaluation_pt')
+        # self.add_profile_output('bd_vec', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),3))
+
+        # self.add_profile_output('horseshoe_circulation', shape=((surface_shapes[0][0]-1)*(surface_shapes[0][1]-1),))
 
         ####################################
         # ode parameter names
@@ -135,27 +140,20 @@ class UVLMSolver(csdl.Model):
         self.parameters.declare('num_times')
         self.parameters.declare('h_stepsize')
         self.parameters.declare('states_dict')
-        self.parameters.declare('n_period')
         self.parameters.declare('surface_properties_dict')
-        self.parameters.declare('s_1_ind',default=3)
-        self.parameters.declare('s_2_ind',default=None)
         self.parameters.declare('problem_type',default='fixed_wake')
-
-        # self.parameters.declare('mesh_val')
 
     def define(self):
         num_times = self.parameters['num_times']
 
         h_stepsize = self.parameters['h_stepsize']
-        n_period = self.parameters['n_period']
-        # mesh_val = self.parameters['mesh_val']
 
         AcStates_val_dict = self.parameters['states_dict']
         surface_properties_dict = self.parameters['surface_properties_dict']
-        surface_names = list(surface_properties_dict.keys())
-        surface_shapes = list(surface_properties_dict.values())
+        surface_names = list(surface_properties_dict['surface_names'])
+        surface_shapes = list(surface_properties_dict['surface_shapes'])
+        frame = surface_properties_dict['frame']
         ode_surface_shapes = [(num_times, ) + item for item in surface_shapes]
-
 
 
         ####################################
@@ -177,9 +175,9 @@ class UVLMSolver(csdl.Model):
             ####################################
             # Create parameters
             ####################################
-            '''1. wing'''
-            # wing_val = mesh_val
-            # wing = self.create_input(surface_name, wing_val)
+            if mesh_val!=None:
+                wing_val = mesh_val
+                wing = self.create_input(surface_name, wing_val)
 
             ########################################
             # Initial condition for states
@@ -204,6 +202,7 @@ class UVLMSolver(csdl.Model):
             'surface_shapes': surface_shapes,
             'delta_t': h_stepsize,
             'nt': num_times,
+            'frame': frame,
         }
 
         profile_params_dict = {
@@ -226,7 +225,6 @@ class UVLMSolver(csdl.Model):
         # self.add_design_variable('u',lower=1e-3, upper=10)
         # self.add_objective('res')
         eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
-        
         op_surface_names = ['op_' + x for x in surface_names]
         eval_pts_shapes =        [
             tuple(map(lambda i, j: i - j, item, (0, 1, 1, 0)))
@@ -237,13 +235,13 @@ class UVLMSolver(csdl.Model):
                                        eval_pts_location=0.25,
                                        eval_pts_option='auto',
                                        delta_t=h_stepsize,
-                                       problem_type='prescribed_wake',
-                                       ),
+                                       problem_type='prescribed_wake'),
                  name='MeshPreprocessing_comp')
 
         m = AdapterComp(
             surface_names=surface_names,
             surface_shapes=ode_surface_shapes,
+            frame=frame,
         )
         self.add(m, name='adapter_comp')
 
@@ -255,7 +253,7 @@ class UVLMSolver(csdl.Model):
                                 bd_vortex_shapes=ode_surface_shapes,
                                 delta_t=h_stepsize,
                                 problem_type='prescribed_wake',
-                                end=True,),
+                                end=True),
                     name='solve_gamma_b_group')
         self.add(SeperateGammab(surface_names=surface_names,
                                 surface_shapes=ode_surface_shapes),
@@ -299,7 +297,7 @@ class UVLMSolver(csdl.Model):
             delta_t=h_stepsize,
         )
         self.add(submodel, name='ThrustDrag')
-        self.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')
+        
 
 
         '''

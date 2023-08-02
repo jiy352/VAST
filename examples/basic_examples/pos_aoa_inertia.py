@@ -75,7 +75,7 @@ vz = -np.zeros((num_nodes,nx-1,ny-1,3))*np.tan(np.deg2rad(5)).copy()
 
 model.create_input('wing_coll_vel', val = vz)
 
-
+model.create_input('wing', val = mesh_val)
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                     surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), 'uvlm_solver')
