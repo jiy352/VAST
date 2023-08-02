@@ -141,10 +141,9 @@ class MeshPreprocessingComp(ModuleCSDL):
             # (a vector that contains the chord lengths of each panel)
             # TODO: implement chords, and spans as an average of top and bottom???
             ################################################################################
-            chords_vec = def_mesh[:, 0:num_pts_chord - 1, 0:num_pts_span -
-                                  1, :] - def_mesh[:, 1:,
-                                                   0:num_pts_span - 1, :]
-            chords = csdl.pnorm(chords_vec, axis=(3))
+            chords_vec = def_mesh[:, 0:num_pts_chord - 1, :, :] - def_mesh[:, 1:, :, :]
+            chords_temp = csdl.pnorm(chords_vec, axis=(3))
+            chords = 0.5*(chords_temp[:, :, 0:num_pts_span-1] + chords_temp[:, :, 1:])
             self.register_output(chord_name, chords)
 
             ################################################################################
