@@ -113,6 +113,11 @@ class LiftDrag(ModuleCSDL):
                                                         ny - 1))
                 s_panels_list.append(s_panels)
 
+
+                eval_pts = self.declare_variable(eval_pts_names[i],
+                                                 shape=(num_nodes, nx - 1,
+                                                        ny - 1, 3))
+
                 velocities[:, start:start + delta, :] = vel_surface
                 s_panels_all[:, start:start + delta] = csdl.reshape(s_panels, (num_nodes, delta))
                 eval_pts_all[:, start:start + delta, :] = csdl.reshape(eval_pts, (num_nodes, delta, 3))
