@@ -190,21 +190,13 @@ class ODESystemModel(csdl.Model):
             surface_wake_coords = self.declare_variable(surface_wake_coords_name, shape=(n, nt - 1, ny, 3))
 
 
-            surface_dwake_coords_dt = self.create_output(
-                surface_dwake_coords_dt_name, shape=((n, nt - 1, ny, 3)))
+            surface_dwake_coords_dt = self.create_output( surface_dwake_coords_dt_name, shape=((n, nt - 1, ny, 3)),val=0)
             # print(surface_dwake_coords_dt.name,surface_dwake_coords_dt.shape)
 
             TE = surface_bd_vtx[:, nx - 1, :, :]
 
-            surface_dwake_coords_dt[:, 0, :, :] = (
-                TE  + wake_total_vel[:, 0, :, :]*delta_t - surface_wake_coords[:, 0, :, :]) / delta_t
-
-
-            surface_dwake_coords_dt[:, 1:, :, :] = (
-                surface_wake_coords[:, :
-                                    (surface_wake_coords.shape[1] - 1), :, :] -
-                surface_wake_coords[:, 1:, :, :] +
-                wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
+            surface_dwake_coords_dt[:, 0, :, :] = (TE  + wake_total_vel[:, 0, :, :]*delta_t - surface_wake_coords[:, 0, :, :]) / delta_t
+            surface_dwake_coords_dt[:, 1:, :, :] = (surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
 
 if __name__ == "__main__":
     import enum

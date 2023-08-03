@@ -41,7 +41,7 @@ class BiotSavartComp(csdl.Model):
         self.parameters.declare('eps', default=5e-4)
 
         self.parameters.declare('circulation_names', default=None)
-        self.parameters.declare('symmetry',default=True)
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         eval_pt_names = self.parameters['eval_pt_names']
@@ -185,7 +185,9 @@ class BiotSavartComp(csdl.Model):
             #                                                       out_name=dino.name + '_non_singular'))
             dino_non_singular = dino + 1e-4
 
-            num = (1/dino_non_singular) * (1/r_1_norm + 1/r_2_norm)
+            # num = (1/dino_non_singular) * (1/r_1_norm + 1/r_2_norm)
+            num = (1/dino_non_singular) * (1/(r_1_norm+1e-3) + 1/(r_2_norm+1e-3))
+            
             # print('the name of num is', num.name)
             self.register_output('num'+num.name, num)
             # print('the name of num is', num.name)

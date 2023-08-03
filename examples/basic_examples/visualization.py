@@ -26,18 +26,8 @@ def run_visualization(sim, h_stepsize):
 
     plotter = pv.Plotter()
 
-    # vel = sim['wing_eval_pts_coords_eval_pts_induced_vel']
-
-
     panel_forces = sim['panel_forces'].copy()
 
-    # acc = np.zeros(vel.shape)
-    # # we added a nagetive sign here to calculate the acceleration of the fish body
-    # acc[:-1,:,:] = -(vel[1:,:,:] - vel[:-1,:,:])/h_stepsize
-    # acc[-1,:,:] = -(vel[-1,:,:] - vel[-2,:,:])/h_stepsize
-
-    # forces = sim['eel_forces'].copy()
-    # vel[:,:,0] = 0
     nframe = num_nodes
     for i in range(len(surface_names)):
         surface_name = surface_names[i]
@@ -87,19 +77,11 @@ def run_visualization(sim, h_stepsize):
             for vars in visualize_var_names:
                 var = sim[surface_name+'_'+vars]
                 var[:,:,0] = 0
-            # grid_bdmesh.cell_data.set_vectors(np.swapaxes(vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),vars)
-            # grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces_all[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces_all')
-            # grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces_dynamic[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces_dynamic')
             grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces')
-            # grid_bdmesh.cell_data.set_vectors(np.swapaxes(acc[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'acc')
-            # print(i,grid.points.shape)
             grid_mesh.save('fixedwk_vtks/mesh'+str(i)+'.vtk')
             grid_bdmesh.save('fixedwk_vtks/bd'+str(i)+'.vtk')
             grid.save('fixedwk_vtks/wake'+str(i)+'.vtk')
             i+=1
-
-
-
 
 
 def run_visualization_eel(sim, h_stepsize):
