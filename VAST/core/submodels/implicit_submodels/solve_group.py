@@ -6,6 +6,7 @@ import csdl
 from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
 from VAST.core.submodels.aerodynamic_submodels.rhs_group_end import RHSEND
 from VAST.utils.custom_einsums import EinsumKijKjKi
+
 class SolveMatrix(Model):
     """
     Solve the AIC linear system to obtain the vortex ring circulations.
@@ -214,8 +215,7 @@ class SolveMatrix(Model):
             gamma_w = self.declare_variable('gamma_w',shape=gamma_w_shape)
             # gamma_w_reshape = self.declare_variable('gamma_w_reshape',shape=(num_nodes,gamma_w.shape[1]*gamma_w.shape[2]))
             b = self.declare_variable('b', shape=(num_nodes, gamma_b_shape))
-            # print('solve_group after implicit M_shape_row', M_shape_row)
-            # print('solve_group after implicit MTX shape', MTX.shape)
+
             M = self.declare_variable('M_mat', shape=M_shape)
 
             gamma_b = solve(aic_bd_proj,M, gamma_w, b)
