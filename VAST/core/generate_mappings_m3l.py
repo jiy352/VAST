@@ -176,7 +176,7 @@ class VASTNodalForces(m3l.ExplicitOperation):
 
         return csdl_model
 
-    def evaluate(self, vlm_forces, nodal_force_meshes):
+    def evaluate(self, vlm_forces, nodal_force_meshes, design_condition=None):
         '''
         Maps nodal displacements_mesh from arbitrary locations to the mesh nodes.
         
@@ -204,7 +204,12 @@ class VASTNodalForces(m3l.ExplicitOperation):
 
         self.nodal_forces_meshes = nodal_force_meshes
 
-        self.name = f"{''.join(surface_names)}_vlm_force_mapping_model"
+        if design_condition:
+            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_nodal_forces_model"
+
+        else:
+            self.name = f"{''.join(surface_names)}_vlm_nodal_forces_model"
+        # self.name = f"{''.join(surface_names)}_vlm_force_mapping_model"
 
         self.arguments = {}
 

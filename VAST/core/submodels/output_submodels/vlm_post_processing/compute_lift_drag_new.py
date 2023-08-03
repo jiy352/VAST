@@ -4,7 +4,6 @@ import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_effective_aoa_cd_v import AOA_CD
 from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-# from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
 class LiftDrag(ModuleCSDL):
     """
     L,D,cl,cd
@@ -37,14 +36,11 @@ class LiftDrag(ModuleCSDL):
         self.parameters.declare('coeffs_cd', default=None)
         self.parameters.declare('cl0', default=None)
 
-        self.parameters.declare('ML', default=False)
-
 
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         cl0 = self.parameters['cl0']
-        print('cl0',cl0)
         if cl0 is None:
             cl0 = [0.0] * len(surface_names)
         num_nodes = surface_shapes[0][0]
@@ -60,8 +56,7 @@ class LiftDrag(ModuleCSDL):
             system_size += (nx - 1) * (ny - 1)
 
         rho = self.declare_variable('density', shape=(num_nodes, 1), val=1.11)
-        rho_expand = csdl.expand(csdl.reshape(rho, (num_nodes, )),
-                                 (num_nodes, system_size, 3), 'k->kij')
+        rho_expand = csdl.expand(csdl.reshape(rho, (num_nodes, )), (num_nodes, system_size, 3), 'k->kij')
         alpha = self.declare_variable('alpha', shape=(num_nodes, 1))
         beta = self.declare_variable('beta', shape=(num_nodes, 1))
 
@@ -80,7 +75,8 @@ class LiftDrag(ModuleCSDL):
         if eval_pts_option=='auto':
             eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
         else:
-            eval_pts_names=self.parameters['eval_pts_names']
+            raise NotImplementedError('user_defined eval_pts_option is not implemented yet')
+
         v_total_wake_names = [x + '_eval_total_vel' for x in eval_pts_names]
 
         bd_vec = self.declare_variable('bd_vec',
@@ -92,31 +88,27 @@ class LiftDrag(ModuleCSDL):
                                          (num_nodes, system_size, 3),
                                          'ki->kij')
 
-        eval_pts_names = self.parameters['eval_pts_names']
-
         if eval_pts_option == 'auto':
             velocities = self.create_output('eval_total_vel', shape=(num_nodes, system_size, 3))
             s_panels_all = self.create_output('s_panels_all', shape=(num_nodes, system_size))
             eval_pts_all = self.create_output('eval_pts_all', shape=(num_nodes, system_size, 3))
             start = 0
-            s_panels_list = []
             for i in range(len(v_total_wake_names)):
                 nx = surface_shapes[i][1]
                 ny = surface_shapes[i][2]
                 delta = (nx - 1) * (ny - 1)
-
-                vel_surface = self.declare_variable(v_total_wake_names[i],
-                                                    shape=(num_nodes, delta,
-                                                           3))
-                s_panels = self.declare_variable(surface_names[i] + '_s_panel',
-                                                 shape=(num_nodes, nx - 1,
-                                                        ny - 1))
-                s_panels_list.append(s_panels)
+                vel_surface = self.declare_variable(v_total_wake_names[i], shape=(num_nodes, delta, 3))
+                s_panels = self.declare_variable(surface_names[i] + '_s_panel', shape=(num_nodes, nx - 1, ny - 1))
+                eval_pts = self.declare_variable(eval_pts_names[i], shape=(num_nodes, nx - 1, ny - 1, 3))
 
                 velocities[:, start:start + delta, :] = vel_surface
                 s_panels_all[:, start:start + delta] = csdl.reshape(s_panels, (num_nodes, delta))
                 eval_pts_all[:, start:start + delta, :] = csdl.reshape(eval_pts, (num_nodes, delta, 3))
                 start = start + delta
+
+            s_panels_sum = csdl.reshape(csdl.sum(s_panels_all, axes=(1, )),
+                                        (num_nodes, 1))
+
 
             panel_forces = rho_expand * circulation_repeat * csdl.cross(
                 velocities, bd_vec, axis=2)
@@ -132,8 +124,90 @@ class LiftDrag(ModuleCSDL):
             L_panel = -panel_forces_x * sina + panel_forces_z * cosa
             D_panel = panel_forces_x * cosa * cosb + panel_forces_z * sina * cosb - panel_forces_y * sinb
 
-            s_panels_sum = csdl.reshape(csdl.sum(s_panels_all, axes=(1, )),
-                                        (num_nodes, 1))
+            # outputs that user/developer potentially cares about
+
+            #   (either wo viscous / vlm internal viscous correction; but always with cl0 - since it can be zeros)
+
+            # Total L, D, CL, CD - just to get an idea
+            # total forces, moments - for trim
+            # panel forces  - for structural analysis 
+            # spanwise cl - for ML
+            # spanwise cd - add with viscous correction from ML for trim only
+
+
+            # compute updated panel forces due to cl0 and vlm internal viscous correction
+            ##################################################################################################
+            # Computing the forces and moments on each surface; This has to be done separately for each surface,
+            # because L_0 is different for each surface;i.e., and we cannot add L_0 to the tail
+            # the moment should be in body fixed frame as well
+            ##################################################################################################
+
+            start=0
+            total_moments_panels_list = [] # make a list for the total moments on each surface to sum them up later
+
+            for i in range(len(surface_names)):
+
+                nx = surface_shapes[i][1]
+                ny = surface_shapes[i][2]
+                delta = int((nx-1)*(ny-1))
+                panel_forces_surface = panel_forces[:,start:start+delta,:] # panel forces for each surface in the for loop
+                # total force on each panel on the surface is the sum of panel_forces_surface (from VLM) and forces_x_exp (from vlm internal viscous correction and cl0)
+
+
+
+
+                forces_x_exp = csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta - other_viscous_drag * csdl.cos(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
+                forces_z_exp = csdl.expand(- D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta + other_viscous_drag * csdl.sin(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
+
+                total_forces_surface = self.create_output(surface_names[i]+'_total_forces',shape=(num_nodes,delta,3))
+                total_forces_surface[:,:,0] = -panel_forces[:,start:start+delta,0] + forces_x_exp
+                total_forces_surface[:,:,1] = panel_forces[:,start:start+delta,1] * 0
+                total_forces_surface[:,:,2] = -panel_forces[:,start:start+delta,2] + forces_z_exp
+
+                total_forces_strip = csdl.sum(csdl.reshape(total_forces_surface, new_shape=(num_nodes,nx-1,ny-1,3)),axes=(1,))
+                total_moments_surface_temp = csdl.cross(r_M[:,start:start+delta,:], total_forces_surface, axis=2)
+
+                total_moments_surface = self.create_output(surface_names[i]+'_total_moments_surface',shape=(num_nodes,delta,3))
+                total_moments_surface[:,:,0] = total_moments_surface_temp[:,:,0] * 0 # NOTE: hard coded
+                total_moments_surface[:,:,1] = total_moments_surface_temp[:,:,1]
+                total_moments_surface[:,:,2] = total_moments_surface_temp[:,:,2] * 0
+
+                total_moments_panels_list.append(csdl.sum(total_moments_surface,axes=(1,)))
+
+                total_moments_strip = csdl.sum(csdl.reshape(total_moments_surface, new_shape=(num_nodes,nx-1,ny-1,3)),axes=(1,))
+                '''
+                self.register_output(surface_names[i]+'_F_strip', total_forces_strip)
+                self.register_output(surface_names[i]+'_M_strip', total_moments_strip)
+                '''
+                start = start+delta
+            ####################################################
+
+            # sum the moments of all surfaces
+            total_moments_tmp = sum(total_moments_panels_list)
+            self.print_var(total_moments_tmp)
+            M = self.create_output('M', shape=total_moments_tmp.shape,val=0)
+
+            M[:, 0] = total_moments_tmp[:, 0] 
+            M[:, 1] = total_moments_tmp[:, 1] 
+            M[:, 2] = total_moments_tmp[:, 2]
+
+            D_total = -F[:, 0]*csdl.cos(alpha) - F[:, 2]*csdl.sin(alpha)
+            L_total =  F[:, 0]*csdl.sin(alpha) - F[:, 2]*csdl.cos(alpha)
+            C_D_total = D_total/(0.5 *rho*b*s_panels_sum_surface)
+            C_L_total = L_total/(0.5 *rho*b*s_panels_sum_surface)           
+            self.register_module_output('total_drag', D_total)
+            self.register_module_output('total_lift', L_total)
+            L_over_D = L_total / D_total
+            self.register_output('L_over_D', L_over_D)
+            self.print_var(L_over_D)
+            self.register_output('total_CD', C_D_total)
+            self.register_output('total_CL', C_L_total)
+
+
+
+
+
+
 
             start = 0
             for i in range(len(surface_names)):
@@ -159,54 +233,52 @@ class LiftDrag(ModuleCSDL):
                 D = csdl.sum(D_panel_surface, axes=(1, ))
                 self.register_output(L_name, csdl.reshape(L, (num_nodes, 1)))
                 self.register_output(D_name, csdl.reshape(D, (num_nodes, 1)))
-                area = csdl.reshape(csdl.sum(s_panels_list[i],axes=(1,2)),(b.shape))
 
-                c_l = L / (0.5 * rho * area * b)
+                c_l = L / (0.5 * rho * s_panels_sum * b)
                 self.register_output(CL_name,
                                      csdl.reshape(c_l, (num_nodes, 1)))
 
-                c_d = D / (0.5 * rho * area * b)
+                c_d = D / (0.5 * rho * s_panels_sum * b)
 
                 self.register_output(CD_name,
                                      csdl.reshape(c_d, (num_nodes, 1)))
 
                 start += delta
 
-            cl_span_names = [x + '_cl_span' for x in surface_names]
-            cd_span_names = [x + '_cd_i_span' for x in surface_names]
-            start = 0
-            for i in range(len(surface_names)):
-                nx = surface_shapes[i][1]
-                ny = surface_shapes[i][2]
-                delta = (nx - 1) * (ny - 1)
-
-                s_panels = self.declare_variable(
-                    surface_names[i] + '_s_panel',
-                    shape=(num_nodes, nx - 1, ny - 1))
-                surface_span = csdl.reshape(csdl.sum(s_panels, axes=(1, )),
-                                            (num_nodes, ny - 1, 1))
-                rho_b_exp = csdl.expand(rho * b, (num_nodes, ny - 1, 1),
-                                        'ik->ijk')
-
-                cl_span = csdl.reshape(
-                    csdl.sum(csdl.reshape(
-                        L_panel[:, start:start + delta, :],
-                        (num_nodes, nx - 1, ny - 1)),
-                                axes=(1, )),
-                    (num_nodes, ny - 1, 1)) / (0.5 * rho_b_exp *
-                                                surface_span)
-                cd_span = csdl.reshape(
-                    csdl.sum(csdl.reshape(
-                        D_panel[:, start:start + delta, :],
-                        (num_nodes, nx - 1, ny - 1)),
-                                axes=(1, )),
-                    (num_nodes, ny - 1, 1)) / (0.5 * rho_b_exp *
-                                                surface_span)
-                self.register_output(cl_span_names[i], cl_span)
-                self.register_output(cd_span_names[i], cd_span)
-                start += delta
-
             if self.parameters['coeffs_aoa'] != None:
+                cl_span_names = [x + '_cl_span' for x in surface_names]
+                cd_span_names = [x + '_cd_i_span' for x in surface_names]
+                start = 0
+                for i in range(len(surface_names)):
+                    nx = surface_shapes[i][1]
+                    ny = surface_shapes[i][2]
+                    delta = (nx - 1) * (ny - 1)
+
+                    s_panels = self.declare_variable(
+                        surface_names[i] + '_s_panel',
+                        shape=(num_nodes, nx - 1, ny - 1))
+                    surface_span = csdl.reshape(csdl.sum(s_panels, axes=(1, )),
+                                                (num_nodes, ny - 1, 1))
+                    rho_b_exp = csdl.expand(rho * b, (num_nodes, ny - 1, 1),
+                                            'ik->ijk')
+
+                    cl_span = csdl.reshape(
+                        csdl.sum(csdl.reshape(
+                            L_panel[:, start:start + delta, :],
+                            (num_nodes, nx - 1, ny - 1)),
+                                 axes=(1, )),
+                        (num_nodes, ny - 1, 1)) / (0.5 * rho_b_exp *
+                                                   surface_span)
+                    cd_span = csdl.reshape(
+                        csdl.sum(csdl.reshape(
+                            D_panel[:, start:start + delta, :],
+                            (num_nodes, nx - 1, ny - 1)),
+                                 axes=(1, )),
+                        (num_nodes, ny - 1, 1)) / (0.5 * rho_b_exp *
+                                                   surface_span)
+                    self.register_output(cl_span_names[i], cl_span)
+                    self.register_output(cd_span_names[i], cd_span)
+                    start += delta
 
                 sub = AOA_CD(
                     surface_names=surface_names,
@@ -234,8 +306,6 @@ class LiftDrag(ModuleCSDL):
 
             L_0 = self.create_output('L_0',shape=(num_nodes,len(v_total_wake_names))) 
 
-            s_panels_sum_surface_list = []
-
             for i in range(len(v_total_wake_names)):
 
                 nx = surface_shapes[i][1]
@@ -250,9 +320,6 @@ class LiftDrag(ModuleCSDL):
                                                         ny - 1))
                 s_panels_sum_surface = csdl.reshape(csdl.sum(s_panels,axes=(1,2,)),(num_nodes,1))
                 self.register_module_output(f'panel_area_{surface_names[i]}', s_panels_sum_surface)
-                s_panels_sum_surface_list.append(s_panels_sum_surface)
-
-
                 L_0[:,i] = 0.5 *rho*b*s_panels_sum_surface*C_L_0
             L_0_total = csdl.reshape((csdl.sum(L_0,axes=(1,))),(num_nodes,1))
             ####################################################
@@ -269,23 +336,19 @@ class LiftDrag(ModuleCSDL):
             # sum up the panel forces from VLM first:
             # panel_forces shape = (num_nodes, num_total_panels, 3)
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
+            F = self.create_output('F', shape=(num_nodes, 3))
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
-            drag_area= 1.65 #0*0.08
-            other_viscous_drag = 0.5*rho*b*drag_area
+            drag_coeff = 17*0.08
+            other_viscous_drag = 0.5*rho*b*drag_coeff
             self.register_output('other_viscous_drag',other_viscous_drag)
 
-            ML = self.parameters['ML']
-
-            if ML == False:
-                F = self.create_output('F', shape=(num_nodes, 3))
-
-                # compute the total forces ``F`` in body fixed frame as a sum of 
-                # total forces from VLM, viscous drag from the wing, L_0, and other viscous drag
-                F[:, 0] =  -(total_forces_temp[:, 0] + D_0 * csdl.cos(alpha) - L_0_total * csdl.sin(alpha) + other_viscous_drag * csdl.cos(alpha))
-                F[:, 1] = total_forces_temp[:, 1] * 0
-                F[:, 2] = -(total_forces_temp[:, 2] + D_0 * csdl.sin(alpha) + L_0_total * csdl.cos(alpha) - other_viscous_drag * csdl.sin(alpha))
-                ####################################################
+            # compute the total forces ``F`` in body fixed frame as a sum of 
+            # total forces from VLM, viscous drag from the wing, L_0, and other viscous drag
+            F[:, 0] =  -(total_forces_temp[:, 0] + D_0 * csdl.cos(alpha) - L_0_total * csdl.sin(alpha) + other_viscous_drag * csdl.cos(alpha))
+            F[:, 1] = total_forces_temp[:, 1] * 0
+            F[:, 2] = -(total_forces_temp[:, 2] + D_0 * csdl.sin(alpha) + L_0_total * csdl.cos(alpha) - other_viscous_drag * csdl.sin(alpha))
+            ####################################################
 
 
             ####################################################
@@ -311,7 +374,6 @@ class LiftDrag(ModuleCSDL):
 
             start=0
             total_moments_panels_list = [] # make a list for the total moments on each surface to sum them up later
-            total_forces_surface_list = []
 
             for i in range(len(surface_names)):
 
@@ -320,10 +382,6 @@ class LiftDrag(ModuleCSDL):
                 delta = int((nx-1)*(ny-1))
                 forces_x_exp = csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta - other_viscous_drag * csdl.cos(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
                 forces_z_exp = csdl.expand(- D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta + other_viscous_drag * csdl.sin(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
-
-                self.print_var(forces_x_exp+0)
-                self.print_var(forces_z_exp+0)
-                self.print_var(other_viscous_drag+0)
 
                 total_forces_surface = self.create_output(surface_names[i]+'_total_forces',shape=(num_nodes,delta,3))
                 total_forces_surface[:,:,0] = -panel_forces[:,start:start+delta,0] + forces_x_exp
@@ -345,82 +403,29 @@ class LiftDrag(ModuleCSDL):
                 self.register_output(surface_names[i]+'_F_strip', total_forces_strip)
                 self.register_output(surface_names[i]+'_M_strip', total_moments_strip)
                 '''
-
-                ####################################################
-                # adding cl_total_spanwise here
-                # NOTE: I hate this compute_lift_drag.py so much
-                # I will rewrite it later!!!!!!!!!!!!!!!!!!!!!!!!!!
-                ####################################################
-                total_forces_surface_cl_span = self.create_output(surface_names[i]+'_total_forces_for_cl_span',shape=(num_nodes,delta,3))
-                # total_forces_surface_cl_span[:,:,0] = panel_forces[:,start:start+delta,0] - csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
-                # total_forces_surface_cl_span[:,:,1] = panel_forces[:,start:start+delta,1] * 0
-                # total_forces_surface_cl_span[:,:,2] = panel_forces[:,start:start+delta,2] - csdl.expand(-D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta,(num_nodes,delta,1),'ik->ijk')
-
-                total_forces_surface_cl_span[:,:,0] = panel_forces[:,start:start+delta,0] - csdl.expand(-D_0 * csdl.cos(alpha), (num_nodes,delta,1),'ik->ijk')
-                total_forces_surface_cl_span[:,:,1] = panel_forces[:,start:start+delta,1] * 0
-                total_forces_surface_cl_span[:,:,2] = panel_forces[:,start:start+delta,2] - csdl.expand(-D_0 * csdl.sin(alpha), (num_nodes,delta,1),'ik->ijk')
-
-                # print('total_forces_surface_cl_span',total_forces_surface_cl_span[:,:,0])
-                # print('cosa',cosa.shape)
-                L_panel_cl = -total_forces_surface_cl_span[:,:,0] * sina[:,start:start+delta,:] + total_forces_surface_cl_span[:,:,2] * cosa[:,start:start+delta,:]
-                L_panel_cl_strip = csdl.sum(csdl.reshape(L_panel_cl,(num_nodes,nx-1,ny-1)),axes=(1,)) 
-                # D_panel = total_forces_surface_cl_span[:,:,0] * cosa * cosb + total_forces_surface_cl_span[:,:,2] * sina * cosb - total_forces_surface_cl_span[:,:,1] * sinb
-                # L_spanwise_sum = csdl.sum(L_panel,axes=(1,))
-                s_panels = self.declare_variable(surface_names[i] + '_s_panel', shape=(num_nodes, nx - 1, ny - 1))
-                rho_b_exp = csdl.reshape(csdl.expand(rho * b, (num_nodes, ny - 1, 1), 'ik->ijk'),(L_panel_cl_strip.shape))
-                s_panels_strip =csdl.sum(s_panels,axes=(1,))
-                # print('s_panels_strip',s_panels_strip.shape)
-                # print('rho_b_exp',rho_b_exp.shape)
-                # print('L_panel_cl_strip',L_panel_cl_strip.shape)
-                cl_span_total = csdl.reshape(L_panel_cl_strip/(s_panels_strip*rho_b_exp*0.5)+ cl0[i],(s_panels_strip.shape+(1,)))
-                # self.print_var(cl_span_total)
-
-                self.register_output(surface_names[i]+'_cl_span_total', cl_span_total)
-                ####################################################
-
                 start = start+delta
-                total_forces_surface_list.append(total_forces_surface)
             ####################################################
 
             # sum the moments of all surfaces
             total_moments_tmp = sum(total_moments_panels_list)
-            # self.print_var(total_moments_tmp)
-            if ML ==False:
+            self.print_var(total_moments_tmp)
+            M = self.create_output('M', shape=total_moments_tmp.shape,val=0)
 
-                M = self.create_output('M', shape=total_moments_tmp.shape,val=0)
+            M[:, 0] = total_moments_tmp[:, 0] 
+            M[:, 1] = total_moments_tmp[:, 1] 
+            M[:, 2] = total_moments_tmp[:, 2]
 
-
-
-                M[:, 0] = total_moments_tmp[:, 0] 
-                M[:, 1] = total_moments_tmp[:, 1] 
-                M[:, 2] = total_moments_tmp[:, 2]
-
-                # compute the cl and cd total for each surface
-                for i in range(len(surface_names)):
-                    F_surface = csdl.sum(total_forces_surface_list[i],axes=(1,))
-                    D_total_surface = -F_surface[:, 0]*csdl.cos(alpha) - F_surface[:, 2]*csdl.sin(alpha)
-                    L_total_surface = F_surface[:, 0]*csdl.sin(alpha) - F_surface[:, 2]*csdl.cos(alpha)
-                    L_over_D_surface = L_total_surface / D_total_surface
-                    C_D_total_surface = D_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
-                    C_L_total_surface = L_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
-                    self.print_var(C_L_total_surface)
-                    self.register_output(surface_names[i]+'_total_drag', D_total_surface)   
-                    self.register_output(surface_names[i]+'_total_lift', L_total_surface)
-                    self.register_output(surface_names[i]+'_L_over_D', L_over_D_surface)
-                    self.register_output(surface_names[i]+'_C_D_total', C_D_total_surface)
-                    self.register_output(surface_names[i]+'_C_L_total', C_L_total_surface)
-
-                D_total = -F[:, 0]*csdl.cos(alpha) - F[:, 2]*csdl.sin(alpha)
-                L_total =  F[:, 0]*csdl.sin(alpha) - F[:, 2]*csdl.cos(alpha)
-                C_D_total = D_total/(0.5 *rho*b*sum(s_panels_sum_surface_list))
-                C_L_total = L_total/(0.5 *rho*b*sum(s_panels_sum_surface_list)) 
-                L_over_D = L_total / D_total
-
-                self.register_module_output('total_drag', D_total)
-                self.register_module_output('total_lift', L_total)
-                self.register_output('total_CD', C_D_total)
-                self.register_output('total_CL', C_L_total)
-                self.register_output('L_over_D', L_over_D)
+            D_total = -F[:, 0]*csdl.cos(alpha) - F[:, 2]*csdl.sin(alpha)
+            L_total =  F[:, 0]*csdl.sin(alpha) - F[:, 2]*csdl.cos(alpha)
+            C_D_total = D_total/(0.5 *rho*b*s_panels_sum_surface)
+            C_L_total = L_total/(0.5 *rho*b*s_panels_sum_surface)           
+            self.register_module_output('total_drag', D_total)
+            self.register_module_output('total_lift', L_total)
+            L_over_D = L_total / D_total
+            self.register_output('L_over_D', L_over_D)
+            self.print_var(L_over_D)
+            self.register_output('total_CD', C_D_total)
+            self.register_output('total_CL', C_L_total)
             
 
         # !TODO: need to fix eval_pts for main branch

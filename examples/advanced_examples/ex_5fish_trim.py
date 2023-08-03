@@ -13,7 +13,7 @@ import csdl
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 # nx = 12; ny = 3
-nx = 41; ny = 3
+nx = 51; ny = 3
 num_nodes = 40;  
 nt = num_nodes
 
@@ -80,7 +80,7 @@ sim = python_csdl_backend.Simulator(model)
     
 t_start = time.time()
 sim.run()
-# exit()
+exit()
 # np.sum(thrust)/(0.5*np.reshape(997,(1,))*v_x**2*0.13826040386294708)/num_nodes 
 
 # make_video_vedo(ssurface_properties_dict,num_nodes, sim)

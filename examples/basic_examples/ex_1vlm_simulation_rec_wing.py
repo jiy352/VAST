@@ -58,9 +58,9 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
 sim = ex1_generate_model_vlm_fixed_wake(num_nodes=1,nx=3, ny=11)
 sim.run()
 
-print('The number of nan in num_00e9 is: ', np.count_nonzero(np.isinf(sim['num_00e9'])))
-print('The number of nan in num_00eB is: ', np.count_nonzero(np.isinf(sim['num_00eB'])))
-print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
-print('The number of nan in num_00fu is: ', np.count_nonzero(np.isinf(sim['num_00fu'])))
+# print('The number of nan in num_00e9 is: ', np.count_nonzero(np.isinf(sim['num_00e9'])))
+# print('The number of nan in num_00eB is: ', np.count_nonzero(np.isinf(sim['num_00eB'])))
+# print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
+# print('The number of nan in num_00fu is: ', np.count_nonzero(np.isinf(sim['num_00fu'])))
 
 
