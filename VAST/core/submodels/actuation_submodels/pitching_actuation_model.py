@@ -3,7 +3,7 @@ import numpy as np
 from numpy.core.fromnumeric import size
 
 
-class EelActuationModel(csdl.Model):
+class PitchingActuationModel(csdl.Model):
     """
     Compute the mesh at each time step for the eel actuation model given the kinematic variables.
     # the geometry and kinematics of the eel
@@ -117,10 +117,11 @@ class EelActuationModel(csdl.Model):
             # y = 0.125 * (s+0.03125)/1.03125 * sin(2*pi*x/lambda - omg*t)
             # ydot = 0.125 * (s+0.03125)/1.03125 * cos(2*pi*x/lambda - omg*t) * (-omg)
 
-            y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)
-            y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)*(-omg_exp)
+            # y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)
+            # y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)*(-omg_exp)
 
-
+            y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin( - omg_exp*t_exp)
+            y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos( - omg_exp*t_exp)*(-omg_exp)
 
             # velocity of the fish on its collocation points
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))

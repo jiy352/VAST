@@ -70,6 +70,7 @@ class AdapterComp(ModuleCSDL):
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
+        self.parameters.declare('frame', default='wing_fixed')
 
     def define(self):
         # add_input
@@ -126,13 +127,23 @@ class AdapterComp(ModuleCSDL):
         # TODO:fix this
         ################################################################################
 
+        print('frame-----------------', self.parameters['frame'])
+        
 
-        frame_vel = self.create_output('frame_vel', shape=(num_nodes, 3))
+        if self.parameters['frame'] == 'wing_fixed':
+            frame_vel = self.create_output('frame_vel', shape=(num_nodes, 3),val=0.)
 
-        frame_vel[:, 0] = -v_inf * csdl.cos(beta) * csdl.cos(alpha)
-        frame_vel[:, 1] = v_inf * csdl.sin(beta)
+            frame_vel[:, 0] = -v_inf * csdl.cos(beta) * csdl.cos(alpha)
+            frame_vel[:, 1] = v_inf * csdl.sin(beta)
 
-        frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
+            frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
+        else:
+            frame_vel = self.create_output('frame_vel', shape=(num_nodes, 3),val=0.)
+
+            frame_vel[:, 0] = -v_inf * csdl.cos(beta) * csdl.cos(alpha)
+            frame_vel[:, 1] = v_inf * csdl.sin(beta)
+            # frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
+
         ################################################################################
         # compute the output: 5. rho
         # TODO: replace this hard coding

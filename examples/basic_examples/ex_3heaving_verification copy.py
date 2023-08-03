@@ -19,8 +19,7 @@ nx = 5; ny = 7
 chord = 1; span = 4
 num_nodes = 42;  nt = num_nodes
 
-mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
-                 "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
+mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False, "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
 mesh = generate_mesh(mesh_dict)
 # this is the same geometry as the dynamic_simple.ji
 
@@ -30,7 +29,7 @@ mesh = generate_mesh(mesh_dict)
 n_period = 3 
 omg=1 
 h=0.1 * chord
-alpha = - np.deg2rad(0) 
+alpha = - np.deg2rad(5) 
 t_vec = np.linspace(0, n_period*np.pi*2, num_nodes) 
 
 u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
@@ -44,7 +43,7 @@ alpha_equ = np.arctan2(w_vel, u_val)
 states_dict = {
     'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
     'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
-    'theta': alpha_equ, 'psi': np.zeros((num_nodes, 1)),
+    'theta': alpha, 'psi': np.zeros((num_nodes, 1)),
     'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
     'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
 }
@@ -84,17 +83,3 @@ import matplotlib.pyplot as plt
 ######################################################
 # end make video
 ######################################################
-
-# plot geometry
-
-# plot the velocity of the surface
-surface_vel_z = -sim['wing_kinematic_vel'][:,0,2]
-plt.plot(sim['wing'][:,0,0,2],'.-')
-plt.plot(surface_vel_z,'.-')
-# plot the acceleration of the surface
-acc = (surface_vel_z[1:] - surface_vel_z[:-1])/h_stepsize
-plt.plot(acc,'.-' )
-plt.legend(['z','z_vel','z_acc'])
-
-# plot force properties
-

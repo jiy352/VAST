@@ -113,7 +113,7 @@ def test_generate_model_vlm_fixed_wake():
                                                 decimal=2)
     return sim
 
-# sim = test_generate_model_vlm_fixed_wake(fluid_problem=fluid_problem)
+sim = test_generate_model_vlm_fixed_wake()
 
 
 

@@ -1,19 +1,21 @@
 '''Example 5 : fish kinematic optimization'''
 
-from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
+from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver_eel_1 import UVLMSolver
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
 import resource
 import csdl
 
-from visualization import run_visualization
+from visualization import run_visualization_eel
 run_optimizaton=0
 
-from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+
+# from VAST.core.submodels.actuation_submodels.eel_actuation_model import EelActuationModel
+from VAST.core.submodels.actuation_submodels.pitching_actuation_model import PitchingActuationModel
+
 
 from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel
-from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
 
 ########################################
 # define mesh resolution and num_nodes
@@ -32,9 +34,7 @@ N_period= 2
 st = 0.15
 A = 0.125
 f = 0.48
-surface_properties_dict = {'surface_names':['eel'],
-                            'surface_shapes':[(nx, ny, 3)],
-                           'frame':'wing_fixed',}
+surface_properties_dict = {'eel':(nx,ny,3)}
 
 u_val = (np.ones(num_nodes)).reshape((num_nodes,1)) * v_inf
 w_vel = np.zeros((num_nodes, 1))
@@ -68,8 +68,8 @@ density = model.create_input('density',val=np.ones((num_nodes,1))*997)
 
 
 
-surface_names = surface_properties_dict['surface_names']
-surface_shapes = surface_properties_dict['surface_shapes']
+surface_names = list(surface_properties_dict.keys())
+surface_shapes = list(surface_properties_dict.values())
 ode_surface_shapes = [(num_nodes, ) + item for item in surface_shapes]
 
 s_1_ind = 3
@@ -79,16 +79,16 @@ if s_2_ind==None:
 
 model.add(EelViscousModel(),name='EelViscousModel')
 
-model.add(EelActuationModel(surface_names=surface_names,
+model.add(PitchingActuationModel(surface_names=surface_names,
                             surface_shapes=ode_surface_shapes,
                             n_period=N_period,
                             s_1_ind=s_1_ind,
                             s_2_ind=s_2_ind,
-                            ),name='EelActuationModel')
+                            ),name='ActuationModel')
 
-model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,n_period=N_period,
                                     surface_properties_dict=surface_properties_dict), 'fish_model')
-model.add(EfficiencyModel(surface_shapes=ode_surface_shapes),name='EfficiencyModel')
+
 model.add_design_variable('v_x',upper=0.8,lower=0.05)
 # model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
 # model.add_design_variable('tail_frequency',upper=0.5,lower=0.2)

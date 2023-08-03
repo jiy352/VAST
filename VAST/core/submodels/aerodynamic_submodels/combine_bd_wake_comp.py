@@ -99,6 +99,8 @@ S
                     shape=(num_nodes, nx + n_wake_pts_chord, ny, 3))
                 bd_n_wake_coords[:, :nx, :, :] = bd_vxt_coords
                 bd_n_wake_coords[:, nx:, :, :] = wake_coords[:, :, :, :]
+                # self.print_var(wake_coords)
+                # self.print_var(bd_n_wake_coords)
                 # for the dyanmic cases, the number of streamwise panels for the wake is always num total time steps-1,
                 # this does not include the trailing edge,
                 # thus wake_coords[:, :, :, :] 

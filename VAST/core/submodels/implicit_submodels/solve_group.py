@@ -4,6 +4,7 @@ import numpy as np
 import csdl
 
 from VAST.core.submodels.aerodynamic_submodels.rhs_group import RHS
+from VAST.core.submodels.aerodynamic_submodels.rhs_group_end import RHSEND
 from VAST.utils.custom_einsums import EinsumKijKjKi
 class SolveMatrix(Model):
     """
@@ -38,6 +39,7 @@ class SolveMatrix(Model):
         self.parameters.declare('bd_vortex_shapes', types=list)
         self.parameters.declare('delta_t')
         self.parameters.declare('problem_type',default='fixed_wake')
+        self.parameters.declare('end',default=False)
 
         # pass
 
@@ -71,15 +73,26 @@ class SolveMatrix(Model):
 
         model = Model()
         '''1. add the rhs'''
-        model.add(
-            RHS(
-                n_wake_pts_chord=n_wake_pts_chord,
-                surface_names=surface_names,
-                bd_vortex_shapes=bd_vortex_shapes,
-                delta_t=delta_t,
-                problem_type=self.parameters['problem_type']
+        if self.parameters['end']==False:
+            model.add(
+                RHS(
+                    n_wake_pts_chord=n_wake_pts_chord,
+                    surface_names=surface_names,
+                    bd_vortex_shapes=bd_vortex_shapes,
+                    delta_t=delta_t,
+                    problem_type=self.parameters['problem_type'],
 
-            ), 'RHS_group')
+                ), 'RHS_group')
+        elif self.parameters['end']==True:
+            model.add(
+                RHSEND(
+                    n_wake_pts_chord=n_wake_pts_chord,
+                    surface_names=surface_names,
+                    bd_vortex_shapes=bd_vortex_shapes,
+                    delta_t=delta_t,
+                    problem_type=self.parameters['problem_type'],
+
+                ), 'RHS_group')
 
         self.add(model, 'prepossing_before_Solve')
         '''3. solve'''
