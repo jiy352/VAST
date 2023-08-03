@@ -112,7 +112,8 @@ class ComputeResidual(Model):
                                          shape=(num_nodes, gamma_b_shape))
         b = model.declare_variable('b', shape=(num_nodes, gamma_b_shape))
 
-        y = csdl.einsum(MTX, gamma_b, subscripts='kij,kj->ki') + b
+        gamma_b_expanded = csdl.expand(gamma_b, MTX.shape, indices='kj->kij')
+        y = csdl.sum(MTX * gamma_b_expanded, axes=(2,)) + b
 
         model.register_output('residual', y)
         self.add(model, 'compute_residual')
