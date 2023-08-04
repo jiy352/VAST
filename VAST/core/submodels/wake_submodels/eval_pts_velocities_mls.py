@@ -152,18 +152,24 @@ class EvalPtsVel(Model):
                 v_induced_names=induced_vel_bdnwake_names),
                      name='eval_pts_ind_vel' + str(i))
             # !!!!!!!!!!!TODO: need to check what is this April 18 2022
-            surface_total_induced_col = self.create_output(
-                eval_induced_velocities_col_names[i],
-                shape=(num_nodes, len(bdnwake_coords_names),
-                       eval_vel_shapes[i][1], 3))
+            # surface_total_induced_col = self.create_output(
+            #     eval_induced_velocities_col_names[i],
+            #     shape=(num_nodes, len(bdnwake_coords_names),
+            #            eval_vel_shapes[i][1], 3))
+            induced_vel_list = []
             for j in range(len(bdnwake_coords_names)):
                 induced_vel_bdnwake = self.declare_variable(
                     induced_vel_bdnwake_names[j],
                     shape=(num_nodes, eval_vel_shape[1], 3))
-                surface_total_induced_col[:, j, :, :] = csdl.reshape(
-                    var=induced_vel_bdnwake,
-                    new_shape=(num_nodes, 1, eval_vel_shapes[i][1], 3))
-            eval_induced_velocity = self.register_output(
+                # surface_total_induced_col[:, j, :, :] = csdl.reshape(
+                #     var=induced_vel_bdnwake,
+                #     new_shape=(num_nodes, 1, eval_vel_shapes[i][1], 3))
+                induced_vel_list.append(induced_vel_bdnwake)
+
+            eval_induced_velocity = sum(induced_vel_list)
+            
+            
+            self.register_output(
                 name=eval_induced_velocities_names[i],
-                var=csdl.reshape(csdl.sum(surface_total_induced_col, axes=(1, )),(num_nodes,n_wake_pts_chord,ny,3)))
+                var=csdl.reshape(eval_induced_velocity,(num_nodes,n_wake_pts_chord,ny,3)))
 
