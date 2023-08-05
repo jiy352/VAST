@@ -17,7 +17,7 @@ plot_cl = 1
 ########################################
 nx = 3; ny = 11
 chord = 1; span = 10
-num_nodes = 42;  nt = num_nodes
+num_nodes = 6;  nt = num_nodes
 
 mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
                  "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
@@ -27,7 +27,7 @@ mesh = generate_mesh(mesh_dict)
 ########################################
 # 2. define kinematics
 ########################################
-n_period = 3 
+n_period = 3 / 7 
 omg=1 
 h=0.1 * chord
 alpha = np.deg2rad(5) 
