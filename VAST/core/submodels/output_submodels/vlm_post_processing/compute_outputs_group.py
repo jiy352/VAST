@@ -50,6 +50,7 @@ class Outputs(csdl.Model):
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('cl0')
         self.parameters.declare('ML', default=False)
+        self.parameters.declare('ref_area', default=None)
 
     def define(self):
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
@@ -97,7 +98,8 @@ class Outputs(csdl.Model):
             coeffs_aoa=coeffs_aoa,
             coeffs_cd=coeffs_cd,
             cl0=cl0,
-            ML = self.parameters['ML']
+            ML = self.parameters['ML'],
+            ref_area = self.parameters['ref_area'],
         )
         self.add(submodel, name='LiftDrag')
 

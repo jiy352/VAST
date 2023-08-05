@@ -27,6 +27,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.parameters.declare('input_dicts', default=None)
 
         self.parameters.declare('ML', default=False)
+        self.parameters.declare('ref_area', default=None)
 
 
     def compute(self):
@@ -69,7 +70,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
             mesh_unit=mesh_unit,
             cl0=cl0,
             input_dicts=input_dicts,
-            ML=ML,)
+            ML=ML,
+            ref_area=self.parameters['ref_area'])
 
         csdl_model.add_module(submodule,'vast')
     
@@ -187,6 +189,7 @@ class VASTCSDL(ModuleCSDL):
         self.parameters.declare('cl0', default=None)
         self.parameters.declare('input_dicts', default=None)
         self.parameters.declare('ML', default=False)
+        self.parameters.declare('ref_area', default=None)
 
     def define(self):
         fluid_problem = self.parameters['fluid_problem']
@@ -200,6 +203,7 @@ class VASTCSDL(ModuleCSDL):
         cl0 = self.parameters['cl0']
 
         ML = self.parameters['ML']
+        ref_area = self.parameters['ref_area']
 
         # todo: connect the mesh to the solver
         # wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
@@ -229,7 +233,8 @@ class VASTCSDL(ModuleCSDL):
                 AcStates='dummy',
                 mesh_unit=mesh_unit,
                 cl0=cl0,
-                ML=ML
+                ML=ML,
+                ref_area=ref_area,
             )
             self.add_module(submodel, 'VLMSolverModel')
 

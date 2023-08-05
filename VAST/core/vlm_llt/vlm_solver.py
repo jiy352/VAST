@@ -34,6 +34,7 @@ class VLMSolverModel(ModuleCSDL):
         self.parameters.declare('cl0', default=[0])
 
         self.parameters.declare('ML', default=False)
+        self.parameters.declare('ref_area', default=None)
 
     def define(self):
         # add the mesh info
@@ -91,6 +92,7 @@ class VLMSolverModel(ModuleCSDL):
             mesh_unit=mesh_unit,
             cl0=cl0,
             ML=self.parameters['ML'],
+            ref_area=self.parameters['ref_area'],
         )
         self.add(sub, name='VLM_outputs')
 
