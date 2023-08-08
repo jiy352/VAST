@@ -105,7 +105,8 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             num_nodes=num_nodes,
             eval_pts_shapes=eval_pts_shapes,
             AcStates='dummy',
-            cl0 = [0.1,0.2],
+            cl0 = [0.1,0.0],
+            ref_area=205.2824,
         )
     # wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
