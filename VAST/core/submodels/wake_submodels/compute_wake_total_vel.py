@@ -71,16 +71,16 @@ class ComputeWakeTotalVel(Model):
         wake_coords_names = [x + '_wake_coords' for x in surface_names]
         wake_vortex_pts_shapes = [tuple((item[0],n_wake_pts_chord, item[2], 3)) for item in surface_shapes]
 
-        submodel = EvalPtsVel(
-            eval_pts_names=wake_coords_names,
-            eval_pts_shapes=wake_vortex_pts_shapes,
-            surface_names=surface_names,
-            surface_shapes=surface_shapes,
-            n_wake_pts_chord=n_wake_pts_chord,
-            problem_type='prescribed_wake'
+        # submodel = EvalPtsVel(
+        #     eval_pts_names=wake_coords_names,
+        #     eval_pts_shapes=wake_vortex_pts_shapes,
+        #     surface_names=surface_names,
+        #     surface_shapes=surface_shapes,
+        #     n_wake_pts_chord=n_wake_pts_chord,
+        #     problem_type='prescribed_wake'
             
-        )
-        self.add(submodel, name='EvalPtsVel')
+        # )
+        # self.add(submodel, name='EvalPtsVel')
 
         wake_kinematic_vel_names = [x + '_wake_kinematic_vel' for x in surface_names]
         wake_total_vel_names = [x + '_wake_total_vel' for x in surface_names]

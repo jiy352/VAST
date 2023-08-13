@@ -95,6 +95,7 @@ S
                 # for the dynamic cases, the wake gamma is the an state from the ode
                 surface_gamma_w = self.declare_variable(
                     surface_gamma_w_name, shape=surface_gamma_w_shape)
+                self.print_var(surface_gamma_b)
                 self.print_var(surface_gamma_w)
                 
                 # compute output bd_n_wake_coords

@@ -18,7 +18,7 @@ plot_cl = 1
 ########################################
 nx = 5; ny = 15
 chord = 1; span = 6
-num_nodes = 80;  nt = num_nodes
+num_nodes = 40;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
 
@@ -26,12 +26,10 @@ num_nodes = 80;  nt = num_nodes
 # 2. define kinematics
 ########################################
 A = 5
-v_inf = 1
+v_inf = np.pi*8
 c_0 = 1
-# k = [0.1,0.3,0.5]
 k = [0.1]
-N_period = 4
-num_nodes = 80
+N_period = 2
 
 omega = 2*v_inf*k[0]/c_0
 T = 2*np.pi/(omega)
@@ -63,7 +61,7 @@ model = csdl.Model()
 Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0],
                          v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
 
-
+model.add(Pitching, 'pitching')
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                     surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
 

@@ -43,6 +43,7 @@ class PitchingModel(ModuleCSDL):
         c_0 = self.parameters['c_0']
         N_period = self.parameters['N_period']
         AR = self.parameters['AR']
+        num_nodes = self.parameters['num_nodes']
 
 
         omega = 2*v_inf*k_i/c_0
@@ -50,7 +51,8 @@ class PitchingModel(ModuleCSDL):
         t = np.linspace(0,N_period*T,num_nodes)
 
         f = A * np.cos(omega*t)
-        f_dot  = -A*2*v_inf*k_i/c_0*np.sin(omega*t)
+        print('f----------------------------------',f)
+        f_dot  = np.deg2rad(-A*2*v_inf*k_i/c_0*np.sin(omega*t))
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
@@ -80,66 +82,66 @@ class PitchingModel(ModuleCSDL):
             self.register_output(surface_name+'_coll_vel', coll_vel)
 
 
-A = 5
-v_inf = 1
-c_0 = 1
-# k = [0.1,0.3,0.5]
-k = [0.1]
-N_period = 4
-num_nodes = 80
+# A = 5
+# v_inf = 1
+# c_0 = 1
+# # k = [0.1,0.3,0.5]
+# k = [0.1]
+# N_period = 4
+# num_nodes = 80
 
 
 
-import matplotlib as mpl
-mpl.rcParams.update(mpl.rcParamsDefault)
+# import matplotlib as mpl
+# mpl.rcParams.update(mpl.rcParamsDefault)
 
-import matplotlib.pyplot as plt
-for k_i in k:
-    omega = 2*v_inf*k_i/c_0
-    T = 2*np.pi/(omega)
-    t = np.linspace(0,N_period*T,num_nodes)
-    ###########################################
-    f = A * np.cos(omega*t)
-    ###########################################
-    f_dot  = -A*2*v_inf*k_i/c_0*np.sin(omega*t)
-    plt.plot(t,f)
-    plt.plot(t, f_dot)
-    plt.legend(['k=0.1','k=0.3','k=0.5'])
-plt.ylim([-A,A])
-plt.yticks(np.arange(-A,A,A/10))
-plt.xlabel('time')
-plt.ylabel('piching angle')
-plt.show()
+# import matplotlib.pyplot as plt
+# for k_i in k:
+#     omega = 2*v_inf*k_i/c_0
+#     T = 2*np.pi/(omega)
+#     t = np.linspace(0,N_period*T,num_nodes)
+#     ###########################################
+#     f = A * np.cos(omega*t)
+#     ###########################################
+#     f_dot  = -A*2*v_inf*k_i/c_0*np.sin(omega*t)
+#     plt.plot(t,f)
+#     plt.plot(t, f_dot)
+#     plt.legend(['k=0.1','k=0.3','k=0.5'])
+# plt.ylim([-A,A])
+# plt.yticks(np.arange(-A,A,A/10))
+# plt.xlabel('time')
+# plt.ylabel('piching angle')
+# plt.show()
 
-# exit()
+# # exit()
 
-# generate initial mesh
-nx = 5; ny = 15
-chord = 1; span = 6
+# # generate initial mesh
+# nx = 5; ny = 15
+# chord = 1; span = 6
 
-mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
-                 "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
-mesh = generate_mesh(mesh_dict)
-mesh[:,:,0]  = mesh[:,:,0] + 0.5
+# mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
+#                  "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
+# mesh = generate_mesh(mesh_dict)
+# mesh[:,:,0]  = mesh[:,:,0] + 0.5
 
 
-# https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html
+# # https://docs.scipy.org/doc/scipy/reference/generated/scipy.spatial.transform.Rotation.html
 
-r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
+# r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 
-rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)
-model = csdl.Model()
-Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0], v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
-model.add(Pitching,'Pitching')
-sim = python_csdl_backend.Simulator(model)
-sim.run()
-# visualize mesh
-import pyvista as pv
-for i in range(num_nodes):
-    x = sim['wing'][i, :, :, 0]
-    y = sim['wing'][i, :, :, 1]
-    z = sim['wing'][i, :, :, 2]
+# rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)
+# model = csdl.Model()
+# Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0], v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
+# model.add(Pitching,'Pitching')
+# sim = python_csdl_backend.Simulator(model)
+# sim.run()
+# # visualize mesh
+# import pyvista as pv
+# for i in range(num_nodes):
+#     x = sim['wing'][i, :, :, 0]
+#     y = sim['wing'][i, :, :, 1]
+#     z = sim['wing'][i, :, :, 2]
 
-    grid = pv.StructuredGrid(x,y,z)
-    grid.save('test_pitching/pitching'+str(i)+'.vtk')
-    # grid.plot(show_edges=True, show_grid=True)
+#     grid = pv.StructuredGrid(x,y,z)
+#     grid.save('test_pitching/pitching'+str(i)+'.vtk')
+#     # grid.plot(show_edges=True, show_grid=True)
