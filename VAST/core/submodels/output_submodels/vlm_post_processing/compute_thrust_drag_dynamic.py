@@ -320,15 +320,10 @@ class ThrustDrag(Model):
 
             total_forces_temp = csdl.sum(panel_forces, axes=(1, ))
 
-
-
-
             '''this is hardcodes with one surface'''
             initial_mesh_names = [
                 x + '_initial_mesh' for x in self.parameters['surface_names']
             ]
-
-
             # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
             #     velocities, bd_vec, axis=2)
             total_forces_temp_dynamic = csdl.sum(panel_forces_dynamic, axes=(1, ))

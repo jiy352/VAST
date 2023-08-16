@@ -5,6 +5,8 @@ from VAST.utils.generate_mesh import *
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
+from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
+
 from visualization import run_visualization
 # Script to create optimization problem
 
@@ -18,7 +20,7 @@ plot_cl = 1
 ########################################
 nx = 5; ny = 15
 chord = 1; span = 6
-num_nodes = 40;  nt = num_nodes
+num_nodes = 80;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
 
@@ -27,11 +29,12 @@ num_nodes = 40;  nt = num_nodes
 ########################################
 A = 5
 v_inf = np.pi*8
+# v_inf = 1
 c_0 = 1
 k = [0.1]
-N_period = 2
+N_period = 4
 
-omega = 2*v_inf*k[0]/c_0
+omega = 2*v_inf*k[0]/c_0#/100
 T = 2*np.pi/(omega)
 t_vec = np.linspace(0, N_period*T, num_nodes) 
 
@@ -57,6 +60,7 @@ import python_csdl_backend
 import csdl
 
 model = csdl.Model()
+ode_surface_shapes = [(num_nodes, ) + item for item in surface_properties_dict['surface_shapes']]
 
 Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0],
                          v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
@@ -64,6 +68,8 @@ Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_n
 model.add(Pitching, 'pitching')
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                     surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
+
+model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
 
 sim = python_csdl_backend.Simulator(model)
     
@@ -80,9 +86,11 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
 
-plt.plot(t_vec, sim['wing_C_L'])
-plt.ylim([0,0.6])
-plt.xlim([0,t_vec.max()+1])
+plt.plot(t_vec/T, sim['wing_C_L'])
+# plt.ylim([0,0.6])
+plt.xlim([0,t_vec.max()/T+0.2])
+plt.xlabel('t/T')
+plt.ylabel('C_L')
 plt.show()
 ######################################################
 # end make video

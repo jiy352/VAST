@@ -51,8 +51,10 @@ class PitchingModel(ModuleCSDL):
         t = np.linspace(0,N_period*T,num_nodes)
 
         f = A * np.cos(omega*t)
-        print('f----------------------------------',f)
+
         f_dot  = np.deg2rad(-A*2*v_inf*k_i/c_0*np.sin(omega*t))
+        print('f----------------------------------',f)
+        print('f_dot----------------------------------',-A*2*v_inf*k_i/c_0*np.sin(omega*t))
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
@@ -71,6 +73,8 @@ class PitchingModel(ModuleCSDL):
 
             f_dot_exp = np.einsum('il,jk->ijkl',np.array([np.zeros(num_nodes), f_dot, np.zeros(num_nodes)]).T,
                                 np.ones((nx-1,ny-1)))
+
+            
 
             rot_vel = self.create_input(surface_name+'_rot_velocity', f_dot_exp)
 

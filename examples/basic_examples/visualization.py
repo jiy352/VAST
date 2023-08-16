@@ -11,7 +11,7 @@ induced vel
 gamma? 
 '''
 
-def run_visualization(sim, h_stepsize):
+def run_visualization(sim, h_stepsize,filename=''):
     surface_names = ['wing']
     num_nodes = sim[surface_names[0]].shape[0]
     nx = sim[surface_names[0]].shape[1]
@@ -26,7 +26,8 @@ def run_visualization(sim, h_stepsize):
 
     plotter = pv.Plotter()
 
-    panel_forces = sim['panel_forces'].copy()
+    panel_forces = sim['panel_forces_all'].copy()
+    coll_vel = sim['wing_coll_vel'].copy()
 
     nframe = num_nodes
     for i in range(len(surface_names)):
@@ -78,9 +79,10 @@ def run_visualization(sim, h_stepsize):
                 var = sim[surface_name+'_'+vars]
                 var[:,:,0] = 0
             grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces')
-            grid_mesh.save('fixedwk_vtks/mesh'+str(i)+'.vtk')
-            grid_bdmesh.save('fixedwk_vtks/bd'+str(i)+'.vtk')
-            grid.save('fixedwk_vtks/wake'+str(i)+'.vtk')
+            grid_bdmesh.cell_data.set_vectors(np.swapaxes(coll_vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'coll_vel')
+            grid_mesh.save('fixedwk_vtks/mesh'+filename+str(i)+'.vtk')
+            grid_bdmesh.save('fixedwk_vtks/bd'+filename+str(i)+'.vtk')
+            grid.save('fixedwk_vtks/wake'+filename+str(i)+'.vtk')
             i+=1
 
 

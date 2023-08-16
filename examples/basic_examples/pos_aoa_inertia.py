@@ -100,6 +100,8 @@ import matplotlib.pyplot as plt
 plt.plot(t_vec, sim['wing_C_L'])
 plt.ylim([0,0.6])
 plt.xlim([0,t_vec.max()+1])
+plt.xlabel('$U_{\inf}t/c$')
+plt.ylabel('C_L')
 plt.show()
 ######################################################
 # end make video

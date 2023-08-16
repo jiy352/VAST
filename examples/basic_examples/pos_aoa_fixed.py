@@ -13,7 +13,7 @@ def run_fixed(span,num_nodes):
     ########################################
     # 1. define geometry
     ########################################
-    nx = 5; ny = 15
+    nx = 3; ny = 11
     chord = 1; 
     nt = num_nodes
 
@@ -85,7 +85,7 @@ def run_fixed(span,num_nodes):
     sim.run()
     print('simulation time is', time.time() - t_start)
 
-    return sim['wing_C_L'], t_vec
+    return sim['wing_C_L'], t_vec, sim
 
 
 import matplotlib as mpl
@@ -97,10 +97,11 @@ be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
 span = [4, 8, 12, 20, 1000]
+span = [10]
 # span = [1000]*4
 # num_nodes = [40,70, 100, 120]
 num_nodes = [100]*5
-
+num_nodes = [42]
 # print('theta',sim['theta'])
 ######################################################
 # make video
@@ -108,7 +109,7 @@ num_nodes = [100]*5
 wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
-    wing_C_L, t_vec = run_fixed(i,j)
+    wing_C_L, t_vec, sim = run_fixed(i,j)
     # wing_C_L = wing_C_L_list[i]
     # t_vec = t_vec_list[i]
     plt.plot(t_vec, wing_C_L,'.-')
@@ -141,4 +142,4 @@ plt.show()
 # plot force properties
 
 from visualization import run_visualization
-run_visualization(sim,h_stepsize)
+run_visualization(sim,t_vec[1],'fixed')
