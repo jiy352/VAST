@@ -10,6 +10,7 @@ class MeshPreprocessingComp(ModuleCSDL):
     ----------
     def_mesh[num_nodes,num_pts_chord, num_pts_span, 3] : numpy array
         Array defining the nodal coordinates of the lifting surface.
+    w
 
     Returns
     -------
@@ -17,6 +18,7 @@ class MeshPreprocessingComp(ModuleCSDL):
     bound vortices points
     2. coll_pts[num_nodes, num_pts_chord-1, num_pts_span-1, 3] : csdl array
         collocation points for the horseshoe vortices, found along the 3/4 chord.
+    w
     3. l_span[num_nodes, (num_pts_chord-1), (num_pts_span-1)] : csdl array
         The spanwise widths of each individual panel.
     4. l_chord[num_nodes, (num_pts_chord-1), (num_pts_span-1)] : csdl array
@@ -24,6 +26,9 @@ class MeshPreprocessingComp(ModuleCSDL):
     5. s_panel [num_nodes, (num_pts_chord-1), (num_pts_span-1)]: csdl array
         The panel areas.
     6. bd_vec_all[num_nodes,system_size,3]: bd_vec of all lifting surfaces
+    w
+    7. eval_pts_coords
+    w
     """
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
