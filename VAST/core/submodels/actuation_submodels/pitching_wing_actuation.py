@@ -9,6 +9,11 @@ import python_csdl_backend
 
 from VAST.utils.generate_mesh import *
 
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
+
+import matplotlib.pyplot as plt
+
 class PitchingModel(ModuleCSDL):
     """
     Compute the rotated mesh given axis, .
@@ -46,15 +51,18 @@ class PitchingModel(ModuleCSDL):
         num_nodes = self.parameters['num_nodes']
 
 
-        omega = 2*v_inf*k_i/c_0
+        omega = v_inf*k_i/c_0
         T = 2*np.pi/(omega)
         t = np.linspace(0,N_period*T,num_nodes)
 
         f = A * np.cos(omega*t)
 
-        f_dot  = np.deg2rad(-A*2*v_inf*k_i/c_0*np.sin(omega*t))
+        f_dot  = np.deg2rad(-A*v_inf*k_i/c_0*np.sin(omega*t))
+        plt.plot(t,f)
+        plt.plot(t,-A*v_inf*k_i/c_0*np.sin(omega*t))
+        plt.show()
         print('f----------------------------------',f)
-        print('f_dot----------------------------------',-A*2*v_inf*k_i/c_0*np.sin(omega*t))
+        print('f_dot----------------------------------',-A*v_inf*k_i/c_0*np.sin(omega*t))
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
