@@ -97,11 +97,11 @@ be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
 span = [4, 8, 12, 20, 1000]
-span = [10]
+# span = [10]
 # span = [1000]*4
 # num_nodes = [40,70, 100, 120]
 num_nodes = [100]*5
-num_nodes = [42]
+# num_nodes = [42]
 # print('theta',sim['theta'])
 ######################################################
 # make video

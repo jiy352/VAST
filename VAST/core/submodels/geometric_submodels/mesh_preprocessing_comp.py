@@ -38,7 +38,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('eval_pts_location',default=0.25)
         self.parameters.declare('delta_t',default=0)
         self.parameters.declare('problem_type',default='fixed_wake')
-        self.parameters.declare('compressible',default=True)
+        self.parameters.declare('compressible',default=False)
         self.parameters.declare('Ma',default=0.84)
 
     def define(self):
@@ -93,13 +93,15 @@ class MeshPreprocessingComp(ModuleCSDL):
                 def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
 
                 def_mesh = def_mesh_ft * 0.3048
+            mesh_org = def_mesh+0
+            
             if compressible:
                 beta = (1-Ma**2)**0.5
-                mesh_org = def_mesh+0
                 def_mesh = self.create_output(surface_name+'_compressible',shape=surface_shapes[i])
                 def_mesh[:, :, :, 0] = mesh_org[:, :, :, 0] 
                 def_mesh[:, :, :, 1] = mesh_org[:, :, :, 1] * beta
                 def_mesh[:, :, :, 2] = mesh_org[:, :, :, 2] * beta
+            
 
             ################################################################################
             # create the output: 1. bd_vtx_coords

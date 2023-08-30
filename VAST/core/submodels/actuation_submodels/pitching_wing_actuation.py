@@ -51,18 +51,20 @@ class PitchingModel(ModuleCSDL):
         num_nodes = self.parameters['num_nodes']
 
 
-        omega = v_inf*k_i/c_0
+        omega = v_inf*k_i/c_0 
         T = 2*np.pi/(omega)
         t = np.linspace(0,N_period*T,num_nodes)
 
         f = A * np.cos(omega*t)
 
-        f_dot  = np.deg2rad(-A*v_inf*k_i/c_0*np.sin(omega*t))
-        plt.plot(t,f)
-        plt.plot(t,-A*v_inf*k_i/c_0*np.sin(omega*t))
-        plt.show()
+        f_dot  = np.deg2rad(-A*v_inf*k_i /c_0*np.sin(omega*t))
+        # plt.plot(t,f)
+        # plt.plot(t,-A*v_inf*k_i * 2/c_0*np.sin(omega*t))
+        # plt.legend(['alpha','alpha_dot'])
+        # plt.show()
         print('f----------------------------------',f)
-        print('f_dot----------------------------------',-A*v_inf*k_i/c_0*np.sin(omega*t))
+        print('f_dot----------------------------------',-A*v_inf*k_i /c_0*np.sin(omega*t))
+        print('AR----------------------------------',AR)
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
@@ -70,9 +72,9 @@ class PitchingModel(ModuleCSDL):
             chord = c_0; span = chord*AR
 
             mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
-                            "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
+                            "span": span, "root_chord": chord*2,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
-            mesh[:,:,0]  = mesh[:,:,0] + 0.5
+            mesh[:,:,0]  = mesh[:,:,0] + 1
 
             r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 

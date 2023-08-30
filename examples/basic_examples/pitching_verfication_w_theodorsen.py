@@ -14,68 +14,70 @@ be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
 
-# This is a test case to check the prescribed wake solver
-########################################
-# 1. define geometry
-########################################
-nx = 5; ny = 15
-chord = 1; span = 6
-num_nodes = 80;  nt = num_nodes
+def theodorsen_function(v_inf):
+    # This is a test case to check the prescribed wake solver
+    ########################################
+    # 1. define geometry
+    ########################################
+    nx = 5; ny = 15
+    chord = 1; span = 100
+    num_nodes = 80;  nt = num_nodes
 
-# this is the same geometry as the dynamic_simple.ji
+    # this is the same geometry as the dynamic_simple.ji
 
-########################################
-# 2. define kinematics
-########################################
-A = 5
-v_inf = 1
-# v_inf = 1
-c_0 = 1
-k = [1]
-N_period = 2
+    ########################################
+    # 2. define kinematics
+    ########################################
+    A = 5
+    # v_inf = 1
+    c_0 = 1
+    N_period = 3
 
-omega = 1
-T = 2*np.pi/(omega)
-t_vec = np.linspace(0, N_period*T, num_nodes) 
+    omega = 1
+    k = omega*c_0/(v_inf)
 
-u_val = np.ones(num_nodes)
-w_vel = np.zeros((num_nodes,1)) *np.tan(np.deg2rad(5))
+    T = 2*np.pi/(omega)
+    t_vec = np.linspace(0, N_period*T, num_nodes) 
 
-states_dict = {
-    'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
-    'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
-    'theta': np.zeros((num_nodes,1)), 'psi': np.zeros((num_nodes, 1)),
-    'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
-    'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
-}
+    u_val = np.ones(num_nodes) * v_inf
+    w_vel = np.zeros((num_nodes,1)) *np.tan(np.deg2rad(5))
 
-surface_properties_dict = {'surface_names':['wing'],
-                            'surface_shapes':[(nx, ny, 3)],
-                           'frame':'inertia',}
+    states_dict = {
+        'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
+        'p': np.zeros((num_nodes, 1)), 'q': np.zeros((num_nodes, 1)), 'r': np.zeros((num_nodes, 1)),
+        'theta': np.zeros((num_nodes,1)), 'psi': np.zeros((num_nodes, 1)),
+        'x': np.zeros((num_nodes, 1)), 'y': np.zeros((num_nodes, 1)), 'z': np.zeros((num_nodes, 1)),
+        'phiw': np.zeros((num_nodes, 1)), 'gamma': np.zeros((num_nodes, 1)),'psiw': np.zeros((num_nodes, 1)),
+    }
 
-h_stepsize = delta_t = t_vec[1] 
+    surface_properties_dict = {'surface_names':['wing'],
+                                'surface_shapes':[(nx, ny, 3)],
+                            'frame':'inertia',}
 
-import python_csdl_backend
-import csdl
+    h_stepsize = delta_t = t_vec[1] 
 
-model = csdl.Model()
-ode_surface_shapes = [(num_nodes, ) + item for item in surface_properties_dict['surface_shapes']]
+    import python_csdl_backend
+    import csdl
 
-Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0],
-                         v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
+    model = csdl.Model()
+    ode_surface_shapes = [(num_nodes, ) + item for item in surface_properties_dict['surface_shapes']]
 
-model.add(Pitching, 'pitching')
-model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
-                                    surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
+    Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k,
+                            v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
 
-model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
+    model.add(Pitching, 'pitching')
+    model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+                                        surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
 
-sim = python_csdl_backend.Simulator(model)
-    
-t_start = time.time()
-sim.run()
+    model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
 
-print('simulation time is', time.time() - t_start)
+    sim = python_csdl_backend.Simulator(model)
+        
+    t_start = time.time()
+    sim.run()
+    return t_vec/T, sim['wing_C_L']
+
+# print('simulation time is', time.time() - t_start)
 # print('theta',sim['theta'])
 ######################################################
 # make video
@@ -84,13 +86,28 @@ import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
+plt.figure()
+plt.rcParams['font.size'] = 12
+plt.rcParams['axes.labelsize'] = 14
+plt.rcParams['axes.titlesize'] = 16
+plt.rcParams['lines.linewidth'] = 2
+plt.figure(figsize=(10, 6))  # Adjust the figure size
 
-plt.plot(t_vec/T, sim['wing_C_L'])
-# plt.ylim([0,0.6])
-plt.xlim([0,t_vec.max()/T+0.2])
-plt.xlabel('t/T')
-plt.ylabel('C_L')
+v_inf = np.array([1, 1/0.7, 1/0.4, 1/0.1])
+for i in range(4):
+    t,wing_C_L = theodorsen_function(v_inf[i])
+    plt.plot(t, wing_C_L)
+    # plt.ylim([0,0.6])
+    plt.xlim([1,t.max()+0.2])
+    plt.xlabel('t/T')
+    plt.ylabel('C_L')
+plt.legend(['k=1','k=0.7','k=0.4','k=0.1'])
+plt.tight_layout()
+plt.grid()
+plt.savefig('CL.png', dpi=400)
+
 plt.show()
+exit()
 ######################################################
 # end make video
 ######################################################
