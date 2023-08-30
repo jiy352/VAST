@@ -93,8 +93,6 @@ class MeshPreprocessingComp(ModuleCSDL):
                 def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
 
                 def_mesh = def_mesh_ft * 0.3048
-            mesh_org = def_mesh+0
-            
             if compressible:
                 beta = (1-Ma**2)**0.5
                 def_mesh = self.create_output(surface_name+'_compressible',shape=surface_shapes[i])
