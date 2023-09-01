@@ -9,7 +9,7 @@ from python_csdl_backend import Simulator
 from scipy.spatial.transform import Rotation as R
 
 fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
-num_nodes=5; nx=16; ny=40
+num_nodes=3; nx=16; ny=40
 num_twist_cp=5
 compressible=False
 model_1 = csdl.Model()
@@ -19,7 +19,7 @@ model_1 = csdl.Model()
 v_inf = np.ones((num_nodes,1))*248.136
 # theta = np.deg2rad(np.ones((num_nodes,1))*5)  # pitch angles
 # theta = np.deg2rad(np.array([-10,-1,0,5,10]))  # pitch angles
-theta = np.deg2rad(np.array([-10,-8,-6,-4,-2,]))  # pitch angles
+theta = np.deg2rad(np.array([12,14,16]))  # pitch angles
 
 submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
 model_1.add(submodel, 'InputsModule')
@@ -80,7 +80,6 @@ print('wing_C_L',sim['wing_C_L'])
 # print('wing_C_L*b',sim['wing_C_L']*b)
 print('wing_C_D_i',sim['wing_C_D_i'])
 # print('wing_C_L*b',sim['wing_C_D_i']*b)
-
 # print('The number of nan in num_00e9 is: ', np.count_nonzero(np.isinf(sim['num_00e9'])))
 # print('The number of nan in num_00eB is: ', np.count_nonzero(np.isinf(sim['num_00eB'])))
 # print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
