@@ -19,7 +19,7 @@ plot_cl = 1
 # 1. define geometry
 ########################################
 nx = 3; ny = 9
-chord = 1; span = 100
+chord = 1; span = 10
 num_nodes = 80;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
@@ -31,7 +31,7 @@ A = 1
 c_0 = span
 b = c_0/2
 
-k = 3
+k = 0.2
 N_period = 2
 omega = 1
 v_inf = omega*b/k
@@ -86,10 +86,12 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
 
-plt.plot(t_vec/T, sim['wing_C_L'])
+# plt.plot(t_vec/T, sim['wing_C_L'])
+alpha = A * np.cos(omega*t_vec)
+plt.plot(np.rad2deg(alpha)[20:], sim['wing_C_L'][20:])
 # plt.ylim([0,0.6])
-plt.xlim([0,t_vec.max()/T+0.2])
-plt.xlabel('t/T')
+# plt.xlim([0,t_vec.max()/T+0.2])
+plt.xlabel('alpha')
 plt.ylabel('C_L')
 plt.show()
 ######################################################

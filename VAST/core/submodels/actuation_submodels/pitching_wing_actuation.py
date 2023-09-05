@@ -62,7 +62,8 @@ class PitchingModel(ModuleCSDL):
         plt.plot(t,-A*omega*np.sin(omega*t))
         plt.show()
         print('f----------------------------------',f)
-        print('f_dot----------------------------------',-A*v_inf*k_i/c_0*np.sin(omega*t))
+        print('f_dot----------------------------------',-A*v_inf*k_i /c_0*np.sin(omega*t))
+        print('AR----------------------------------',AR)
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
@@ -70,7 +71,7 @@ class PitchingModel(ModuleCSDL):
             chord = c_0; span = chord*AR
 
             mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
-                            "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
+                            "span": span, "root_chord": chord*2,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
             mesh[:,:,0]  = mesh[:,:,0] #+ 0.25
 
