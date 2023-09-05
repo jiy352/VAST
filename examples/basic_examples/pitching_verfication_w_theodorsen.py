@@ -18,8 +18,8 @@ plot_cl = 1
 ########################################
 # 1. define geometry
 ########################################
-nx = 5; ny = 15
-chord = 1; span = 6
+nx = 3; ny = 9
+chord = 1; span = 100
 num_nodes = 80;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
@@ -27,19 +27,20 @@ num_nodes = 80;  nt = num_nodes
 ########################################
 # 2. define kinematics
 ########################################
-A = 5
-v_inf = 1
-# v_inf = 1
-c_0 = 1
-k = [1]
-N_period = 2
+A = 1
+c_0 = span
+b = c_0/2
 
+k = 3
+N_period = 2
 omega = 1
+v_inf = omega*b/k
 T = 2*np.pi/(omega)
+
 t_vec = np.linspace(0, N_period*T, num_nodes) 
 
-u_val = np.ones(num_nodes)
-w_vel = np.zeros((num_nodes,1)) *np.tan(np.deg2rad(5))
+u_val = np.ones(num_nodes) * v_inf
+w_vel = np.zeros((num_nodes,1)) *np.tan(np.deg2rad(0))
 
 states_dict = {
     'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
@@ -61,7 +62,7 @@ import csdl
 model = csdl.Model()
 ode_surface_shapes = [(num_nodes, ) + item for item in surface_properties_dict['surface_shapes']]
 
-Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k[0],
+Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k,
                          v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
 
 model.add(Pitching, 'pitching')
