@@ -58,9 +58,10 @@ class PitchingModel(ModuleCSDL):
         f = A * np.cos(omega*t)
 
         f_dot  = np.deg2rad(-A*omega*np.sin(omega*t))
-        plt.plot(t,f)
-        plt.plot(t,-A*omega*np.sin(omega*t))
-        plt.show()
+
+        # plt.plot(t,f)
+        # plt.plot(t,-A*omega*np.sin(omega*t))
+        # plt.show()
         print('f----------------------------------',f)
         print('f_dot----------------------------------',-A*v_inf*k_i /c_0*np.sin(omega*t))
         print('AR----------------------------------',AR)
@@ -71,10 +72,9 @@ class PitchingModel(ModuleCSDL):
             chord = c_0; span = chord*AR
 
             mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
-                            "span": span, "root_chord": chord*2,"span_cos_spacing": False, "chord_cos_spacing": False}
+                            "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
-            mesh[:,:,0]  = mesh[:,:,0] #+ 0.25
-
+            mesh[:,:,0]  = mesh[:,:,0] + 0.25
             r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 
             rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)
@@ -83,12 +83,11 @@ class PitchingModel(ModuleCSDL):
             f_dot_exp = np.einsum('il,jk->ijkl',np.array([np.zeros(num_nodes), f_dot, np.zeros(num_nodes)]).T,
                                 np.ones((nx-1,ny-1)))
 
-            
-
             rot_vel = self.create_input(surface_name+'_rot_velocity', f_dot_exp)
 
             coll_pts = (rotated_mesh_csdl[:,:-1,:-1,:]+rotated_mesh_csdl[:,:-1,1:,:])*0.125 +\
                  (rotated_mesh_csdl[:,1:,:-1,:]+rotated_mesh_csdl[:,1:,1:,:])*0.75
+            # ref_axis
             # print('rot_vel',rot_vel.shape)
             # print('coll_pts',coll_pts.shape)
             coll_vel = csdl.cross(rot_vel, coll_pts, axis=3)

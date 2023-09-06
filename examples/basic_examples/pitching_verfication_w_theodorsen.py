@@ -19,7 +19,7 @@ plot_cl = 1
 # 1. define geometry
 ########################################
 nx = 3; ny = 9
-chord = 1; span = 10
+chord = 1; span = 100
 num_nodes = 80;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
@@ -31,7 +31,7 @@ A = 1
 c_0 = span
 b = c_0/2
 
-k = 0.2
+k = 1
 N_period = 2
 omega = 1
 v_inf = omega*b/k
@@ -66,7 +66,7 @@ Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_n
                          v_inf=v_inf, c_0=c_0, N_period=N_period, AR=span/chord)
 
 model.add(Pitching, 'pitching')
-model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+model.add(UVLMSolver(num_times=nt, h_stepsize=h_stepsize,states_dict=states_dict,
                                     surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
 
 model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
@@ -88,7 +88,7 @@ import matplotlib.pyplot as plt
 
 # plt.plot(t_vec/T, sim['wing_C_L'])
 alpha = A * np.cos(omega*t_vec)
-plt.plot(np.rad2deg(alpha)[20:], sim['wing_C_L'][20:])
+plt.plot(alpha[20:], sim['wing_C_L'][20:])
 # plt.ylim([0,0.6])
 # plt.xlim([0,t_vec.max()/T+0.2])
 plt.xlabel('alpha')
