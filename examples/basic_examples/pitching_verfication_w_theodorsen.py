@@ -18,9 +18,9 @@ plot_cl = 1
 ########################################
 # 1. define geometry
 ########################################
-nx = 3; ny = 9
+nx = 15; ny = 9
 chord = 1; span = 100
-num_nodes = 80;  nt = num_nodes
+num_nodes = 120;  nt = num_nodes
 
 # this is the same geometry as the dynamic_simple.ji
 
@@ -31,7 +31,7 @@ A = 1
 c_0 = span
 b = c_0/2
 
-k = 1
+k = 3
 N_period = 2
 omega = 1
 v_inf = omega*b/k
@@ -93,7 +93,12 @@ plt.plot(alpha[20:], sim['wing_C_L'][20:])
 # plt.xlim([0,t_vec.max()/T+0.2])
 plt.xlabel('alpha')
 plt.ylabel('C_L')
+plt.savefig('theodorsen/C_L_theodorsen'+str(k)+'.png',dpi=300,transparent=True)
+np.savetxt('theodorsen/C_L_theodorsen'+str(k)+'.txt',sim['wing_C_L'][20:])
+np.savetxt('theodorsen/alpha_theodorsen'+str(k)+'.txt',alpha[20:])
+
 plt.show()
+exit()
 ######################################################
 # end make video
 ######################################################

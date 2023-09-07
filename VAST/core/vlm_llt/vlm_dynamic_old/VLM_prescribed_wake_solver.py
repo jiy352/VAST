@@ -10,8 +10,6 @@ import csdl
 
 import numpy as np
 
-
-
 from VAST.core.submodels.kinematic_submodels.adapter_comp import AdapterComp
 from VAST.core.submodels.aerodynamic_submodels.combine_gamma_w import CombineGammaW
 from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix

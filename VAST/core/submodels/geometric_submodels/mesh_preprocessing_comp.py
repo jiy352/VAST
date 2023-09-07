@@ -123,20 +123,20 @@ class MeshPreprocessingComp(ModuleCSDL):
 
 
             elif problem_type == 'prescribed_wake':
-                # frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
-                # fs = -frame_vel
-                # eta = 0.25
-                # add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
+                frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
+                fs = -frame_vel
+                eta = 0.25
+                add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
 
-                # bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
+                bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 
-                bd_vtx_coords[:, num_pts_chord -
-                            1, :, :] = def_mesh[:, num_pts_chord -
-                                                1, :, :] + 0.25 * (
-                                                    def_mesh[:, num_pts_chord -
-                                                            1, :, :] -
-                                                    def_mesh[:, num_pts_chord -
-                                                            2, :, :])
+                # bd_vtx_coords[:, num_pts_chord -
+                #             1, :, :] = def_mesh[:, num_pts_chord -
+                #                                 1, :, :] + 0.25 * (
+                #                                     def_mesh[:, num_pts_chord -
+                #                                             1, :, :] -
+                #                                     def_mesh[:, num_pts_chord -
+                #                                             2, :, :])
 
             ################################################################################
             # compute the output: 2. coll_pts_coords (center point of the bd_vtx panels,

@@ -13,7 +13,7 @@ def run_fixed(span,num_nodes):
     ########################################
     # 1. define geometry
     ########################################
-    nx = 3; ny = 11
+    nx = 5; ny = 13
     chord = 1; 
     nt = num_nodes
 
@@ -25,11 +25,12 @@ def run_fixed(span,num_nodes):
     ########################################
     # 2. define kinematics
     ########################################
-    n_period = 3 #/ 7 
-    omg=1 
-    h=0.1 * chord
+    # n_period = 3 #/ 7 
+    # omg = 1
+    # h = 0.1 * chord
     alpha = np.deg2rad(5) 
-    t_vec = np.linspace(0, n_period*np.pi*2, num_nodes) *0.5
+    # t_vec = np.linspace(0, n_period*np.pi*2, num_nodes) *0.5
+    t_vec = np.linspace(0, 10, num_nodes) 
     print('delta_t',np.cos(alpha)*t_vec[1])
 
     u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
@@ -54,7 +55,6 @@ def run_fixed(span,num_nodes):
     # mesh_val = generate_simple_mesh(nx, ny, num_nodes)
     mesh_val = np.zeros((num_nodes, nx, ny, 3))
     z_offset = -w_vel.flatten()*t_vec*0
-    # z_offset = omg*h*sin(omg*t_vec) 
 
     for i in range(num_nodes):
         mesh_val[i, :, :, :] = mesh
@@ -96,11 +96,19 @@ import matplotlib.pyplot as plt
 be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
-span = [4, 8, 12, 20, 1000]
-# span = [10]
+# span = [4, 8, 12, 20, 1000]
+# span = [4, ]
+# span = [8, ]
+# span = [12, ]
+# span = [20, ]
+span = [10000, ]
+
+# span = [4]
 # span = [1000]*4
 # num_nodes = [40,70, 100, 120]
-num_nodes = [100]*5
+# num_nodes = [160]*5
+num_nodes = [160]
+# num_nodes = [100]
 # num_nodes = [42]
 # print('theta',sim['theta'])
 ######################################################
@@ -110,8 +118,8 @@ wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
     wing_C_L, t_vec, sim = run_fixed(i,j)
-    # wing_C_L = wing_C_L_list[i]
-    # t_vec = t_vec_list[i]
+    # wing_C_L = wing_C_L_list[0]
+    # t_vec = t_vec_list[0]
     plt.plot(t_vec, wing_C_L,'.-')
     plt.ylim([0,0.6])
     plt.xlim([0,t_vec.max()+1])
@@ -123,6 +131,7 @@ for (i,j) in zip(span,num_nodes):
 plt.legend(['AR = '+str(i) for i in span])
 plt.xlabel('$U_{\inf}t/c$')
 plt.ylabel('C_L')
+plt.savefig('C_L.png',dpi=300,transparent=True)
 plt.show()
 ######################################################
 # end make video
