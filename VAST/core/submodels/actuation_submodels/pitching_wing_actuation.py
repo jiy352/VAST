@@ -63,7 +63,7 @@ class PitchingModel(ModuleCSDL):
         # plt.plot(t,-A*omega*np.sin(omega*t))
         # plt.show()
         print('f----------------------------------',f)
-        print('f_dot----------------------------------',-A*v_inf*k_i /c_0*np.sin(omega*t))
+        print('f_dot----------------------------------',np.rad2deg(f_dot))
         print('AR----------------------------------',AR)
         for i in range(len(surface_names)):
             surface_name = surface_names[i]

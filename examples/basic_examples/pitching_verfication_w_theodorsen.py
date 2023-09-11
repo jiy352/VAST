@@ -18,7 +18,7 @@ plot_cl = 1
 ########################################
 # 1. define geometry
 ########################################
-nx = 15; ny = 9
+nx = 11; ny = 9
 chord = 1; span = 100
 num_nodes = 120;  nt = num_nodes
 
@@ -77,6 +77,7 @@ t_start = time.time()
 sim.run()
 
 print('simulation time is', time.time() - t_start)
+run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')
 # print('theta',sim['theta'])
 ######################################################
 # make video
@@ -116,4 +117,4 @@ plt.legend(['z','z_vel','z_acc'])
 
 # plot force properties
 
-run_visualization(sim,h_stepsize)
+run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')

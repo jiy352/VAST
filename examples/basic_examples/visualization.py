@@ -11,7 +11,9 @@ induced vel
 gamma? 
 '''
 
-def run_visualization(sim, h_stepsize,filename=''):
+import os
+
+def run_visualization(sim, h_stepsize,folder_name='',filename=''):
     surface_names = ['wing']
     num_nodes = sim[surface_names[0]].shape[0]
     nx = sim[surface_names[0]].shape[1]
@@ -80,9 +82,13 @@ def run_visualization(sim, h_stepsize,filename=''):
                 var[:,:,0] = 0
             grid_bdmesh.cell_data.set_vectors(np.swapaxes(panel_forces[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'panel_forces')
             grid_bdmesh.cell_data.set_vectors(np.swapaxes(coll_vel[i].reshape(nx-1,ny-1,3), 0,1).reshape(-1,3),'coll_vel')
-            grid_mesh.save('fixedwk_vtks/mesh'+filename+str(i)+'.vtk')
-            grid_bdmesh.save('fixedwk_vtks/bd'+filename+str(i)+'.vtk')
-            grid.save('fixedwk_vtks/wake'+filename+str(i)+'.vtk')
+            isExist = os.path.exists(folder_name)
+            if not isExist:
+                os.makedirs(folder_name)
+                print('create folder',folder_name)
+            grid_mesh.save(folder_name+'/mesh'+filename+str(i)+'.vtk')
+            grid_bdmesh.save(folder_name+'/bd'+filename+str(i)+'.vtk')
+            grid.save(folder_name+'/wake'+filename+str(i)+'.vtk')
             i+=1
 
 
