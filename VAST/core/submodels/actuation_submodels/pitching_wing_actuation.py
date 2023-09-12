@@ -62,22 +62,20 @@ class PitchingModel(ModuleCSDL):
         # plt.plot(t,f)
         # plt.plot(t,-A*omega*np.sin(omega*t))
         # plt.show()
-        print('f----------------------------------',f)
-        print('f_dot----------------------------------',np.rad2deg(f_dot))
-        print('AR----------------------------------',AR)
+        # print('f----------------------------------',f)
+        # print('f_dot----------------------------------',np.rad2deg(f_dot))
+        # print('AR----------------------------------',AR)
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
             nx = surface_shape[0]; ny = surface_shape[1]
             chord = c_0; span = chord*AR
 
-            print('span',span)
-            print('chord',chord)
 
             mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
                             "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
-            mesh[:,:,0]  = mesh[:,:,0] + 0.25
+            mesh[:,:,0]  = mesh[:,:,0] + 0.25 # quarter chord pitching axis
             r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 
             rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)

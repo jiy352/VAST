@@ -127,7 +127,7 @@ class AdapterComp(ModuleCSDL):
         # TODO:fix this
         ################################################################################
 
-        print('frame-----------------', self.parameters['frame'])
+        # print('frame-----------------', self.parameters['frame'])
         
 
         if self.parameters['frame'] == 'wing_fixed':

@@ -85,7 +85,7 @@ class ComputeWakeTotalVel(Model):
         wake_kinematic_vel_names = [x + '_wake_kinematic_vel' for x in surface_names]
         wake_total_vel_names = [x + '_wake_total_vel' for x in surface_names]
         eval_induced_velocities_names = [x + '_wake_induced_vel' for x in surface_names]
-        print('eval_induced_velocities_names----------------------', eval_induced_velocities_names)
+        # print('eval_induced_velocities_names----------------------', eval_induced_velocities_names)
 
         for i in range(len(surface_names)):
             wake_kinematic_vel = self.declare_variable(wake_kinematic_vel_names[i],shape=wake_vortex_pts_shapes[i])
