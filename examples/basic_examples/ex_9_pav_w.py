@@ -42,7 +42,7 @@ mesh = np.concatenate((mesh_other_half,mesh_half),axis=1)
 
 if compressible:
     # r = R.from_euler('y', np.array([-10,-1,0,5,10]), degrees=True).as_matrix() # num_nodes,3,3
-    r = R.from_euler('y', np.array([-10,-5,0,5,10]), degrees=True).as_matrix() # num_nodes,3,3
+    r = R.from_euler('y', np.array([-10,-5,0]), degrees=True).as_matrix() # num_nodes,3,3
     rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)
     rotated_mesh_csdl = model_1.create_input('wing', val=rotated_mesh)
 else:
