@@ -1,13 +1,11 @@
-'''Example 3 : verification of prescibed vlm with Katz and Plotkin 1991'''
+'''Example 3 : verification of prescibed vlm with Theodorsen solution'''
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 from VAST.core.submodels.actuation_submodels.pitching_wing_actuation import PitchingModel
-from VAST.utils.generate_mesh import *
 import time
 import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
-
 from visualization import run_visualization
-
+import os
 
 ########################################
 # This is a test case to check the prescribed wake solver
@@ -17,11 +15,7 @@ from visualization import run_visualization
 ########################################
 
 
-
-
-
-
-def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_vtk=False):
+def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=True, save_vtk=False, path = "theodorsen"):
     '''
     This is a test case to check the prescribed wake solver against the Theodorsen solution
     with a wing pitching sinusoidally from 1 to -1 deg and the reduced frequency k = [0.2, 0.6, 1, 3]
@@ -80,10 +74,16 @@ def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_vtk=False
     plt.plot(alpha[int(num_nodes/N_period):], sim['wing_C_L'][int(num_nodes/N_period):])
     plt.xlabel(r'$\alpha$')
     plt.ylabel(r'$C_L$')
-    plt.savefig('theodorsen/C_L_theodorsen'+str(k)+'.png',dpi=300,transparent=True)
-    np.savetxt('theodorsen/C_L_theodorsen'+str(k)+'.txt',sim['wing_C_L'][int(num_nodes/N_period):])
-    np.savetxt('theodorsen/alpha_theodorsen'+str(k)+'.txt',alpha[int(num_nodes/N_period):])
-
+    # Check whether the specified path exists or not
+    
+    isExist = os.path.exists(path)
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+    if save_results:
+        np.savetxt('theodorsen/C_L_theodorsen'+str(k)+'.txt',sim['wing_C_L'][int(num_nodes/N_period):])
+        np.savetxt('theodorsen/alpha_theodorsen'+str(k)+'.txt',alpha[int(num_nodes/N_period):])
+        plt.savefig('theodorsen/C_L_theodorsen'+str(k)+'.png',dpi=300,transparent=True)
 
     if save_vtk:
         run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')
@@ -104,5 +104,3 @@ if __name__ == '__main__':
     run_pitching_theodorsen_verification(k=3,num_nodes=240,N_period=4,A=1,save_vtk=False)
     plt.savefig('theodorsen/C_L_theodorsen_nx_31.png',dpi=400,transparent=True)
     plt.show()
-    # run_pitching_theodorsen_verification(k=1,num_nodes=240,N_period=4,A=1,save_vtk=False)
-    # run_pitching_theodorsen_verification(k=1,num_nodes=240,N_period=4,A=1,save_vtk=False)
