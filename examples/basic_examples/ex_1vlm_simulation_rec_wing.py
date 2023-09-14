@@ -36,6 +36,10 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     # Generate mesh of a rectangular wing
     mesh = generate_mesh(mesh_dict) 
     wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
+    # wing_image = model_1.create_output('wing_image',shape=wing.shape)
+    # wing_image[:,:,:,0] = wing[:,:,:,0]
+    # wing_image[:,:,:,1] = wing[:,:,:,1]
+    # wing_image[:,:,:,2] = -wing[:,:,:,2]
 
     ####################################################################
     # 3. add VAST solver
@@ -48,7 +52,9 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             num_nodes=num_nodes,
             eval_pts_shapes=eval_pts_shapes,
             AcStates='dummy',
-            cl0=[0.5],
+            cl0=[0.0],
+            # frame='inertia',
+            # compressible=True,
         )
     # wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
     # wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))

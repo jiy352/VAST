@@ -10,6 +10,7 @@ class MeshPreprocessingComp(ModuleCSDL):
     ----------
     def_mesh[num_nodes,num_pts_chord, num_pts_span, 3] : numpy array
         Array defining the nodal coordinates of the lifting surface.
+    w
 
     Returns
     -------
@@ -17,6 +18,7 @@ class MeshPreprocessingComp(ModuleCSDL):
     bound vortices points
     2. coll_pts[num_nodes, num_pts_chord-1, num_pts_span-1, 3] : csdl array
         collocation points for the horseshoe vortices, found along the 3/4 chord.
+    w
     3. l_span[num_nodes, (num_pts_chord-1), (num_pts_span-1)] : csdl array
         The spanwise widths of each individual panel.
     4. l_chord[num_nodes, (num_pts_chord-1), (num_pts_span-1)] : csdl array
@@ -24,6 +26,9 @@ class MeshPreprocessingComp(ModuleCSDL):
     5. s_panel [num_nodes, (num_pts_chord-1), (num_pts_span-1)]: csdl array
         The panel areas.
     6. bd_vec_all[num_nodes,system_size,3]: bd_vec of all lifting surfaces
+    w
+    7. eval_pts_coords
+    w
     """
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
@@ -33,6 +38,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('eval_pts_location',default=0.25)
         self.parameters.declare('delta_t',default=0)
         self.parameters.declare('problem_type',default='fixed_wake')
+        self.parameters.declare('compressible',default=False)
+        self.parameters.declare('Ma',default=0.84)
 
     def define(self):
         # load options
@@ -44,6 +51,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         eval_pts_location = self.parameters['eval_pts_location']
         delta_t = self.parameters['delta_t']
         problem_type = self.parameters['problem_type']
+        compressible = self.parameters['compressible']
+        Ma = self.parameters['Ma']
 
         system_size = sum((i[1] - 1) * (i[2] - 1) for i in surface_shapes)
         def_mesh_list = []
@@ -83,7 +92,16 @@ class MeshPreprocessingComp(ModuleCSDL):
             elif mesh_unit == 'ft':
                 def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
 
-                def_mesh = def_mesh_ft * 0.3048
+                def_mesh = def_mesh_ft * 0.
+            mesh_org = def_mesh+0
+            
+            if compressible:
+                beta = (1-Ma**2)**0.5
+                def_mesh = self.create_output(surface_name+'_compressible',shape=surface_shapes[i])
+                def_mesh[:, :, :, 0] = mesh_org[:, :, :, 0] 
+                def_mesh[:, :, :, 1] = mesh_org[:, :, :, 1] * beta
+                def_mesh[:, :, :, 2] = mesh_org[:, :, :, 2] * beta
+
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
@@ -162,8 +180,8 @@ class MeshPreprocessingComp(ModuleCSDL):
             # compute the output: 5. s_panels: panel area of each panel
             # TODO: implement projected area if needed
             ################################################################################
-            i = def_mesh[:, :-1, 1:, :] - def_mesh[:, 1:, :-1, :]
-            j = def_mesh[:, :-1, :-1, :] - def_mesh[:, 1:, 1:, :]
+            i = mesh_org[:, :-1, 1:, :] - mesh_org[:, 1:, :-1, :]
+            j = mesh_org[:, :-1, :-1, :] - mesh_org[:, 1:, 1:, :]
             # compute the wetted area:
             normals = csdl.cross(i, j, axis=3)
             s_panels = (csdl.sum(normals**2, axes=(3, )))**0.5 * 0.5
@@ -194,24 +212,32 @@ class MeshPreprocessingComp(ModuleCSDL):
 
             bd_vec_all[:, start:start + delta, :] = bound_vecs
             start += delta
-        del def_mesh_list
         ################################################################################
         if self.parameters['eval_pts_option'] == 'auto':
             for i in range(len(surface_shapes)):
                 surface_name = surface_names[i]
-                if mesh_unit == 'm':
-                    mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
-                elif mesh_unit == 'ft':
-                    mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
-                    mesh = mesh_ft * 0.3048
+                # if mesh_unit == 'm':
+                #     mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                # elif mesh_unit == 'ft':
+                #     mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                #     mesh = mesh_ft * 0.3048
+
+                # if compressible:
+                #     beta = (1-Ma**2)**0.5
+                #     mesh_org = mesh+0
+                #     mesh = self.create_output(surface_name+'_compressible',shape=surface_shapes[i])
+                #     mesh[:, :, :, 0] = mesh_org[:, :, :, 0] 
+                #     mesh[:, :, :, 1] = mesh_org[:, :, :, 1] * beta
+                #     mesh[:, :, :, 2] = mesh_org[:, :, :, 2] * beta
 
                 eval_pts_coords = (
-                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 0:-1, :] +
-                    (1 - eval_pts_location) * 0.5 * mesh[:, 0:-1, 1:, :] +
-                    eval_pts_location * 0.5 * mesh[:, 1:, 0:-1, :] +
-                    eval_pts_location * 0.5 * mesh[:, 1:, 1:, :])
+                    (1 - eval_pts_location) * 0.5 * def_mesh_list[i][:, 0:-1, 0:-1, :] +
+                    (1 - eval_pts_location) * 0.5 * def_mesh_list[i][:, 0:-1, 1:, :] +
+                    eval_pts_location * 0.5 * def_mesh_list[i][:, 1:, 0:-1, :] +
+                    eval_pts_location * 0.5 * def_mesh_list[i][:, 1:, 1:, :])
 
                 self.register_output(eval_pts_names[i], eval_pts_coords)
+        del def_mesh_list
 
         # elif self.parameters['eval_pts_option'] == 'user_defined':
         #     for i in range(len(eval_pts_shapes)):

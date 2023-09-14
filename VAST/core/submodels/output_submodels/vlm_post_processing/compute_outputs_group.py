@@ -51,6 +51,7 @@ class Outputs(csdl.Model):
         self.parameters.declare('cl0')
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
+        self.parameters.declare('compressible', default=False)
 
     def define(self):
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
@@ -68,6 +69,8 @@ class Outputs(csdl.Model):
         delta_t = self.parameters['delta_t']
         coeffs_aoa = self.parameters['coeffs_aoa']
         coeffs_cd = self.parameters['coeffs_cd']
+
+        compressible = self.parameters['compressible']
 
         submodel = HorseshoeCirculations(
             surface_names=surface_names,
@@ -100,6 +103,7 @@ class Outputs(csdl.Model):
             cl0=cl0,
             ML = self.parameters['ML'],
             ref_area = self.parameters['ref_area'],
+            compressible = compressible,
         )
         self.add(submodel, name='LiftDrag')
 

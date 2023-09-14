@@ -36,6 +36,8 @@ class VLMSystem(ModuleCSDL):
                                 default='direct',
                                 values=['direct', 'optimization'])
         self.parameters.declare('TE_idx', default='last')
+        self.parameters.declare('compressible', default=False)
+        self.parameters.declare('frame', default='wing_fixed')
 
     def define(self):
         # rename parameters
@@ -46,6 +48,7 @@ class VLMSystem(ModuleCSDL):
         mesh_unit = self.parameters['mesh_unit']
         eval_pts_option = self.parameters['eval_pts_option']
         eval_pts_location = self.parameters['eval_pts_location']
+        compressible = self.parameters['compressible']
 
         wake_coords_names = [x + '_wake_coords' for x in surface_names]
 
@@ -65,6 +68,7 @@ class VLMSystem(ModuleCSDL):
                                        mesh_unit=mesh_unit,
                                        eval_pts_option=eval_pts_option,
                                        eval_pts_location=eval_pts_location,
+                                       compressible=compressible,
                                     #    problem_type='fixed_wake',
                                        ),
                  name='MeshPreprocessing_comp')
@@ -78,6 +82,7 @@ class VLMSystem(ModuleCSDL):
             m = AdapterComp(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,
+                frame=self.parameters['frame'],
             )
             # m.optimize_ir(False)
             self.add_module(m, name='adapter_comp')

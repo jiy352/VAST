@@ -39,6 +39,8 @@ class LiftDrag(ModuleCSDL):
 
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
+        self.parameters.declare('compressible',default=False)
+        self.parameters.declare('Ma',default=0.84)
 
 
 
@@ -47,6 +49,10 @@ class LiftDrag(ModuleCSDL):
         surface_shapes = self.parameters['surface_shapes']
         ref_area = self.parameters['ref_area']
         cl0 = self.parameters['cl0']
+        compressible = self.parameters['compressible']
+        Ma = self.parameters['Ma']
+
+
         print('cl0',cl0)
         if cl0 is None:
             cl0 = [0.0] * len(surface_names)
@@ -126,10 +132,28 @@ class LiftDrag(ModuleCSDL):
                 eval_pts_all[:, start:start + delta, :] = csdl.reshape(eval_pts, (num_nodes, delta, 3))
                 start = start + delta
 
-            panel_forces = rho_expand * circulation_repeat * csdl.cross(
-                velocities, bd_vec, axis=2)
+            if compressible == False:
 
-            self.register_output('panel_forces', panel_forces)
+                panel_forces = rho_expand * circulation_repeat * csdl.cross(
+                    velocities, bd_vec, axis=2)
+
+                self.register_output('panel_forces', panel_forces)
+            
+            else:
+                beta_pg = (1-Ma**2)**0.5
+                panel_forces_pg = rho_expand * circulation_repeat * csdl.cross(
+                    velocities, bd_vec, axis=2)
+                self.register_output('panel_forces_pg', panel_forces_pg)
+
+                panel_forces_wind = self.create_output('panel_forces_wind', shape=panel_forces_pg.shape)
+                panel_forces_wind[:, :, 0] = panel_forces_pg[:, :, 0]/(beta_pg**4)
+                panel_forces_wind[:, :, 1] = panel_forces_pg[:, :, 1]/(beta_pg**3)
+                panel_forces_wind[:, :, 2] = panel_forces_pg[:, :, 2]/(beta_pg**3)
+                
+                panel_forces = self.create_output('panel_forces', shape=panel_forces_pg.shape)
+                panel_forces[:, :, 0] = panel_forces_pg[:, :, 0]/(beta_pg**4) * cosa * cosb + sinb*cosa*panel_forces_pg[:, :, 1]/(beta_pg**3) - panel_forces_pg[:, :, 2]/(beta_pg**3) * sina 
+                panel_forces[:, :, 1] =  - panel_forces_pg[:, :, 0]/(beta_pg**4) * sinb + panel_forces_pg[:, :, 1]/(beta_pg**3) * cosb
+                panel_forces[:, :, 2] = panel_forces_pg[:, :, 0]/(beta_pg**4) * sina * cosb + panel_forces_pg[:, :, 1]/(beta_pg**3) * sina * sinb + cosa * panel_forces_pg[:, :, 2]/(beta_pg**3)
 
             panel_forces_x = panel_forces[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1]

@@ -35,6 +35,8 @@ class VLMSolverModel(ModuleCSDL):
 
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
+        self.parameters.declare('compressible', default=False)
+        self.parameters.declare('frame', default='wing_fixed')
 
     def define(self):
         # add the mesh info
@@ -54,6 +56,8 @@ class VLMSolverModel(ModuleCSDL):
         coeffs_cd = self.parameters['coeffs_cd']
         mesh_unit = self.parameters['mesh_unit']
 
+        compressible = self.parameters['compressible']
+
         num_nodes = surface_shapes[0][0]
         if self.parameters['AcStates'] == None:
             frame_vel_val = -free_stream_velocities
@@ -71,6 +75,8 @@ class VLMSolverModel(ModuleCSDL):
                 mesh_unit=mesh_unit,
                 eval_pts_option=eval_pts_option,
                 eval_pts_location=eval_pts_location,
+                compressible=compressible,
+                frame=self.parameters['frame'],
             ), 'VLM_system')
         if eval_pts_option=='auto':
             eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
@@ -93,6 +99,7 @@ class VLMSolverModel(ModuleCSDL):
             cl0=cl0,
             ML=self.parameters['ML'],
             ref_area=self.parameters['ref_area'],
+            compressible=compressible,
         )
         self.add(sub, name='VLM_outputs')
 

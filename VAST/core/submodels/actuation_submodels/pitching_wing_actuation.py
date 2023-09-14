@@ -9,6 +9,11 @@ import python_csdl_backend
 
 from VAST.utils.generate_mesh import *
 
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
+
+import matplotlib.pyplot as plt
+
 class PitchingModel(ModuleCSDL):
     """
     Compute the rotated mesh given axis, .
@@ -46,39 +51,69 @@ class PitchingModel(ModuleCSDL):
         num_nodes = self.parameters['num_nodes']
 
 
-        omega = 2*v_inf*k_i/c_0
+        omega = v_inf*k_i/(c_0/2)
         T = 2*np.pi/(omega)
         t = np.linspace(0,N_period*T,num_nodes)
 
         f = A * np.cos(omega*t)
-        print('f----------------------------------',f)
-        f_dot  = np.deg2rad(-A*2*v_inf*k_i/c_0*np.sin(omega*t))
+
+        f_dot  = np.deg2rad(-A*omega*np.sin(omega*t))
+
+        # plt.plot(t,f)
+        # plt.plot(t,-A*omega*np.sin(omega*t))
+        # plt.show()
+        # print('f----------------------------------',f)
+        # print('f_dot----------------------------------',np.rad2deg(f_dot))
+        # print('AR----------------------------------',AR)
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
             nx = surface_shape[0]; ny = surface_shape[1]
             chord = c_0; span = chord*AR
 
+
             mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
                             "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
-            mesh[:,:,0]  = mesh[:,:,0] + 0.5
-
+            mesh[:,:,0]  = mesh[:,:,0] + 0.25 # quarter chord pitching axis
             r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 
             rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)
             rotated_mesh_csdl = self.create_input(surface_name, rotated_mesh)
 
-            f_dot_exp = np.einsum('il,jk->ijkl',np.array([np.zeros(num_nodes), f_dot, np.zeros(num_nodes)]).T,
-                                np.ones((nx-1,ny-1)))
+            shift_vel = True
 
-            rot_vel = self.create_input(surface_name+'_rot_velocity', f_dot_exp)
+            if shift_vel:
+                f_dot_exp = np.einsum('il,jk->ijkl',np.array([np.zeros(num_nodes), f_dot, np.zeros(num_nodes)]).T,
+                                    np.ones((nx,ny)))
 
-            coll_pts = (rotated_mesh_csdl[:,:-1,:-1,:]+rotated_mesh_csdl[:,:-1,1:,:])*0.125 +\
-                 (rotated_mesh_csdl[:,1:,:-1,:]+rotated_mesh_csdl[:,1:,1:,:])*0.75
-            # print('rot_vel',rot_vel.shape)
-            # print('coll_pts',coll_pts.shape)
-            coll_vel = csdl.cross(rot_vel, coll_pts, axis=3)
+                rot_vel = self.create_input(surface_name+'_rot_velocity', f_dot_exp)
+
+                coll_pts = (rotated_mesh_csdl[:,:-1,:-1,:]+rotated_mesh_csdl[:,:-1,1:,:])*0.125 +\
+                    (rotated_mesh_csdl[:,1:,:-1,:]+rotated_mesh_csdl[:,1:,1:,:])*0.75
+                # ref_axis
+                # print('rot_vel',rot_vel.shape)
+                # print('coll_pts',coll_pts.shape)
+
+                # coll_vel = csdl.cross(rot_vel, coll_pts, axis=3)
+                mesh_vel = csdl.cross(rot_vel, rotated_mesh_csdl, axis=3)
+                coll_vel = (mesh_vel[:,:-1,:-1,:]+mesh_vel[:,:-1,1:,:])*0.25 +\
+                        (mesh_vel[:,1:,:-1,:]+mesh_vel[:,1:,1:,:])*0.25
+            else:
+                f_dot_exp = np.einsum('il,jk->ijkl',np.array([np.zeros(num_nodes), f_dot, np.zeros(num_nodes)]).T,
+                    np.ones((nx-1,ny-1)))
+                rot_vel = self.create_input(surface_name+'_rot_velocity', f_dot_exp)
+                coll_pts = (rotated_mesh_csdl[:,:-1,:-1,:]+rotated_mesh_csdl[:,:-1,1:,:])*0.125 +\
+                    (rotated_mesh_csdl[:,1:,:-1,:]+rotated_mesh_csdl[:,1:,1:,:])*0.75
+                # ref_axis
+                # print('rot_vel',rot_vel.shape)
+                # print('coll_pts',coll_pts.shape)
+
+                coll_vel = csdl.cross(rot_vel, coll_pts, axis=3)
+                # mesh_vel = csdl.cross(rot_vel, coll_pts, axis=3)
+                # coll_vel = (mesh_vel[:,:-1,:-1,:]+mesh_vel[:,:-1,1:,:])*0.25 +\
+                #         (mesh_vel[:,1:,:-1,:]+mesh_vel[:,1:,1:,:])*0.25
+
             self.register_output(surface_name+'_coll_vel', coll_vel)
 
 
