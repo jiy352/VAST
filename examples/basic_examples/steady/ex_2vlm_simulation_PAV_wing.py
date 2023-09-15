@@ -57,15 +57,23 @@ sim = Simulator(model_1) # add simulator
 
 sim.run()
 
-print('wing_C_L\n',sim['wing_C_L'])
-print('wing_C_D_i\n',sim['wing_C_D_i'])
+# print('wing_C_L\n',sim['wing_C_L'])
+# print('wing_C_D_i\n',sim['wing_C_D_i'])
 
 wing_C_L_AVL = np.array([-0.77020, -0.61878, -0.465579217135667, -0.311163208143354,-0.155784316259393,0.00000,
                           0.155784316259393, 0.311163208143354, 0.465579217135667, 0.61878, 0.77020]).reshape((num_nodes, 1))
 
 if np.linalg.norm(wing_C_L_AVL - sim["wing_C_L"])/(np.linalg.norm((wing_C_L_AVL)))<3e-2:
+    import sys
+
     # if the relative error is less than 1%, we consider it as a pass
-    print('\nTest passed!')
+    print('-'*90)
+    print(sys.argv[0],'Test passed! Relative error is less than the tolerance.')
+    print('-'*90)
+
+    print('\n'*3)
+
+
 
 try:
     import pyvista as pv

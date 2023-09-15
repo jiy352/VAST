@@ -52,6 +52,7 @@ class Outputs(csdl.Model):
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
         self.parameters.declare('compressible', default=False)
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
@@ -87,6 +88,7 @@ class Outputs(csdl.Model):
                               n_wake_pts_chord=n_wake_pts_chord,
                               delta_t=delta_t,
                               mesh_unit=mesh_unit,
+                              symmetry=self.parameters['symmetry'], 
                             #   problem_type='prescribed_wake',
                               )
         self.add(submodel, name='EvalPtsVel')

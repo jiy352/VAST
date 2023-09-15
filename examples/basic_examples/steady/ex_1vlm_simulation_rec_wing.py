@@ -44,6 +44,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             eval_pts_shapes=eval_pts_shapes,
             AcStates='dummy',
             cl0=[0.0],
+            symmetry=True,
         )
     model_1.add(submodel, 'VLMSolverModel')
     ####################################################################
@@ -57,4 +58,8 @@ sim.run()
 wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1)); wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
 if np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/wing_C_L_OAS)<1e-2 and np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/wing_C_D_i_OAS)<1e-2:
     # if the relative error is less than 1%, we consider it as a pass
-    print('\nTest passed!')
+    import sys
+    print('-'*90)
+    print(sys.argv[0],'Test passed! Relative error is less than the tolerance.')
+    print('-'*90)
+    print('\n'*3)  

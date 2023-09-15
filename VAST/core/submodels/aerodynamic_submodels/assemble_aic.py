@@ -41,6 +41,7 @@ class AssembleAic(Model):
 
         self.parameters.declare('delta_t',default=None)
         self.parameters.declare('vc',default=False)
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         # add_input
@@ -99,6 +100,7 @@ class AssembleAic(Model):
             vortex_coords_shapes=vortex_coords_shapes,
             output_names=output_names,
             vc=True,
+            symmetry=self.parameters['symmetry'],
         )
         self.add(m, name='aic_bd_w_seperate')
 

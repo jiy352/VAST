@@ -27,6 +27,7 @@ class ODESystemModel(csdl.Model):
         self.parameters.declare('delta_t')
         self.parameters.declare('nt')
         self.parameters.declare('frame', default='wing_fixed')
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         # rename parameters
@@ -103,7 +104,8 @@ class ODESystemModel(csdl.Model):
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
                                 delta_t=delta_t,
-                                problem_type='prescribed_wake'),
+                                problem_type='prescribed_wake',
+                                symmetry=self.parameters['symmetry'],),
                     name='solve_gamma_b_group')
 
         self.add(SeperateGammab(surface_names=surface_names,

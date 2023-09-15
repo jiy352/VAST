@@ -80,7 +80,7 @@ model.create_input('wing', val = mesh_val)
 model.create_input('wing_coll_vel', val = vz)
 
 model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
-                                    surface_properties_dict=surface_properties_dict,mesh_val=mesh_val), 'uvlm_solver')
+                                    surface_properties_dict=surface_properties_dict,mesh_val=mesh_val, symmetry=True), 'uvlm_solver')
 
 sim = python_csdl_backend.Simulator(model)
     

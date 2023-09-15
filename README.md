@@ -14,19 +14,20 @@
 
 VAST
 
-This repository serves as a template for all LSDOlab projects with regard to documentation, testing and hosting of open-source code.
+**V**ortex-based **A**erodynamic **S**olver **T**oolkit
 
 *README.md file contains high-level information about your package: it's purpose, high-level instructions for installation and usage.*
 
 
-# TODO: 
 
-| Task                      |  Subtasks                                                | Timeline |
-|:-----                     |:--------                                                 |------:   |
-| Clean up VAST examples    | **ex_1vlm_simulation_rec_wing**                          | done    |
-|                           | **ex_2vlm_simulation_PAV_wing**                          | done    |
-|                           | **ex_3vlm_simulation_PAV_wing_tail**                          |   to be confirmed w/ v&v group    |
-| L2                        | _italic_                          |    $1    |
+| Items in example |          | Subtasks                             | Timeline                                 | Notes                                    |
+|------------------|----------|--------------------------------------|------------------------------------------|------------------------------------------|
+| VAST examples    | steady   | **ex_1vlm_simulation_rec_wing**      | done                                     | Rec wing -> OAS                          |
+|                  |          | **ex_2vlm_simulation_PAV_wing**      | done                                     | PAV wing -> AVL                          |
+|                  |          | **ex_3vlm_simulation_PAV_wing_tail** | to be confirmed w/ v&v group             | PAV wing tail -> AVL                     |
+|                  |          | **ex_4vlm_simulation_CRM_wing**      | done but need to remove Ma 0.84 hardcode | CRM PG transform for compressible -> OAS |
+|                  | unsteady | **ex_1vlm_simulation_rec_wing**      | done                                     | Rec wing -> OAS                          |
+
 
 
 # Installation

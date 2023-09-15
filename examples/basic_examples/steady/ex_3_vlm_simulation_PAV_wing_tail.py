@@ -73,11 +73,17 @@ sim = Simulator(model_1) # add simulator
 
 sim.run()
 
-print('wing_C_L',sim['wing_C_L'])
-print('total_CL',sim['total_CL'])
-print('wing_C_D_i',sim['wing_C_D_i'])
-print('area_wing',sim['panel_area_wing'][0]) 
-print('area_tail',sim['panel_area_tail'][0])
+# print('wing_C_L',sim['wing_C_L'])
+# print('total_CL',sim['total_CL'])
+# print('wing_C_D_i',sim['wing_C_D_i'])
+# print('area_wing',sim['panel_area_wing'][0]) 
+# print('area_tail',sim['panel_area_tail'][0])
+
+import sys
+print('-'*90)
+print(sys.argv[0],'Auto-testing has not been implemented yet.')
+print('-'*90)
+print('\n'*3)
 
 try:
     import pyvista as pv

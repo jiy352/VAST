@@ -144,6 +144,7 @@ class UVLMSolver(csdl.Model):
         self.parameters.declare('surface_properties_dict')
         self.parameters.declare('mesh_val',default=None)
         self.parameters.declare('problem_type',default='fixed_wake')
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         num_times = self.parameters['num_times']
@@ -258,7 +259,8 @@ class UVLMSolver(csdl.Model):
                                 bd_vortex_shapes=ode_surface_shapes,
                                 delta_t=h_stepsize,
                                 problem_type='prescribed_wake',
-                                end=True),
+                                end=True,
+                                symmetry=self.parameters['symmetry'],),
                     name='solve_gamma_b_group')
         self.add(SeperateGammab(surface_names=surface_names,
                                 surface_shapes=ode_surface_shapes),
@@ -288,6 +290,7 @@ class UVLMSolver(csdl.Model):
             delta_t=h_stepsize,
             problem_type='prescribed_wake',
             eps=4e-5,
+            symmetry=self.parameters['symmetry'],
         )
         self.add(submodel, name='EvalPtsVel')
 

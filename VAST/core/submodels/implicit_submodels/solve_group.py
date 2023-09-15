@@ -40,6 +40,7 @@ class SolveMatrix(Model):
         self.parameters.declare('delta_t')
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('end',default=False)
+        self.parameters.declare('symmetry',default=False)
 
         # pass
 
@@ -81,6 +82,7 @@ class SolveMatrix(Model):
                     bd_vortex_shapes=bd_vortex_shapes,
                     delta_t=delta_t,
                     problem_type=self.parameters['problem_type'],
+                    symmetry=self.parameters['symmetry']
 
                 ), 'RHS_group')
         elif self.parameters['end']==True:
@@ -91,6 +93,7 @@ class SolveMatrix(Model):
                     bd_vortex_shapes=bd_vortex_shapes,
                     delta_t=delta_t,
                     problem_type=self.parameters['problem_type'],
+                    symmetry=self.parameters['symmetry']
 
                 ), 'RHS_group')
 
