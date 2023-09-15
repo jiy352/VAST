@@ -21,11 +21,11 @@ This repository serves as a template for all LSDOlab projects with regard to doc
 
 # TODO: 
 
-| Task                      |  Subtasks                         | Timeline |
-|:-----                     |:--------                          |------:   |
-| Clean up VAST examples    | **ex_1vlm_simulation_rec_wing**   | done    |
-|                           | **ex_2vlm_simulation_PAV_wing**                          |   $12    |
-|                           | **ex_2vlm_simulation_PAV_wing_tail**                          |   $12    |
+| Task                      |  Subtasks                                                | Timeline |
+|:-----                     |:--------                                                 |------:   |
+| Clean up VAST examples    | **ex_1vlm_simulation_rec_wing**                          | done    |
+|                           | **ex_2vlm_simulation_PAV_wing**                          | done    |
+|                           | **ex_3vlm_simulation_PAV_wing_tail**                          |   to be confirmed w/ v&v group    |
 | L2                        | _italic_                          |    $1    |
 
 

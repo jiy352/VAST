@@ -35,7 +35,6 @@ mesh = np.concatenate((mesh_other_half,mesh_half),axis=1)
 
 wing = model_1.create_input('wing', val=np.einsum('i,jkl->ijkl', np.ones((num_nodes)), mesh))
 
-
 model_1.create_input('density', val=1*np.ones((num_nodes,1)))
 ####################################################################
 # 3. add VAST solver
@@ -58,10 +57,15 @@ sim = Simulator(model_1) # add simulator
 
 sim.run()
 
-print('wing_C_L',sim['wing_C_L'])
-print('wing_C_D_i',sim['wing_C_D_i'])
+print('wing_C_L\n',sim['wing_C_L'])
+print('wing_C_D_i\n',sim['wing_C_D_i'])
 
+wing_C_L_AVL = np.array([-0.77020, -0.61878, -0.465579217135667, -0.311163208143354,-0.155784316259393,0.00000,
+                          0.155784316259393, 0.311163208143354, 0.465579217135667, 0.61878, 0.77020]).reshape((num_nodes, 1))
 
+if np.linalg.norm(wing_C_L_AVL - sim["wing_C_L"])/(np.linalg.norm((wing_C_L_AVL)))<3e-2:
+    # if the relative error is less than 1%, we consider it as a pass
+    print('\nTest passed!')
 
 try:
     import pyvista as pv

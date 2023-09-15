@@ -63,8 +63,7 @@ if fluid_problem.solver_option == 'VLM':
         compressible=compressible,
         frame = 'inertia'
     )
-# wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1))
-# wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
+
 model_1.add(submodel, 'VLMSolverModel')
 ####################################################################
 
@@ -83,6 +82,12 @@ print('wing_C_D_i',sim['wing_C_D_i'])
 # print('The number of nan in num_00f2 is: ', np.count_nonzero(np.isinf(sim['num_00f2'])))
 # print('The number of nan in num_00fu is: ', np.count_nonzero(np.isinf(sim['num_00fu'])))
 
+# AOA	OAS CL	   OAS CDi
+# -10	-1.0434	   0.0292
+# -5	-0.5215	   0.0073
+# 0	     0.0000	   0.0000
+# 5	     0.5215	   0.0073
+# 10	 1.0434	   0.0292
 
 Ma = 0.84
 b = (1-Ma**2)**0.5
