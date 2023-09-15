@@ -18,9 +18,16 @@ This repository serves as a template for all LSDOlab projects with regard to doc
 
 *README.md file contains high-level information about your package: it's purpose, high-level instructions for installation and usage.*
 
+
 # TODO: 
 
-need to find out what specital treatment is made for the TE bound vtx
+| Task                      |  Subtasks                         | Timeline |
+|:-----                     |:--------                          |------:   |
+| Clean up VAST examples    | **ex_1vlm_simulation_rec_wing**   | done    |
+|                           | **ex_2vlm_simulation_PAV_wing**                          |   $12    |
+|                           | **ex_2vlm_simulation_PAV_wing_tail**                          |   $12    |
+| L2                        | _italic_                          |    $1    |
+
 
 # Installation
 
