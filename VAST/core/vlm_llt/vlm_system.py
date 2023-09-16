@@ -39,6 +39,7 @@ class VLMSystem(ModuleCSDL):
         self.parameters.declare('compressible', default=False)
         self.parameters.declare('frame', default='wing_fixed')
         self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('Ma')
 
 
     def define(self):
@@ -71,6 +72,7 @@ class VLMSystem(ModuleCSDL):
                                        eval_pts_option=eval_pts_option,
                                        eval_pts_location=eval_pts_location,
                                        compressible=compressible,
+                                       Ma=self.parameters['Ma'],
                                     #    problem_type='fixed_wake',
                                        ),
                  name='MeshPreprocessing_comp')

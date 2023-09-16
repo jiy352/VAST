@@ -40,7 +40,7 @@ class LiftDrag(ModuleCSDL):
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
         self.parameters.declare('compressible',default=False)
-        self.parameters.declare('Ma',default=0.84)
+        self.parameters.declare('Ma',default=None)
 
 
 

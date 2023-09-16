@@ -39,7 +39,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('delta_t',default=0)
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('compressible',default=False)
-        self.parameters.declare('Ma',default=0.84)
+        self.parameters.declare('Ma',default=None)
 
     def define(self):
         # load options

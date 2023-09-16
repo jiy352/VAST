@@ -56,10 +56,13 @@ sim = ex1_generate_model_vlm_fixed_wake(num_nodes=num_nodes,nx=3, ny=11)
 sim.run()
 
 wing_C_L_OAS = np.array([0.4426841725811703]).reshape((num_nodes, 1)); wing_C_D_i_OAS = np.array([0.005878842561184834]).reshape((num_nodes, 1))
-if np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/wing_C_L_OAS)<1e-2 and np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/wing_C_D_i_OAS)<1e-2:
+if np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/ np.linalg.norm(wing_C_L_OAS))<1e-2 and np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/ np.linalg.norm(wing_C_D_i_OAS))<1e-2:
     # if the relative error is less than 1%, we consider it as a pass
+    rel_error_cl = np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/ np.linalg.norm(wing_C_L_OAS))
+    rel_error_cd = np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/ np.linalg.norm(wing_C_D_i_OAS))  
+    max_rel_error = max(rel_error_cl,rel_error_cd)
     import sys
     print('-'*90)
-    print(sys.argv[0],'Test passed! Relative error is less than the tolerance.')
+    print(sys.argv[0],f'Test passed! Max relative error is {max_rel_error*100}% less than the tolerance.')
     print('-'*90)
     print('\n'*3)  

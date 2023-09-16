@@ -98,9 +98,9 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    run_pitching_theodorsen_verification(k=0.2,num_nodes=240,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=0.6,num_nodes=240,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=1,num_nodes=240,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=3,num_nodes=240,N_period=4,A=1,save_vtk=False)
+    run_pitching_theodorsen_verification(k=0.2,num_nodes=200,N_period=4,A=1,save_vtk=False)
+    run_pitching_theodorsen_verification(k=0.6,num_nodes=200,N_period=4,A=1,save_vtk=False)
+    run_pitching_theodorsen_verification(k=1,num_nodes=200,N_period=4,A=1,save_vtk=False)
+    run_pitching_theodorsen_verification(k=3,num_nodes=200,N_period=4,A=1,save_vtk=False)
     plt.savefig('theodorsen/C_L_theodorsen_nx_31.png',dpi=400,transparent=True)
     plt.show()

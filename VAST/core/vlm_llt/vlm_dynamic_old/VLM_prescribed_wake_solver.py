@@ -145,6 +145,8 @@ class UVLMSolver(csdl.Model):
         self.parameters.declare('mesh_val',default=None)
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('compressible',default=False)
+        self.parameters.declare('Ma',default=0.84)
 
     def define(self):
         num_times = self.parameters['num_times']
@@ -208,6 +210,7 @@ class UVLMSolver(csdl.Model):
             'delta_t': h_stepsize,
             'nt': num_times,
             'frame': frame,
+             'symmetry': self.parameters['symmetry'],   
         }
 
         profile_params_dict = {
@@ -241,7 +244,8 @@ class UVLMSolver(csdl.Model):
                                        eval_pts_location=0.25,
                                        eval_pts_option='auto',
                                        delta_t=h_stepsize,
-                                       problem_type='prescribed_wake'),
+                                       problem_type='prescribed_wake',
+                                       Ma=self.parameters['Ma'],),
                  name='MeshPreprocessing_comp')
 
         m = AdapterComp(

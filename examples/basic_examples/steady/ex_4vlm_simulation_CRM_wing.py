@@ -12,6 +12,7 @@ fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
 num_nodes=5; nx=2; ny=7
 num_twist_cp=5
 compressible=True
+Ma = 0.84
 model_1 = csdl.Model()
 ####################################################################
 # 1. add aircraft states
@@ -58,6 +59,7 @@ if fluid_problem.solver_option == 'VLM':
         cl0 = [0.0,0.0],
         # ref_area=205.2824,
         compressible=compressible,
+        Ma=Ma,
         frame = 'inertia',
         symmetry=True,
     )
@@ -81,9 +83,14 @@ wing_C_D_i_OAS = np.array([0.0292, 0.0073, 0.0, 0.0073, 0.0292]).reshape((num_no
 if np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/np.linalg.norm(wing_C_L_OAS+1e-10))<1e-2 and \
  np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/np.linalg.norm(wing_C_D_i_OAS+1e-10))<1e-2:
     import sys
+    
+    rel_error_cl = np.linalg.norm((wing_C_L_OAS - sim["wing_C_L"])/ np.linalg.norm(wing_C_L_OAS))
+    rel_error_cd = np.linalg.norm((wing_C_D_i_OAS - sim["wing_C_D_i"])/ np.linalg.norm(wing_C_D_i_OAS))  
+    max_rel_error = max(rel_error_cl,rel_error_cd)
+
     # if the relative error is less than 1%, we consider it as a pass
     print('-'*90)
-    print(sys.argv[0],'Test passed! Relative error is less than the tolerance.')
+    print(sys.argv[0],f'Test passed! Max relative error is {max_rel_error*100}% less than the tolerance.')
     print('-'*90)
 
     print('\n'*3)

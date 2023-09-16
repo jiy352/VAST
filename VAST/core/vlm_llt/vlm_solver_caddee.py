@@ -89,6 +89,10 @@ class VLMSolverModel(ModuleCSDL):
         self.parameters.declare('cl0', default=[0])
         self.parameters.declare('model_selection', types=np.ndarray)
         self.parameters.declare('module_opt',default=True)
+        self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('ref_area', default=None)
+        self.parameters.declare('compressible', default=False)
+        self.parameters.declare('Ma',default=None)
 
     def define(self):
         # add the mesh info

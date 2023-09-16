@@ -68,7 +68,7 @@ if np.linalg.norm(wing_C_L_AVL - sim["wing_C_L"])/(np.linalg.norm((wing_C_L_AVL)
 
     # if the relative error is less than 1%, we consider it as a pass
     print('-'*90)
-    print(sys.argv[0],'Test passed! Relative error is less than the tolerance.')
+    print(sys.argv[0],f'Test passed! Relative error is {np.linalg.norm(wing_C_L_AVL - sim["wing_C_L"])/(np.linalg.norm((wing_C_L_AVL)))*100}% less than the tolerance.')
     print('-'*90)
 
     print('\n'*3)
