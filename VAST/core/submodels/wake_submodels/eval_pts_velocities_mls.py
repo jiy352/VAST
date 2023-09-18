@@ -45,6 +45,7 @@ class EvalPtsVel(Model):
         # stands for quarter-chord
         self.parameters.declare('n_wake_pts_chord')
         self.parameters.declare('problem_type')
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         eval_pts_names = self.parameters['eval_pts_names']
@@ -136,6 +137,7 @@ class EvalPtsVel(Model):
                 circulation_names=circulation_names,
                 vc=True,
                 eps=5e-2,
+                symmetry=self.parameters['symmetry']
             ),
                      name='eval_pts_aics' + str(i))
 

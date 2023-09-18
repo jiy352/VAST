@@ -52,6 +52,7 @@ class ComputeWakeTotalVel(Model):
         self.parameters.declare('surface_shapes', types=list)
 
         self.parameters.declare('n_wake_pts_chord') # we need this to combine bd and wake 
+        self.parameters.declare('symmetry',default=False)
 
 
     def define(self):
@@ -77,7 +78,8 @@ class ComputeWakeTotalVel(Model):
         #     surface_names=surface_names,
         #     surface_shapes=surface_shapes,
         #     n_wake_pts_chord=n_wake_pts_chord,
-        #     problem_type='prescribed_wake'
+        #     problem_type='prescribed_wake',
+        #     symmetry=self.parameters['symmetry'],
             
         # )
         # self.add(submodel, name='EvalPtsVel')

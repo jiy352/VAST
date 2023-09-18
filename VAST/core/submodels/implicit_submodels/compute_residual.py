@@ -41,6 +41,7 @@ class ComputeResidual(Model):
         self.parameters.declare('bd_vortex_shapes', types=list)
         self.parameters.declare('n', default=1)
         self.parameters.declare('delta_t')
+        self.parameters.declare('symmetry',default=False)
         # pass
 
     def define(self):
@@ -78,6 +79,7 @@ class ComputeResidual(Model):
                 surface_names=surface_names,
                 bd_vortex_shapes=bd_vortex_shapes,
                 delta_t=delta_t,
+                symmetry=self.parameters['symmetry'],
             ), 'RHS_group')
 
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']

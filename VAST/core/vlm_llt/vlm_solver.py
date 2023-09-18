@@ -37,6 +37,9 @@ class VLMSolverModel(ModuleCSDL):
         self.parameters.declare('ref_area', default=None)
         self.parameters.declare('compressible', default=False)
         self.parameters.declare('frame', default='wing_fixed')
+        self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('Ma',default=None)
+        self.parameters.declare('compressible', default=False)
 
     def define(self):
         # add the mesh info
@@ -77,6 +80,8 @@ class VLMSolverModel(ModuleCSDL):
                 eval_pts_location=eval_pts_location,
                 compressible=compressible,
                 frame=self.parameters['frame'],
+                symmetry=self.parameters['symmetry'],
+                Ma = self.parameters['Ma'],
             ), 'VLM_system')
         if eval_pts_option=='auto':
             eval_pts_names = [x + '_eval_pts_coords' for x in surface_names]
@@ -100,6 +105,8 @@ class VLMSolverModel(ModuleCSDL):
             ML=self.parameters['ML'],
             ref_area=self.parameters['ref_area'],
             compressible=compressible,
+            symmetry=self.parameters['symmetry'],
+            Ma = self.parameters['Ma'],
         )
         self.add(sub, name='VLM_outputs')
 

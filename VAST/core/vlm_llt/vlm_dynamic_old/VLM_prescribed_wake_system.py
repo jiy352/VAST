@@ -27,6 +27,9 @@ class ODESystemModel(csdl.Model):
         self.parameters.declare('delta_t')
         self.parameters.declare('nt')
         self.parameters.declare('frame', default='wing_fixed')
+        self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('compressible', default=False)
+        self.parameters.declare('Ma',default=None)
 
     def define(self):
         # rename parameters
@@ -92,7 +95,9 @@ class ODESystemModel(csdl.Model):
                                        eval_pts_location=0.25,
                                        eval_pts_option='auto',
                                        delta_t=delta_t,
-                                       problem_type='prescribed_wake'),
+                                       problem_type='prescribed_wake',
+                                       compressible=self.parameters['compressible'],
+                                       Ma=self.parameters['Ma'],),
                  name='MeshPreprocessing_comp')
 
 
@@ -103,7 +108,8 @@ class ODESystemModel(csdl.Model):
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
                                 delta_t=delta_t,
-                                problem_type='prescribed_wake'),
+                                problem_type='prescribed_wake',
+                                symmetry=self.parameters['symmetry'],),
                     name='solve_gamma_b_group')
 
         self.add(SeperateGammab(surface_names=surface_names,

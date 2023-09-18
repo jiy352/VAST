@@ -35,6 +35,7 @@ class RHSEND(Model):
         self.parameters.declare('bd_vortex_shapes', types=list)
         self.parameters.declare('delta_t')
         self.parameters.declare('problem_type', default='fixed_wake')
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
@@ -105,7 +106,8 @@ class RHSEND(Model):
                 bd_coll_pts_shapes=bd_coll_pts_shapes,
                 wake_vortex_pts_shapes=wake_vortex_pts_shapes,
                 full_aic_name='aic_M',
-                delta_t=delta_t,  # one line of wake vortex for fix wake
+                delta_t=delta_t,  # one line of wake vortex for fix wake,
+                symmetry=self.parameters['symmetry'],
             )
 
         elif problem_type=='prescribed_wake':
@@ -128,6 +130,7 @@ class RHSEND(Model):
                 bd_coll_pts_shapes=bd_coll_pts_shapes,
                 wake_vortex_pts_shapes=TE_wake_vortex_pts_shapes,
                 full_aic_name='aic_M',
+                symmetry=self.parameters['symmetry'],
                 # delta_t=delta_t,  # one line of wake vortex for fix wake
             )
         self.add(m, name='AssembleAic')
@@ -179,6 +182,7 @@ class RHSEND(Model):
             wake_vortex_pts_shapes=bd_vortex_shapes,
             full_aic_name='aic_bd',
             vc = False,
+            symmetry=self.parameters['symmetry'],
             # delta_t=delta_t,  # one line of wake vortex for fix wake
         )
         self.add(m, name='AssembleAic_bd')

@@ -38,6 +38,9 @@ class VLMSystem(ModuleCSDL):
         self.parameters.declare('TE_idx', default='last')
         self.parameters.declare('compressible', default=False)
         self.parameters.declare('frame', default='wing_fixed')
+        self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('Ma')
+
 
     def define(self):
         # rename parameters
@@ -69,6 +72,7 @@ class VLMSystem(ModuleCSDL):
                                        eval_pts_option=eval_pts_option,
                                        eval_pts_location=eval_pts_location,
                                        compressible=compressible,
+                                       Ma=self.parameters['Ma'],
                                     #    problem_type='fixed_wake',
                                        ),
                  name='MeshPreprocessing_comp')
@@ -99,13 +103,15 @@ class VLMSystem(ModuleCSDL):
             self.add(SolveMatrix(n_wake_pts_chord=n_wake_pts_chord,
                                  surface_names=surface_names,
                                  bd_vortex_shapes=bd_vortex_shapes,
-                                 delta_t=delta_t),
+                                 delta_t=delta_t,
+                                 symmetry=self.parameters['symmetry'],),
                      name='solve_gamma_b_group')
         elif self.parameters['solve_option'] == 'optimization':
             self.add(ComputeResidual(n_wake_pts_chord=n_wake_pts_chord,
                                      surface_names=surface_names,
                                      bd_vortex_shapes=bd_vortex_shapes,
-                                     delta_t=delta_t),
+                                     delta_t=delta_t,
+                                     symmetry=self.parameters['symmetry'],),
                      name='solve_gamma_b_group')
         gamma_b = self.declare_variable('gamma_b',
                                         shape=(num_nodes, gamma_b_shape))

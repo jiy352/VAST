@@ -50,6 +50,7 @@ class EvalPtsVel(Model):
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('eps',default=1e-8)
+        self.parameters.declare('symmetry',default=False)
 
     def define(self):
         # eval_pts_names = self.parameters['eval_pts_names']
@@ -178,6 +179,7 @@ class EvalPtsVel(Model):
                 circulation_names=circulation_names,
                 vc=True,
                 eps=self.parameters['eps'],
+                symmetry=self.parameters['symmetry'],
 
             ),
                      name='eval_pts_aics' + str(i))

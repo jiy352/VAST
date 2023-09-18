@@ -39,7 +39,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('delta_t',default=0)
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('compressible',default=False)
-        self.parameters.declare('Ma',default=0.84)
+        self.parameters.declare('Ma',default=None)
 
     def define(self):
         # load options
@@ -124,7 +124,14 @@ class MeshPreprocessingComp(ModuleCSDL):
 
             elif problem_type == 'prescribed_wake':
                 frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
-                fs = -frame_vel
+                w = self.declare_variable('w', shape=(num_nodes, 1))
+                fs  = self.create_output('fs', shape=(num_nodes, 3))
+                fs[:,0] = -frame_vel[:,0]
+                fs[:,1] = -frame_vel[:,1]
+                # fs[:,2] = -frame_vel[:,2]
+                fs[:,2] = w
+                # self.print_var(fs)
+                # self.print_var(w)
                 eta = 0.25
                 add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
 

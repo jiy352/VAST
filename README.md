@@ -14,13 +14,23 @@
 
 VAST
 
-This repository serves as a template for all LSDOlab projects with regard to documentation, testing and hosting of open-source code.
+**V**ortex-based **A**erodynamic **S**olver **T**oolkit
 
 *README.md file contains high-level information about your package: it's purpose, high-level instructions for installation and usage.*
 
-# TODO: 
 
-need to find out what specital treatment is made for the TE bound vtx
+
+| Items         |          | Subtasks                                   | Timeline                     | Notes                                    |
+|---------------|----------|--------------------------------------------|------------------------------|------------------------------------------|
+| VAST examples | steady   | **ex_1vlm_simulation_rec_wing**            | done                         | Rec wing -> OAS                          |
+|               |          | **ex_2vlm_simulation_PAV_wing**            | done                         | PAV wing -> AVL                          |
+|               |          | **ex_3vlm_simulation_PAV_wing_tail**       | to be confirmed w/ v&v group | PAV wing tail -> AVL                     |
+|               |          | **ex_4vlm_simulation_CRM_wing**            | done                         | CRM PG transform for compressible -> OAS |
+|               | unsteady | **ex_5vlm_simulation_sudden_acc**          | done could further cleanup   | Rec differnet AR -> Katz & Plotkin       |
+|               |          | **ex_6vlm_simulation_pitching_theodorsen** | done could further cleanup   | Rec inf AR -> Theodorsen                 |
+|               |          | **ex_7vlm_simulation_plunging**            | do be done                   | Rec AR=4 -> Katz & Plotkin               |
+
+
 
 # Installation
 

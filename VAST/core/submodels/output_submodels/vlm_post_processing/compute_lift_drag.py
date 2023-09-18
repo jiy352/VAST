@@ -40,7 +40,7 @@ class LiftDrag(ModuleCSDL):
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
         self.parameters.declare('compressible',default=False)
-        self.parameters.declare('Ma',default=0.84)
+        self.parameters.declare('Ma',default=None)
 
 
 
@@ -53,7 +53,7 @@ class LiftDrag(ModuleCSDL):
         Ma = self.parameters['Ma']
 
 
-        print('cl0',cl0)
+        # print('cl0',cl0)
         if cl0 is None:
             cl0 = [0.0] * len(surface_names)
         num_nodes = surface_shapes[0][0]
@@ -353,9 +353,9 @@ class LiftDrag(ModuleCSDL):
                 forces_x_exp = csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta - other_viscous_drag * csdl.cos(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
                 forces_z_exp = csdl.expand(- D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta + other_viscous_drag * csdl.sin(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
 
-                self.print_var(forces_x_exp+0)
-                self.print_var(forces_z_exp+0)
-                self.print_var(other_viscous_drag+0)
+                # self.print_var(forces_x_exp+0)
+                # self.print_var(forces_z_exp+0)
+                # self.print_var(other_viscous_drag+0)
 
                 total_forces_surface = self.create_output(surface_names[i]+'_total_forces',shape=(num_nodes,delta,3))
                 total_forces_surface[:,:,0] = -panel_forces[:,start:start+delta,0] + forces_x_exp
@@ -435,7 +435,7 @@ class LiftDrag(ModuleCSDL):
                         L_over_D_surface = L_total_surface / D_total_surface
                         C_D_total_surface = D_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
                         C_L_total_surface = L_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
-                        self.print_var(C_L_total_surface)
+                        # self.print_var(C_L_total_surface)
                         self.register_output(surface_names[i]+'_total_drag', D_total_surface)   
                         self.register_output(surface_names[i]+'_total_lift', L_total_surface)
                         self.register_output(surface_names[i]+'_L_over_D', L_over_D_surface)
@@ -461,7 +461,7 @@ class LiftDrag(ModuleCSDL):
                         L_over_D_surface = L_total_surface / D_total_surface
                         C_D_total_surface = D_total_surface/(0.5 *rho*b*ref_area)
                         C_L_total_surface = L_total_surface/(0.5 *rho*b*ref_area)
-                        self.print_var(C_L_total_surface)
+                        # self.print_var(C_L_total_surface)
                         self.register_output(surface_names[i]+'_total_drag', D_total_surface)   
                         self.register_output(surface_names[i]+'_total_lift', L_total_surface)
                         self.register_output(surface_names[i]+'_L_over_D', L_over_D_surface)
