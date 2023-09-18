@@ -14,8 +14,11 @@ import os
 # and the reduced frequency k = [0.2, 0.6, 1, 3]
 ########################################
 
+# TODO: there's always a memory leak when running this script
+# need to contact backend developer to fix this issue, but for now it is not a big problem
 
-def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=True, save_vtk=False, path = "theodorsen"):
+# @profile
+def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=False, save_vtk=False, path = "verfication_data/theodorsen"):
     '''
     This is a test case to check the prescribed wake solver against the Theodorsen solution
     with a wing pitching sinusoidally from 1 to -1 deg and the reduced frequency k = [0.2, 0.6, 1, 3]
@@ -81,9 +84,9 @@ def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=T
         # Create a new directory because it does not exist
         os.makedirs(path)
     if save_results:
-        np.savetxt('theodorsen/C_L_theodorsen'+str(k)+'.txt',sim['wing_C_L'][int(num_nodes/N_period):])
-        np.savetxt('theodorsen/alpha_theodorsen'+str(k)+'.txt',alpha[int(num_nodes/N_period):])
-        plt.savefig('theodorsen/C_L_theodorsen'+str(k)+'.png',dpi=300,transparent=True)
+        np.savetxt('verfication_data/theodorsen/C_L_theodorsen'+str(k)+'.txt',sim['wing_C_L'][int(num_nodes/N_period):])
+        np.savetxt('verfication_data/theodorsen/alpha_theodorsen'+str(k)+'.txt',alpha[int(num_nodes/N_period):])
+        plt.savefig('verfication_data/theodorsen/C_L_theodorsen'+str(k)+'.png',dpi=300,transparent=True)
 
     if save_vtk:
         run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')
@@ -98,9 +101,60 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    run_pitching_theodorsen_verification(k=0.2,num_nodes=200,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=0.6,num_nodes=200,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=1,num_nodes=200,N_period=4,A=1,save_vtk=False)
-    run_pitching_theodorsen_verification(k=3,num_nodes=200,N_period=4,A=1,save_vtk=False)
-    plt.savefig('theodorsen/C_L_theodorsen_nx_31.png',dpi=400,transparent=True)
+    num_nodes = 200
+    N_period=4
+    A=1
+
+    run_pitching_theodorsen_verification(k=0.2,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=0.6,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=1,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=3,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    alpha_file_name = 'verfication_data/theodorsen/analytical_solution/alpha_1deg0.2.txt'
+    Cl_file_name = ['verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg1.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg3.txt']
+
+    def plot_cl(alpha_file_name, Cl_file_name, L_file_name=None):
+        for i in range(len(Cl_file_name)):
+            alpha = np.loadtxt(alpha_file_name)
+            if alpha.max()<0.2:
+                alpha = np.rad2deg(alpha)
+            Cl = np.loadtxt(Cl_file_name[i])
+            print('i', Cl_file_name[i])
+
+            if L_file_name is not None:
+                L = np.loadtxt(L_file_name[i])
+            else:
+                L = None
+            if np.loadtxt(alpha_file_name).max()>0.2:
+                plt.plot(alpha, Cl,'--')
+            else:
+                plt.plot(alpha, Cl,'--')
+
+    plot_cl(alpha_file_name, Cl_file_name)
+    plt.legend(['VAST 0.2', 'VAST 0.6', 'VAST 1', 'VAST 3','theodorsen 0.2', 'theodorsen 0.6', 'theodorsen 1', 'theodorsen 3'])
+    plt.xlabel(r'$\alpha$')
+    plt.ylabel(r'$C_l$')
+    plt.savefig('verfication_data/theodorsen/C_L_theodorsen_vs_analytical.png',dpi=400,transparent=True)
     plt.show()
+
+
+# for name in all_variables:
+#     # Print the item if it doesn't start with '__'
+#     if not name.startswith('__'):
+#         myvalue = eval(name)
+#         print(name, "is", type(myvalue), "and is equal to ", myvalue)
+
+# import sys
+# def sizeof_fmt(num, suffix='B'):
+#     ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
+#     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+#         if abs(num) < 1024.0:
+#             return "%3.1f %s%s" % (num, unit, suffix)
+#         num /= 1024.0
+#     return "%.1f %s%s" % (num, 'Yi', suffix)
+
+# for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
+#                           locals().items())), key= lambda x: -x[1])[:10]:
+#     print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))

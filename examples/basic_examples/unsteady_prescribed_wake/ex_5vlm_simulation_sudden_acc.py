@@ -1,11 +1,13 @@
-'''Example 3 : verification of prescibed vlm with Katz and Plotkin 1991'''
+'''Example 5 : verification of prescibed vlm with Katz and Plotkin 1991'''
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
 
 from VAST.utils.generate_mesh import *
 from VAST.utils.make_video_vedo import make_video as make_video_vedo
 import time
 import numpy as np
-# Script to create optimization problem
+
+import python_csdl_backend
+import csdl
 
 # there are two options for the frame: 'inertia' and 'wing_fixed
 # This might subject to change in the future
@@ -18,7 +20,7 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
     ########################################
     # 1. define geometry
     ########################################
-    nx = 15; ny = 13
+    nx = 5; ny = 13
     chord = 1; 
     nt = num_nodes
 
@@ -31,10 +33,10 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
     ########################################
 
     alpha = np.deg2rad(5) 
-    t_vec = np.linspace(0, 10, num_nodes) 
+    t_vec = np.linspace(0, 9, num_nodes) 
 
     u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
-    w_vel = np.ones((num_nodes,1)) *np.tan(np.deg2rad(5))
+    w_vel = np.ones((num_nodes,1)) *np.sin(alpha)
 
     states_dict = {
         'u': u_val, 'v': np.zeros((num_nodes, 1)), 'w': w_vel,
@@ -66,9 +68,6 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
 
     h_stepsize = delta_t = t_vec[1] 
 
-    import python_csdl_backend
-    import csdl
-
     model = csdl.Model()
 
     model.create_input('wing_coll_vel', val = vz)
@@ -84,32 +83,30 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
     sim.run()
     print('simulation time is', time.time() - t_start)
 
-    return sim['wing_C_L'], t_vec
-
+    wing_C_L = sim['wing_C_L']
+    del sim
+    return wing_C_L, t_vec
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
-
 import matplotlib.pyplot as plt
 
 be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
-# span = [4, 8, 12, 20, 1000]
-span = [4, ]
+span = [4, 8, 12, 20, 1000]
 
-num_nodes = [150]
-
+num_nodes = [141] * len(span)
 
 wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
     wing_C_L, t_vec = run_fixed(i,j)
     plt.plot(t_vec, wing_C_L,'.-')
-    wing_C_L_, t_vec_ = run_fixed(i,num_nodes=j,frame='inertia')
-    plt.plot(t_vec_, wing_C_L_,'.-')
+    # wing_C_L_, t_vec_ = run_fixed(i,num_nodes=j,frame='inertia')
+    # plt.plot(t_vec_, wing_C_L_,'.-')
     plt.ylim([0,0.6])
-    plt.xlim([0,t_vec_.max()+1])
+    plt.xlim([0,t_vec.max()+1])
     # np.savetxt('wing_C_L_'+str(i)+'_'+str(j)+'.txt',wing_C_L)
     # np.savetxt('t_vec_'+str(i)+'_'+str(j)+'.txt',t_vec)
     # wing_C_L_list.append(wing_C_L)
@@ -118,10 +115,8 @@ for (i,j) in zip(span,num_nodes):
 plt.legend(['AR = '+str(i) for i in span])
 plt.xlabel('$U_{\inf}t/c$')
 plt.ylabel('C_L')
-plt.savefig('C_L.png',dpi=300,transparent=True)
+plt.savefig('verfication_data/sudden_acc/C_L.png',dpi=300,transparent=True)
 plt.show()
-
-
 
 # # plot geometry
 

@@ -26,8 +26,8 @@ VAST
 |               |          | **ex_2vlm_simulation_PAV_wing**            | done                         | PAV wing -> AVL                          |
 |               |          | **ex_3vlm_simulation_PAV_wing_tail**       | to be confirmed w/ v&v group | PAV wing tail -> AVL                     |
 |               |          | **ex_4vlm_simulation_CRM_wing**            | done                         | CRM PG transform for compressible -> OAS |
-|               | unsteady | **ex_5vlm_simulation_sudden_acc**          | mostly done need cleanup     | Rec differnet AR -> Katz & Plotkin       |
-|               |          | **ex_6vlm_simulation_pitching_theodorsen** | mostly done need cleanup     | Rec inf AR -> Theodorsen                 |
+|               | unsteady | **ex_5vlm_simulation_sudden_acc**          | done could further cleanup   | Rec differnet AR -> Katz & Plotkin       |
+|               |          | **ex_6vlm_simulation_pitching_theodorsen** | done could further cleanup   | Rec inf AR -> Theodorsen                 |
 |               |          | **ex_7vlm_simulation_plunging**            | do be done                   | Rec AR=4 -> Katz & Plotkin               |
 
 

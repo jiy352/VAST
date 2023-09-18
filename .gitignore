@@ -144,3 +144,8 @@ _autosummary
 _conf_master.py
 .pytest_cache/
 VAST.egg-info/
+*.png
+*.vtk
+*.pdf
+*.jpg
+*.jpeg

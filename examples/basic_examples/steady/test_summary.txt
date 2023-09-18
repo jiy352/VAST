@@ -1,0 +1,58 @@
+Test Summary
+Fri 15 Sep 2023 04:39:02 PM PDT
+num_vars_allocated: 7 (out of 7)
+
+generating: DERIVATIVESy-->gamma_b,MTX,b
+y--> (1/4) |..........                              |y--> (1/4) |..........                              |y--> (2/4) |....................                    |y--> (3/4) |..............................          |y--> (4/4) |........................................|y--> (4/4) |........................................|
+num_vars_allocated: 760 (out of 760)
+nonlinear solver: newton solver converged in 1 iterations.
+------------------------------------------------------------------------------------------
+ex_1vlm_simulation_rec_wing.py Test passed! Max relative error is 0.24098870030629488% less than the tolerance.
+------------------------------------------------------------------------------------------
+
+
+
+
+num_vars_allocated: 7 (out of 7)
+
+generating: DERIVATIVESy-->gamma_b,MTX,b
+y--> (1/4) |..........                              |y--> (1/4) |..........                              |y--> (2/4) |....................                    |y--> (3/4) |..............................          |y--> (4/4) |........................................|y--> (4/4) |........................................|
+num_vars_allocated: 754 (out of 754)
+nonlinear solver: newton solver converged in 1 iterations.
+------------------------------------------------------------------------------------------
+ex_2vlm_simulation_PAV_wing.py Test passed! Relative error is 1.5814703323923822% less than the tolerance.
+------------------------------------------------------------------------------------------
+
+
+
+
+num_vars_allocated: 7 (out of 7)
+
+generating: DERIVATIVESy-->gamma_b,MTX,b
+y--> (1/4) |..........                              |y--> (1/4) |..........                              |y--> (2/4) |....................                    |y--> (3/4) |..............................          |y--> (4/4) |........................................|y--> (4/4) |........................................|
+num_vars_allocated: 2027 (out of 2027)
+nonlinear solver: newton solver converged in 1 iterations.
+------------------------------------------------------------------------------------------
+ex_3_vlm_simulation_PAV_wing_tail.py Auto-testing has not been implemented yet.
+------------------------------------------------------------------------------------------
+
+
+
+
+num_vars_allocated: 7 (out of 7)
+
+generating: DERIVATIVESy-->gamma_b,MTX,b
+y--> (1/4) |..........                              |y--> (1/4) |..........                              |y--> (2/4) |....................                    |y--> (3/4) |..............................          |y--> (4/4) |........................................|y--> (4/4) |........................................|
+num_vars_allocated: 789 (out of 789)
+nonlinear solver: newton solver converged in 1 iterations.
+------------------------------------------------------------------------------------------
+ex_4vlm_simulation_CRM_wing.py Test passed! Max relative error is 0.05239867797737428% less than the tolerance.
+------------------------------------------------------------------------------------------
+
+
+
+
+Test passed
+3
+Total tests
+4
