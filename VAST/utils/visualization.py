@@ -28,7 +28,7 @@ def run_visualization(surface_names, sim, h_stepsize,folder_name='',filename='')
     plotter = pv.Plotter()
 
     panel_forces = sim['panel_forces_all'].copy()
-    coll_vel = sim['wing_coll_vel'].copy()
+    coll_vel = sim[surface_names[0]+'_coll_vel'].copy()
 
     nframe = num_nodes
     for i in range(len(surface_names)):

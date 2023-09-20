@@ -191,6 +191,7 @@ class BiotSavartComp(csdl.Model):
                 f1 = ( (r1s - dor_r1_r2)/((r1s + eps_s + 1e-10)**0.5) + (r2s - dor_r1_r2)/((r2s + eps_s + 1e-10) **0.5) )/(r1s*r2s - dor_r1_r2**2 + eps_s*(r1s + r2s - 2*r_1_norm*r_2_norm) + 1e-10)
                 f2 = one_over_den
                 v_induced_line = csdl.expand(f1,(f2.shape),'ij->ijk') * f2 
+                # self.print_var(v_induced_line)
 
 
             else:

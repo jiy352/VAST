@@ -44,7 +44,7 @@ class EelActuationModel(csdl.Model):
         s_1_ind = self.parameters['s_1_ind'] # head region
         s_2_ind = self.parameters['s_2_ind'] # tail region
         if s_2_ind==None:
-            s_2_ind = int(surface_shapes[0][1]-2)
+            s_2_ind = int(surface_shapes[0][1]-5)
 
         num_surface = len(surface_names)
         num_nodes = surface_shapes[0][0]
