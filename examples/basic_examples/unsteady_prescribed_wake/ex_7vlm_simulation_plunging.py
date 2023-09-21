@@ -119,15 +119,26 @@ mpl.rcParams.update(mpl.rcParamsDefault)
 import matplotlib.pyplot as plt
 
 k_list = [0.1, 0.3, 0.5]
+CL_list = []
 
 for k in k_list:
     t_vec, CL = run_vl(k=k)
-    plt.plot(t_vec/np.pi/2, CL)
+    CL_list.append(CL)
+    plt.plot(t_vec/np.pi/2-1, CL)
 
 plt.xlabel('t/T')
-plt.xlim([1,2])
+plt.ylabel("$C_L$")
+plt.xlim([0,1])
 plt.ylim([-1,0.1])
-plt.gca().invert_yaxis()
-plt.legend(['k = '+str(k) for k in k_list])
-plt.show()
 
+a = np.loadtxt('verfication_data/katz_plunging/katz_0.5.txt',delimiter=',')
+b = np.loadtxt('verfication_data/katz_plunging/katz_0.3.txt',delimiter=',')
+c = np.loadtxt('verfication_data/katz_plunging/katz_0.1.txt',delimiter=',')
+plt.plot(a[:,0]/np.pi/2,a[:,1],'.')
+plt.plot(b[:,0]/np.pi/2,b[:,1],'.')
+plt.plot(c[:,0]/np.pi/2,c[:,1],'.')
+plt.gca().invert_yaxis()
+
+plt.legend(['vast k = '+str(k) for k in k_list ]+[ 'katz k = '+str(k) for k in k_list])
+plt.savefig('vast_heaving.png',dpi=400,transparent=True)
+plt.show()

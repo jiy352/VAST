@@ -136,3 +136,9 @@ for i in range(len(v_inf)):
 plt.plot(v_inf,efficiency,'.')
 h_stepsize = 0.04208754
 run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',filename='fish')
+
+
+sim = sim_list[0]
+
+total_fx = np.sum(sim['panel_forces_x'], axis=1)
+thrust = sim['thrust']

@@ -110,12 +110,13 @@ if __name__ == '__main__':
     N_period=3
     A=1
     # k_list = [0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, ]
-    k_list = [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, ]
+    k_list = [0.1, 0.4, 0.7, 1, 1.3 ]
     thrust_list = []
     v_inf_list = []
+    
     plt.figure(figsize=(10,7))
 
-    for k in k_list[3:7]:
+    for k in k_list:
         thrust,v_inf,sim = run_pitching_theodorsen_verification(k=k,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
         thrust_list.append(thrust)
         thrust_coeff = thrust/(v_inf**2*0.5)

@@ -123,27 +123,26 @@ class MeshPreprocessingComp(ModuleCSDL):
 
 
             elif problem_type == 'prescribed_wake':
-                frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
-                w = self.declare_variable('w', shape=(num_nodes, 1))
-                fs  = self.create_output('fs', shape=(num_nodes, 3))
-                fs[:,0] = -frame_vel[:,0]
-                fs[:,1] = -frame_vel[:,1]
-                # fs[:,2] = -frame_vel[:,2]
-                fs[:,2] = w
-                # self.print_var(fs)
-                # self.print_var(w)
-                eta = 0.25
-                add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
+                # frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
+                # w = self.declare_variable('w', shape=(num_nodes, 1))
+                # fs  = self.create_output('fs', shape=(num_nodes, 3))
+                # fs[:,0] = -frame_vel[:,0]
+                # fs[:,1] = -frame_vel[:,1]
+                # # fs[:,2] = -frame_vel[:,2]
+                # fs[:,2] = w
+                # # self.print_var(fs)
+                # # self.print_var(w)
+                # eta = 0.25
+                # add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
 
-                bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
+                # bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 
-                # bd_vtx_coords[:, num_pts_chord -
-                #             1, :, :] = def_mesh[:, num_pts_chord -
-                #                                 1, :, :] + 0.25 * (
-                #                                     def_mesh[:, num_pts_chord -
-                #                                             1, :, :] -
-                #                                     def_mesh[:, num_pts_chord -
-                #                                             2, :, :])
+                bd_vtx_coords[:, num_pts_chord - 1, :, :] = def_mesh[:, num_pts_chord -
+                                                1, :, :] + 0.25 * (
+                                                    def_mesh[:, num_pts_chord -
+                                                            1, :, :] -
+                                                    def_mesh[:, num_pts_chord -
+                                                            2, :, :])
 
             ################################################################################
             # compute the output: 2. coll_pts_coords (center point of the bd_vtx panels,
