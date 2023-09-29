@@ -115,7 +115,7 @@ def run_fish(v_inf):
 
     return sim
 
-v_inf = np.array([0.5])
+v_inf = np.array([3.])
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
@@ -142,3 +142,6 @@ sim = sim_list[0]
 
 total_fx = np.sum(sim['panel_forces_x'], axis=1)
 thrust = sim['thrust']
+
+
+print(-np.average(sim['eel_C_D_i'])-sim['C_F'])

@@ -137,7 +137,8 @@ class MeshPreprocessingComp(ModuleCSDL):
 
                 bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 
-                # bd_vtx_coords[:, num_pts_chord - 1, :, :] = def_mesh[:, num_pts_chord -
+                # bd_vtx_coords[:, num_pts_chord -
+                #             1, :, :] = def_mesh[:, num_pts_chord -
                 #                                 1, :, :] + 0.25 * (
                 #                                     def_mesh[:, num_pts_chord -
                 #                                             1, :, :] -

@@ -51,7 +51,31 @@ class EfficiencyModel(csdl.Model):
         # panel_thrust_power = csdl.sum(-panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0] - panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
         thrust_power = -csdl.sum(csdl.sum(thrust[n_ignore:,:],axes=(0,))*v_x)
         # panel_thrust_power = thrust_power + csdl.sum( panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
+        # omega = (0,1,0)
+        omega_y = 1
+        # moment_eval_pt = shifted quarter_chord_line_center
+        # find the variable for total force on each panel
+        # cross product of r_m and total force on each panel
+        # take the y value of the cross product times omega_y
+        
+        ####################################################
+        # computing the moment arm r_m relative to the evaluation_pt
+        ####################################################
+        # evaluation_pt = self.declare_variable('evaluation_pt',
+        #                                         val=np.zeros(3, ))
+        # evaluation_pt_exp = csdl.expand(
+        #     evaluation_pt,
+        #     (eval_pts_all.shape),
+        #     'i->jki',
+        # )          
+        # r_M = eval_pts_all - evaluation_pt_exp
+
+        # total_moments_surface_temp = csdl.cross(r_M[:,start:start+delta,:], total_forces_surface, axis=2)
+
+
+        torque_power = torque * omega
         panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:,:,0]*-velocities_x[n_ignore:,:,0]) + csdl.sum( -panel_forces_all[n_ignore:,:,1]*-velocities_x[n_ignore:,:,1]) + csdl.sum( -panel_forces_all[n_ignore:,:,2]*-velocities_x[n_ignore:,:,2])
+
         # thrust is negative, -v_x is negative, so thrust_power is positive
 
         self.print_var(panel_thrust_power)

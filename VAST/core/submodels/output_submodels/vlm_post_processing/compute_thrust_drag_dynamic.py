@@ -191,6 +191,7 @@ class ThrustDrag(Model):
             self.register_output('panel_forces_z', panel_forces_z)
             # print('compute lift drag panel_forces', panel_forces.shape)
             b = frame_vel[:, 0]**2 + frame_vel[:, 1]**2 + frame_vel[:, 2]**2
+            self.register_output('b_thrust', b)
 
             L_panel = -panel_forces_x * sina + panel_forces_z * cosa
             D_panel = panel_forces_x * cosa * cosb + panel_forces_z * sina * cosb - panel_forces_y * sinb
@@ -363,6 +364,7 @@ class ThrustDrag(Model):
             CD_v = CD_0 + CD_1 * alpha**2
             s_panels_sum = csdl.reshape(csdl.sum(s_panels_all, axes=(1, )),
                                         (num_nodes, 1))
+            self.register_output('s_panels_sum', s_panels_sum)
             
 
             Drag = 0.5*rho*b*s_panels_sum*CD_0
