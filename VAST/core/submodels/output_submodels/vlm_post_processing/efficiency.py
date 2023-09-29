@@ -20,7 +20,7 @@ class EfficiencyModel(csdl.Model):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
         # self.parameters.declare('mesh_unit', default='m')
-        self.parameters.declare('n_ignore',default=50)
+        self.parameters.declare('n_ignore',default=35)
 
 
     def define(self):
@@ -31,7 +31,10 @@ class EfficiencyModel(csdl.Model):
         # mesh_unit = self.parameters['mesh_unit']
         # N_period = self.parameters['n_period']
 
+
+
         n_ignore = self.parameters['n_ignore']
+        print('n_ignore',n_ignore)
 
         panel_forces_all = self.declare_variable('panel_forces_all',shape=(surface_shapes[0][0],int(surface_shapes[0][1]-1)*int(surface_shapes[0][2]-1),3))
         velocities = self.declare_variable(surface_name+'_kinematic_vel',shape=panel_forces_all.shape)

@@ -22,7 +22,7 @@ before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 def run_fish(v_inf):
     # nx = 12; ny = 3
-    nx = 21; ny = 3
+    nx = 41; ny = 5
     num_nodes = 70;  
     nt = num_nodes
 
@@ -73,11 +73,9 @@ def run_fish(v_inf):
     ode_surface_shapes = [(num_nodes, ) + item for item in surface_shapes]
 
     s_1_ind = 7
-    s_1_ind = 3
     s_2_ind = None
     if s_2_ind==None:
         s_2_ind = int(ode_surface_shapes[0][1]-5)
-        s_2_ind = int(ode_surface_shapes[0][1]-3)
 
     model.add(EelViscousModel(),name='EelViscousModel')
 
@@ -145,32 +143,3 @@ thrust = sim['thrust']
 
 
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
-
-
-
-#####################
-# optimizaton
-#####################
-from modopt.csdl_library import CSDLProblem
-
-from modopt.scipy_library import SLSQP
-from modopt.snopt_library import SNOPT
-# Define problem for the optimization
-prob = CSDLProblem(
-    problem_name='eel',
-    simulator=sim,
-)
-# optimizer = SLSQP(prob, maxiter=1)
-optimizer = SNOPT(
-    prob, 
-    Major_iterations=30,
-    # Major_optimality=1e-6,
-    Major_optimality=1e-5,
-    Major_feasibility=1e-5,
-    append2file=True,
-    Major_step_limit=.25,
-)
-
-optimizer.solve()
-optimizer.print_results(summary_table=True)
-# print('total time is', time.time() - t_start)
