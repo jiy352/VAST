@@ -73,11 +73,11 @@ def run_fish(v_inf):
     ode_surface_shapes = [(num_nodes, ) + item for item in surface_shapes]
 
     s_1_ind = 7
-    s_1_ind = 3
+    # s_1_ind = 3
     s_2_ind = None
     if s_2_ind==None:
         s_2_ind = int(ode_surface_shapes[0][1]-5)
-        s_2_ind = int(ode_surface_shapes[0][1]-3)
+        # s_2_ind = int(ode_surface_shapes[0][1]-3)
 
     model.add(EelViscousModel(),name='EelViscousModel')
 
@@ -91,9 +91,9 @@ def run_fish(v_inf):
     model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes),name='EfficiencyModel')
-    model.add_design_variable('v_x',upper=0.8,lower=0.05)
+    model.add_design_variable('v_x',upper=0.8,lower=0.1)
     # model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
-    model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
+    # model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
     # model.add_design_variable('wave_number',upper=2,lower=1)
     # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
     thrust = model.declare_variable('thrust',shape=(num_nodes,1))
@@ -105,9 +105,9 @@ def run_fish(v_inf):
     thrust_coeff_avr = (avg_C_T - C_F)**2
 
     model.register_output('thrust_coeff_avr', thrust_coeff_avr)
-    model.add_constraint('thrust_coeff_avr',equals=0.)
-    # model.add_objective('thrust_coeff_avr',scaler=1e3)
-    model.add_objective('efficiency',scaler=-1)
+    # model.add_constraint('thrust_coeff_avr',equals=0.)
+    model.add_objective('thrust_coeff_avr',scaler=1e3)
+    # model.add_objective('efficiency',scaler=-1)
 
     sim = python_csdl_backend.Simulator(model)
         
