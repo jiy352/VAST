@@ -104,8 +104,8 @@ class EelActuationModel(csdl.Model):
             b = 0.08*L 
             # from https://www.cse-lab.ethz.ch/wp-content/papercite-data/pdf/kern2006b.pdf to define the height of the fish
             # h(x) = b (1 - ((x-a)/a)^2 )^0.5
-            # height = np.einsum('ik,j->ijk',np.ones((num_nodes,ny)),b*(1-((x-a)/a)**2)**0.5).reshape(num_nodes,nx,ny,1)
-            height = np.einsum('ik,j->ijk',np.ones((num_nodes,ny)),np.ones(x.shape)*0.063).reshape(num_nodes,nx,ny,1)
+            height = np.einsum('ik,j->ijk',np.ones((num_nodes,ny)),b*(1-((x-a)/a)**2)**0.5).reshape(num_nodes,nx,ny,1) #+ 0.03
+            # height = np.einsum('ik,j->ijk',np.ones((num_nodes,ny)),np.ones(x.shape)*0.063).reshape(num_nodes,nx,ny,1)
 
             t_exp = csdl.expand(t, shape=(num_nodes,nx,ny,1),indices='i->ijkl')
             tail_amplitude_exp = csdl.expand(tail_amplitude, shape=(num_nodes,nx,ny,1),indices='i->ijkl')

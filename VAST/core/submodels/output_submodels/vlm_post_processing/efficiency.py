@@ -64,7 +64,7 @@ class EfficiencyModel(csdl.Model):
         self.print_var(v_x)
         # self.print_var(csdl.sum(thrust[n_ignore:,:],axes=(0,)))
 
-        efficiency = thrust_power/(panel_thrust_power)
+        efficiency = thrust_power/(panel_thrust_power+thrust_power)
         self.print_var(efficiency)
         self.register_output('panel_thrust_power',panel_thrust_power)
         self.register_output('thrust_power',thrust_power)
