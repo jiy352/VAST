@@ -4,7 +4,7 @@ from VAST.core.submodels.actuation_submodels.pitching_wing_actuation import Pitc
 import time
 import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
-from visualization import run_visualization
+from VAST.utils.visualization import run_visualization
 import os
 
 ########################################
@@ -14,11 +14,8 @@ import os
 # and the reduced frequency k = [0.2, 0.6, 1, 3]
 ########################################
 
-# TODO: there's always a memory leak when running this script
-# need to contact backend developer to fix this issue, but for now it is not a big problem
 
-# @profile
-def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=False, save_vtk=False, path = "verfication_data/theodorsen"):
+def run_anderson_verfication(k,num_nodes,N_period,A=1,save_results=False, save_vtk=False, path = "verfication_data/theodorsen"):
     '''
     This is a test case to check the prescribed wake solver against the Theodorsen solution
     with a wing pitching sinusoidally from 1 to -1 deg and the reduced frequency k = [0.2, 0.6, 1, 3]
@@ -90,7 +87,7 @@ def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=F
 
     if save_vtk:
         run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')
-    del sim
+    return sim
 
 
 if __name__ == '__main__':
@@ -105,10 +102,8 @@ if __name__ == '__main__':
     N_period=3
     A=1
 
-    run_pitching_theodorsen_verification(k=0.2,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
-    run_pitching_theodorsen_verification(k=0.6,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
-    run_pitching_theodorsen_verification(k=1,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
-    run_pitching_theodorsen_verification(k=3,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    sim = run_anderson_verfication(k=0.8,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+
     alpha_file_name = 'verfication_data/theodorsen/analytical_solution/alpha_1deg0.2.txt'
     Cl_file_name = ['verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
                     'verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
@@ -141,21 +136,3 @@ if __name__ == '__main__':
     plt.show()
 
 
-# for name in all_variables:
-#     # Print the item if it doesn't start with '__'
-#     if not name.startswith('__'):
-#         myvalue = eval(name)
-#         print(name, "is", type(myvalue), "and is equal to ", myvalue)
-
-# import sys
-# def sizeof_fmt(num, suffix='B'):
-#     ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
-#     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
-#         if abs(num) < 1024.0:
-#             return "%3.1f %s%s" % (num, unit, suffix)
-#         num /= 1024.0
-#     return "%.1f %s%s" % (num, 'Yi', suffix)
-
-# for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
-#                           locals().items())), key= lambda x: -x[1])[:10]:
-#     print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))

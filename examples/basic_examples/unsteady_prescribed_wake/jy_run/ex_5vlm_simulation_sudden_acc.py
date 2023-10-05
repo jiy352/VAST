@@ -103,7 +103,7 @@ wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
     wing_C_L, t_vec, sim = run_fixed(i,j)
-    plt.plot(t_vec, wing_C_L,'.-')
+    plt.plot(t_vec, wing_C_L,label='VAST AR = '+str(i))
     # wing_C_L_, t_vec_ = run_fixed(i,num_nodes=j,frame='inertia')
     # plt.plot(t_vec_, wing_C_L_,'.-')
     plt.ylim([0,0.6])
@@ -113,7 +113,19 @@ for (i,j) in zip(span,num_nodes):
     # wing_C_L_list.append(wing_C_L)
     # t_vec_list.append(t_vec)
 
-plt.legend(['AR = '+str(i) for i in span])
+katz_4 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_4.txt')
+katz_8 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_8.txt')       
+katz_12 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_12.txt')
+katz_20 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_20.txt')
+katz_inf= np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_inf.txt')
+
+plt.plot(katz_4[:,0],katz_4[:,1],".",label='Katz&Plotkin AR = 4')
+plt.plot(katz_8[:,0],katz_8[:,1],"^",label='Katz&Plotkin AR = 8')
+plt.plot(katz_12[:,0],katz_12[:,1],"x",label='Katz&Plotkin AR = 12')
+plt.plot(katz_20[:,0],katz_20[:,1],"d",label='Katz&Plotkin AR = 20')
+plt.plot(katz_inf[:,0],katz_inf[:,1],"s",label='Katz&Plotkin AR = inf')
+
+plt.legend()
 plt.xlabel('$U_{\inf}t/c$')
 plt.ylabel('C_L')
 plt.savefig('verfication_data/sudden_acc/C_L.png',dpi=300,transparent=True)
