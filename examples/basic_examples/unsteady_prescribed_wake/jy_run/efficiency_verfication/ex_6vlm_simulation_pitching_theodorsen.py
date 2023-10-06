@@ -1,22 +1,24 @@
 '''Example 3 : verification of prescibed vlm with Theodorsen solution'''
 from VAST.core.vlm_llt.vlm_dynamic_old.VLM_prescribed_wake_solver import UVLMSolver
-from VAST.core.submodels.actuation_submodels.anderson_actuation import PitchingModel
+from VAST.core.submodels.actuation_submodels.pitching_wing_actuation import PitchingModel
 import time
 import numpy as np
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
-from VAST.utils.visualization import run_visualization
+from visualization import run_visualization
 import os
 
 ########################################
 # This is a test case to check the prescribed wake solver
-# pitching and plunging efficiency with Anderson paper
-# "Oscillating foils of high propulsive efficiency"
-# kinematic parameters are 
-# h_0/c = 0.75, alpha_0 = 5 deg, Psi = 90 deg (pitch leading heave)
+# against the Theodorsen solution
+# with a wing pitching sinusoidally from 1 to -1 deg
+# and the reduced frequency k = [0.2, 0.6, 1, 3]
 ########################################
 
+# TODO: there's always a memory leak when running this script
+# need to contact backend developer to fix this issue, but for now it is not a big problem
 
-def run_anderson_verfication(St,h_0_star, num_nodes,N_period,alpha_0_deg,save_results=False, save_vtk=False, path = "verfication_data/theodorsen"):
+# @profile
+def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=False, save_vtk=False, path = "verfication_data/theodorsen"):
     '''
     This is a test case to check the prescribed wake solver against the Theodorsen solution
     with a wing pitching sinusoidally from 1 to -1 deg and the reduced frequency k = [0.2, 0.6, 1, 3]
@@ -25,17 +27,13 @@ def run_anderson_verfication(St,h_0_star, num_nodes,N_period,alpha_0_deg,save_re
     # 1. define geometry
     ########################################
 
-    nx = 11; ny = 7         # num_pts in chordwise and spanwise direction
-    chord = 1; span = 6   # chord and span of the wing
+    nx = 31; ny = 3         # num_pts in chordwise and spanwise direction
+    chord = 1; span = 100   # chord and span of the wing   
     b = chord/2
 
     omega = 1
-    h_0 = h_0_star * chord
-    v_inf = omega*h_0 / (np.pi * St)
-    k = omega * b/v_inf
+    v_inf = omega*b/k
     T = 2*np.pi/(omega)
-
-    theta_0 = np.rad2deg(np.arctan2(omega*h_0, v_inf) - np.deg2rad(alpha_0_deg))
 
     t_vec = np.linspace(0, N_period*T, num_nodes) 
 
@@ -52,21 +50,21 @@ def run_anderson_verfication(St,h_0_star, num_nodes,N_period,alpha_0_deg,save_re
 
     surface_properties_dict = {'surface_names':['wing'],
                                 'surface_shapes':[(nx, ny, 3)],
-                            'frame':'wing_fixed',}
+                            'frame':'inertia',}
 
     h_stepsize = delta_t = t_vec[1] 
 
     model = csdl.Model()
     ode_surface_shapes = [(num_nodes, ) + item for item in surface_properties_dict['surface_shapes']]
 
-    Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=theta_0, k=k,
-                            v_inf=v_inf, c_0=chord, N_period=N_period, AR=span/chord,h_0=h_0)
+    Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k,
+                            v_inf=v_inf, c_0=chord, N_period=N_period, AR=span/chord)
 
     model.add(Pitching, 'pitching')
     model.add(UVLMSolver(num_times=num_nodes, h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
 
-    model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
+    model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
 
     sim = python_csdl_backend.Simulator(model)
         
@@ -75,7 +73,7 @@ def run_anderson_verfication(St,h_0_star, num_nodes,N_period,alpha_0_deg,save_re
 
     print('simulation time is', time.time() - t_start)
 
-    alpha = theta_0 * np.cos(omega*t_vec)
+    alpha = A * np.cos(omega*t_vec)
     plt.plot(alpha[int(num_nodes/N_period):], sim['wing_C_L'][int(num_nodes/N_period):])
     plt.xlabel(r'$\alpha$')
     plt.ylabel(r'$C_L$')
@@ -92,7 +90,7 @@ def run_anderson_verfication(St,h_0_star, num_nodes,N_period,alpha_0_deg,save_re
 
     if save_vtk:
         run_visualization(sim,h_stepsize,folder_name='theodorsen_verfi')
-    return sim
+    del sim
 
 
 if __name__ == '__main__':
@@ -103,21 +101,19 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    num_nodes = 150
+    num_nodes = 220
     N_period=3
-    alpha_0_deg = 5
+    A=1
 
-    
-
-    sim = run_anderson_verfication(St=0.4,h_0_star=0.75, num_nodes=num_nodes,N_period=N_period,alpha_0_deg=alpha_0_deg,save_vtk=False)
-
-    alpha_file_name = '../../verfication_data/theodorsen/analytical_solution/alpha_1deg0.2.txt'
-    Cl_file_name = [
-                    # '../../verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
-    #                 '../../verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
-                    '../../verfication_data/theodorsen/analytical_solution/Cl_1deg1.txt',
-                    # '../../verfication_data/theodorsen/analytical_solution/Cl_1deg3.txt'
-                    ]
+    run_pitching_theodorsen_verification(k=0.2,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=0.6,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=1,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    run_pitching_theodorsen_verification(k=3,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    alpha_file_name = 'verfication_data/theodorsen/analytical_solution/alpha_1deg0.2.txt'
+    Cl_file_name = ['verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg1.txt',
+                    'verfication_data/theodorsen/analytical_solution/Cl_1deg3.txt']
 
     def plot_cl(alpha_file_name, Cl_file_name, L_file_name=None):
         for i in range(len(Cl_file_name)):
@@ -145,3 +141,21 @@ if __name__ == '__main__':
     plt.show()
 
 
+# for name in all_variables:
+#     # Print the item if it doesn't start with '__'
+#     if not name.startswith('__'):
+#         myvalue = eval(name)
+#         print(name, "is", type(myvalue), "and is equal to ", myvalue)
+
+# import sys
+# def sizeof_fmt(num, suffix='B'):
+#     ''' by Fred Cirera,  https://stackoverflow.com/a/1094933/1870254, modified'''
+#     for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+#         if abs(num) < 1024.0:
+#             return "%3.1f %s%s" % (num, unit, suffix)
+#         num /= 1024.0
+#     return "%.1f %s%s" % (num, 'Yi', suffix)
+
+# for name, size in sorted(((name, sys.getsizeof(value)) for name, value in list(
+#                           locals().items())), key= lambda x: -x[1])[:10]:
+#     print("{:>30}: {:>8}".format(name, sizeof_fmt(size)))
