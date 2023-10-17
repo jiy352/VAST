@@ -144,9 +144,9 @@ plt.xlabel(r'$St$')
 plt.ylabel(r'$\eta$')
 
 plt.figure()
+plt.gca().invert_yaxis()
 for i in range(len(sim_list)):
     plt.plot(t_vec[int(num_nodes/N_period):]/np.pi/2-1, sim_list[i]['wing_C_L'][int(num_nodes/N_period):])
-plt.gca.invert_yaxis()
 
 plt.figure()
 for i in range(len(sim_list)):

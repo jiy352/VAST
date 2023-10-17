@@ -60,7 +60,7 @@ def anderson_pitching(St,h_0_star):
     theta_0 = np.rad2deg(np.arctan2(omega*h_0, v_inf) - np.deg2rad(alpha_0_deg))
     # array([-14.5440643 , -13.63242379, -12.72147527])
 
-    A = theta_0
+    A = 1
 
     t_vec = np.linspace(0, N_period*T, num_nodes) 
 
@@ -138,8 +138,8 @@ num_nodes = 150
 N_period=3
 # h_0_star = 0.1
 h_0_star = 0.75
-# St_list=np.array(k_list) * np.pi * 8 * h_0_star / (chord)
-St_list=np.array([0.1, 0.3, 0.5])
+St_list=np.array(k_list) * np.pi * 8 * h_0_star / (chord)
+# St_list=np.array([0.1, 0.3, 0.5])
 CT_list=[]
 CP_list=[]
 eta_list=[]
