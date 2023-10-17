@@ -20,7 +20,7 @@ frame='inertia'
 ########################################
 nx = 5; ny = 7
 chord = 1; span = 4
-num_nodes = 60;  nt = num_nodes
+num_nodes = 100;  nt = num_nodes
 
 mesh_dict = {"num_y": ny, "num_x": nx, "wing_type": "rect",  "symmetry": False,
                 "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
@@ -74,9 +74,9 @@ z_offset = h*sin(omg*t_vec)
 
 for i in range(num_nodes):
     mesh_val_1[i, :, :, :] = mesh
-    mesh_val_1[i, :, :, 0] = mesh.copy()[:, :, 0] + chord*1.5
-    mesh_val_1[i, :, :, 1] = mesh.copy()[:, :, 1] 
-    mesh_val_1[i, :, :, 2] += z_offset[i]
+    mesh_val_1[i, :, :, 0] = mesh.copy()[:, :, 0] 
+    mesh_val_1[i, :, :, 1] = mesh.copy()[:, :, 1] + chord*1
+    mesh_val_1[i, :, :, 2] += z_offset[i] 
 
 h_stepsize = delta_t = t_vec[1] 
 model_1 = csdl.Model()
@@ -115,11 +115,12 @@ CL_list = []
 for k in k_list:
    
     plt.plot(t_vec/np.pi/2-1, sim['wing_C_L'], '.-')
+    plt.plot(t_vec/np.pi/2-1, sim['wing_1_C_L'], '.-')
 
 plt.xlabel('t/T')
 plt.ylabel("$C_L$")
 plt.xlim([0,1])
-plt.ylim([-1,0.1])
+# plt.ylim([-1,0.1])
 
 a = np.loadtxt('verfication_data/katz_plunging/katz_0.5.txt',delimiter=',')
 b = np.loadtxt('verfication_data/katz_plunging/katz_0.3.txt',delimiter=',')
