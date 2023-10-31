@@ -303,7 +303,7 @@ class LiftDrag(ModuleCSDL):
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
-            drag_area= 1.65 #0*0.08
+            drag_area= 0 #0*0.08
             other_viscous_drag = 0.5*rho*b*drag_area
             self.register_output('other_viscous_drag',other_viscous_drag)
 
