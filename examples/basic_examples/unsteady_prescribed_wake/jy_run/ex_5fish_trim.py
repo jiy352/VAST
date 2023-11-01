@@ -22,7 +22,7 @@ before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
 def run_fish(v_inf):
     # nx = 12; ny = 3
-    nx = 21; ny = 3
+    nx = 41; ny = 5
     num_nodes = 70;  
     nt = num_nodes
 
@@ -73,11 +73,11 @@ def run_fish(v_inf):
     ode_surface_shapes = [(num_nodes, ) + item for item in surface_shapes]
 
     s_1_ind = 7
-    s_1_ind = 3
+    # s_1_ind = 3
     s_2_ind = None
     if s_2_ind==None:
         s_2_ind = int(ode_surface_shapes[0][1]-5)
-        s_2_ind = int(ode_surface_shapes[0][1]-3)
+        # s_2_ind = int(ode_surface_shapes[0][1]-3)
 
     model.add(EelViscousModel(),name='EelViscousModel')
 
@@ -90,12 +90,14 @@ def run_fish(v_inf):
 
     model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
-    model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes),name='EfficiencyModel')
+    model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
     model.add_design_variable('v_x',upper=0.8,lower=0.05)
-    # model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
-    # model.add_design_variable('tail_frequency',upper=0.5,lower=0.2)
-    # model.add_design_variable('wave_number',upper=2,lower=1)
-    # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
+    '''
+    model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+    model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
+    model.add_design_variable('wave_number',upper=2,lower=1)
+    model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
+    '''
     thrust = model.declare_variable('thrust',shape=(num_nodes,1))
     C_F = model.declare_variable('C_F')
     area = model.declare_variable('eel_s_panel',shape=(num_nodes,int((nx-1)*(ny-1))))
@@ -103,10 +105,15 @@ def run_fish(v_inf):
     avg_C_T = -csdl.sum(thrust)/(0.5*csdl.reshape(density[0,0],(1,))*v_x**2*avg_area)/num_nodes
     model.register_output('avg_C_T', avg_C_T)
     thrust_coeff_avr = (avg_C_T - C_F)**2
+    ############################################################################################
+    # eel_kinematic_vel = model.declare_variable('eel_kinematic_vel',shape=(num_nodes,int((nx-1)*(ny-1)),3))
+    # model.print_var(eel_kinematic_vel+0)
+    ############################################################################################
 
     model.register_output('thrust_coeff_avr', thrust_coeff_avr)
     # model.add_constraint('thrust_coeff_avr',equals=0.)
     model.add_objective('thrust_coeff_avr',scaler=1e3)
+    # model.add_objective('efficiency',scaler=-1)
 
     sim = python_csdl_backend.Simulator(model)
         
@@ -115,14 +122,16 @@ def run_fish(v_inf):
 
     return sim
 
-v_inf = np.array([0.274])
+v_inf = np.array([0.4])
+# v_inf = np.array([0.1])
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
 
 import matplotlib.pyplot as plt
 
-
+import time
+t_start = time.time()
 sim_list = [None]*len(v_inf)
 efficiency = np.zeros(len(v_inf))   
 thrust_power = np.zeros(len(v_inf))   
@@ -132,7 +141,7 @@ for i in range(len(v_inf)):
     efficiency[i] = sim_list[i]['efficiency']
     thrust_power[i] = sim_list[i]['thrust_power']
     panel_thrust_power[i] = sim_list[i]['panel_thrust_power']
-
+print('simulation time is', time.time() - t_start)
 plt.plot(v_inf,efficiency,'.')
 h_stepsize = 0.04208754
 run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',filename='fish')
@@ -146,7 +155,7 @@ thrust = sim['thrust']
 
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
 
-
+# exit()
 
 #####################
 # optimizaton
@@ -157,15 +166,15 @@ from modopt.scipy_library import SLSQP
 from modopt.snopt_library import SNOPT
 # Define problem for the optimization
 prob = CSDLProblem(
-    problem_name='eel',
+    problem_name='eel_kinematic_opt_lv',
     simulator=sim,
 )
 # optimizer = SLSQP(prob, maxiter=1)
 optimizer = SNOPT(
     prob, 
-    Major_iterations=30,
+    Major_iterations=100,
     # Major_optimality=1e-6,
-    Major_optimality=1e-5,
+    Major_optimality=2e-5,
     Major_feasibility=1e-5,
     append2file=True,
     Major_step_limit=.25,

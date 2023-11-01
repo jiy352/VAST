@@ -164,6 +164,7 @@ class Projection(csdl.Model):
 
                 self.register_output(output_vel_name, velocity_projections)
 
+            # self.print_var(input_vel+0)
 
 # if __name__ == "__main__":
 #     import numpy as np
