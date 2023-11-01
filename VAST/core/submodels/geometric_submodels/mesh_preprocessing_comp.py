@@ -88,9 +88,9 @@ class MeshPreprocessingComp(ModuleCSDL):
             # this should come from CADDEE geometry if connected,
             # or up to the user to create an input if using the solver alone.
             if mesh_unit == 'm':
-                def_mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                def_mesh = self.register_module_input(f'{surface_name}_mesh', shape=surface_shapes[i], promotes=True)
             elif mesh_unit == 'ft':
-                def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                def_mesh_ft = self.register_module_input(f'{surface_name}_mesh', shape=surface_shapes[i], promotes=True)
 
                 def_mesh = def_mesh_ft * 0.
             mesh_org = def_mesh+0

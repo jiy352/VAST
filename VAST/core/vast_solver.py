@@ -29,6 +29,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.parameters.declare('ML', default=False)
         self.parameters.declare('ref_area', default=None)
 
+        self.parameters.declare('displacement_names', types=list)
+
 
     def compute(self):
         '''
@@ -50,17 +52,17 @@ class VASTFluidSover(m3l.ExplicitOperation):
         input_dicts = self.parameters['input_dicts']
 
         ML = self.parameters['ML']
+        displacement_names = self.parameters['displacement_names']
 
 
         csdl_model = ModuleCSDL()
 
         self.displacements = []
 
-        # for i in range(len(surface_names)):
-        #     surface_name = surface_names[i]
-        #     surface_shape = self.parameters['surface_shapes'][i]
-        #     displacement = csdl_model.register_module_input(f'{surface_name}_displacements', shape=(surface_shape),val=0.0)
-        #     self.displacements.append(displacement)
+        for i in range(len(surface_names)):
+            surface_shape = self.parameters['surface_shapes'][i]
+            displacement = csdl_model.register_module_input(displacement_names[i], shape=(surface_shape))
+            self.displacements += [displacement]
 
         submodule = VASTCSDL(
             module=self,
@@ -102,7 +104,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = self.parameters['num_nodes']
         ML = self.parameters['ML']
-        
+        displacement_names = self.parameters['displacement_names']
+
         self.arguments = {}
         if design_condition:
             self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_model"
@@ -115,7 +118,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
-                self.arguments[f'{surface_name}_displacements'] = displacements[i]
+                self.arguments[displacement_names[i]] = displacements[i]
         
         # print(arguments)
         # new_arguments = {**arguments, **ac_states}
@@ -217,11 +220,11 @@ class VASTCSDL(ModuleCSDL):
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = self.parameters['surface_shapes'][i]
-            # displacements = self.declare_variable(f'{surface_name}_displacements', shape=(surface_shape),val=0.)
+            displacements = self.declare_variable(f'{surface_name}_mesh_displacements', shape=surface_shape)
 
-            undef_mesh = self.declare_variable(f'{surface_name}_mesh', val=np.zeros(surface_shape))
-            # mesh = undef_mesh  #+ displacements
-            # self.register_module_output(surface_name, mesh)
+            undef_mesh = self.declare_variable(f'{surface_name}_undef_mesh', shape=surface_shape)
+            mesh = undef_mesh + displacements
+            self.register_module_output(f'{surface_name}_mesh', mesh)
 
         # except:
         #     pass
