@@ -53,6 +53,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
         ML = self.parameters['ML']
         displacement_names = self.parameters['displacement_names']
+        mesh = self.parameters['mesh']
 
 
         csdl_model = ModuleCSDL()
@@ -73,7 +74,9 @@ class VASTFluidSover(m3l.ExplicitOperation):
             cl0=cl0,
             input_dicts=input_dicts,
             ML=ML,
-            ref_area=self.parameters['ref_area'])
+            ref_area=self.parameters['ref_area'],
+            mesh=mesh
+            )
 
         csdl_model.add_module(submodule,'vast')
     
@@ -187,6 +190,7 @@ class VASTCSDL(ModuleCSDL):
         self.parameters.declare('fluid_problem',default=None)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
+        self.parameters.declare('mesh', types=list)
         self.parameters.declare('solve_option', default='direct')
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('cl0', default=None)
@@ -222,7 +226,7 @@ class VASTCSDL(ModuleCSDL):
             surface_shape = self.parameters['surface_shapes'][i]
             displacements = self.declare_variable(f'{surface_name}_mesh_displacements', shape=surface_shape)
 
-            undef_mesh = self.declare_variable(f'{surface_name}_undef_mesh', shape=surface_shape)
+            undef_mesh = self.declare_variable(f'{surface_name}_vlm_mesh', shape=surface_shape, val=self.parameters['mesh'][i].value)
             mesh = undef_mesh + displacements
             self.register_module_output(f'{surface_name}_mesh', mesh)
 
