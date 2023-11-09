@@ -9,6 +9,27 @@ from VAST.core.fluid_problem import FluidProblem
 import m3l
 from typing import List
 import numpy as np
+from dataclasses import dataclass, field
+
+
+@dataclass
+class VLMOutputs:
+    """
+    VLM Outputs
+    -----------
+
+    forces:
+        forces
+
+    moments:
+        moments
+
+    panel_forces:
+        panel forces
+    """
+    forces : m3l.Variable = None
+    moments : m3l.Variable = None
+    panel_forces : list = field(default_factory=list) 
 
 
 class VASTFluidSover(m3l.ExplicitOperation):
@@ -27,6 +48,10 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.parameters.declare('input_dicts', default=None)
 
         self.parameters.declare('ML', default=False)
+        super().initialize(kwargs=kwargs)
+
+    def assign_attributes(self):
+        self.name = self.parameters['name']
 
 
     def compute(self):
@@ -78,7 +103,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, displacements : List[m3l.Variable]=None, ML=False, design_condition=None):
+    def evaluate(self, ac_states, meshes: List[m3l.Variable], displacements : List[m3l.Variable]=None, ML=False):
         '''
         Evaluates the vast model.
         
@@ -100,32 +125,31 @@ class VASTFluidSover(m3l.ExplicitOperation):
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = self.parameters['num_nodes']
         ML = self.parameters['ML']
-        
+
         self.arguments = {}
-        if design_condition:
-            self.name = f"{design_condition.parameters['name']}_{''.join(surface_names)}_vlm_model"
-
-        else:
-            self.name = f"{''.join(surface_names)}_vlm_model"
-        # print(displacements)
-
         # displacements = self.displacements 
         if displacements is not None:
             for i in range(len(surface_names)):
                 surface_name = surface_names[i]
                 self.arguments[f'{surface_name}_displacements'] = displacements[i]
         
+
+        for i in range(len(meshes)):
+            surface_name = surface_names[i]
+            mesh = meshes[i]
+            self.arguments[surface_name] = mesh
+
         # print(arguments)
         # new_arguments = {**arguments, **ac_states}
-        self.arguments['u'] = ac_states['u']
-        self.arguments['v'] = ac_states['v']
-        self.arguments['w'] = ac_states['w']
-        self.arguments['p'] = ac_states['p']
-        self.arguments['q'] = ac_states['q']
-        self.arguments['r'] = ac_states['r']
-        self.arguments['theta'] = ac_states['theta']
-        self.arguments['psi'] = ac_states['psi']
-        self.arguments['gamma'] = ac_states['gamma']
+        self.arguments['u'] = ac_states.u
+        self.arguments['v'] = ac_states.v
+        self.arguments['w'] = ac_states.w
+        self.arguments['p'] = ac_states.p
+        self.arguments['q'] = ac_states.q
+        self.arguments['r'] = ac_states.r
+        self.arguments['theta'] = ac_states.theta
+        self.arguments['psi'] = ac_states.psi
+        self.arguments['gamma'] = ac_states.gamma
         # self.arguments['psiw'] = ac_states['psi_w']
 
         
@@ -164,12 +188,17 @@ class VASTFluidSover(m3l.ExplicitOperation):
 
     
 
+        vlm_outputs = VLMOutputs()
+
         # return spanwise cl, forces on panels with vlm internal correction for cl0 and cdv, total force and total moment for trim
         
         if ML:
             return cl_spans, re_spans, forces, panel_areas, evaluation_pts, total_force, total_moment
         else:
-            return forces, total_force, total_moment
+            vlm_outputs.forces = total_force
+            vlm_outputs.moments = total_moment
+            vlm_outputs.panel_forces = forces
+            return vlm_outputs
 
 
 class VASTMesh(Module):

@@ -112,6 +112,7 @@ class LiftDrag(ModuleCSDL):
                                                  shape=(num_nodes, nx - 1,
                                                         ny - 1))
                 s_panels_list.append(s_panels)
+                eval_pts = self.declare_variable(eval_pts_names[i], shape=(num_nodes, nx-1, ny-1, 3))
 
                 velocities[:, start:start + delta, :] = vel_surface
                 s_panels_all[:, start:start + delta] = csdl.reshape(s_panels, (num_nodes, delta))
@@ -271,7 +272,7 @@ class LiftDrag(ModuleCSDL):
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
-            drag_area= 1.65 #0*0.08
+            drag_area= 0.08 #1.65 #0*
             other_viscous_drag = 0.5*rho*b*drag_area
             self.register_output('other_viscous_drag',other_viscous_drag)
 
@@ -321,9 +322,9 @@ class LiftDrag(ModuleCSDL):
                 forces_x_exp = csdl.expand(-D_0 * csdl.cos(alpha) + L_0[:,i] * csdl.sin(alpha)/delta - other_viscous_drag * csdl.cos(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
                 forces_z_exp = csdl.expand(- D_0 * csdl.sin(alpha) - L_0[:,i] * csdl.cos(alpha)/delta + other_viscous_drag * csdl.sin(alpha)/(panel_forces.shape[1]),(num_nodes,delta,1),'ik->ijk')
 
-                self.print_var(forces_x_exp+0)
-                self.print_var(forces_z_exp+0)
-                self.print_var(other_viscous_drag+0)
+                # self.print_var(forces_x_exp+0)
+                # self.print_var(forces_z_exp+0)
+                # self.print_var(other_viscous_drag+0)
 
                 total_forces_surface = self.create_output(surface_names[i]+'_total_forces',shape=(num_nodes,delta,3))
                 total_forces_surface[:,:,0] = -panel_forces[:,start:start+delta,0] + forces_x_exp
