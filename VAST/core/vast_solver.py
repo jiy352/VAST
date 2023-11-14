@@ -103,7 +103,7 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, meshes: List[m3l.Variable], displacements : List[m3l.Variable]=None, ML=False):
+    def evaluate(self, ac_states, atmosphere: List[m3l.Variable], meshes: List[m3l.Variable], displacements : List[m3l.Variable]=None, ML=False):
         '''
         Evaluates the vast model.
         
@@ -150,6 +150,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.arguments['theta'] = ac_states.theta
         self.arguments['psi'] = ac_states.psi
         self.arguments['gamma'] = ac_states.gamma
+        self.arguments['density'] = atmosphere.density
+        
         # self.arguments['psiw'] = ac_states['psi_w']
 
         
