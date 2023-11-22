@@ -103,7 +103,9 @@ class VASTFluidSover(m3l.ExplicitOperation):
     def compute_derivates(self,inputs,derivatives):
         pass
 
-    def evaluate(self, ac_states, atmosphere: List[m3l.Variable], meshes: List[m3l.Variable], displacements : List[m3l.Variable]=None, ML=False):
+    def evaluate(self, ac_states, atmosphere: List[m3l.Variable], meshes: List[m3l.Variable], 
+                 displacements : List[m3l.Variable]=None, ML=False, eval_pt:m3l.Variable=None,
+                 wing_AR : m3l.Variable=None):
         '''
         Evaluates the vast model.
         
@@ -133,6 +135,8 @@ class VASTFluidSover(m3l.ExplicitOperation):
                 surface_name = surface_names[i]
                 self.arguments[f'{surface_name}_displacements'] = displacements[i]
         
+        if wing_AR is not None:
+            self.arguments['wing_AR'] = wing_AR
 
         for i in range(len(meshes)):
             surface_name = surface_names[i]
@@ -152,6 +156,17 @@ class VASTFluidSover(m3l.ExplicitOperation):
         self.arguments['gamma'] = ac_states.gamma
         self.arguments['density'] = atmosphere.density
         
+        if eval_pt is None:
+            eval_pt = m3l.Variable(shape=(3, ), value=np.array([0., 0., 0.]))
+            self.arguments['evaluation_pt'] = eval_pt
+            for i in range(len(meshes)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_rot_ref'] = eval_pt
+        else:
+            self.arguments['evaluation_pt'] = eval_pt
+            for i in range(len(meshes)):
+                surface_name = surface_names[i]
+                self.arguments[f'{surface_name}_rot_ref'] = eval_pt
         # self.arguments['psiw'] = ac_states['psi_w']
 
         

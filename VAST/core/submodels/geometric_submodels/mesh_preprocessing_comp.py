@@ -101,6 +101,8 @@ class MeshPreprocessingComp(ModuleCSDL):
                                                                         num_pts_chord, :, :] * 0.25
             # the last one chordwise is 1/4 chord offset from the last chordwise def_mesh panel
             if problem_type == 'fixed_wake':
+                print(num_pts_chord)
+                print(def_mesh.shape)
                 bd_vtx_coords[:, num_pts_chord -
                             1, :, :] = def_mesh[:, num_pts_chord -
                                                 1, :, :] + 0.25 * (
@@ -168,6 +170,7 @@ class MeshPreprocessingComp(ModuleCSDL):
             j = def_mesh[:, :-1, :-1, :] - def_mesh[:, 1:, 1:, :]
             # compute the wetted area:
             normals = csdl.cross(i, j, axis=3)
+            self.register_output(s_panel_name + '_normals', normals)
             s_panels = (csdl.sum(normals**2, axes=(3, )))**0.5 * 0.5
             self.register_output(s_panel_name, s_panels)
 
