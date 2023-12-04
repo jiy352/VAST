@@ -33,6 +33,8 @@ class WakeCoords(csdl.Model):
         delta_t = self.parameters['delta_t']
         TE_idx = self.parameters['TE_idx']
 
+        delta_t = 100
+
         wake_coords_names = [x + '_wake_coords' for x in surface_names]
 
         frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))

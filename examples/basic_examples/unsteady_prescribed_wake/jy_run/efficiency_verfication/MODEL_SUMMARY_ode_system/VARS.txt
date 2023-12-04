@@ -1,0 +1,613 @@
+
+
+
+v7969_wing_dwake_coords_dt
+	name:                    wing_dwake_coords_dt
+	unpromoted name:         wing_dwake_coords_dt
+	promoted name:           wing_dwake_coords_dt
+	shape:                   (1, 149, 7, 3)
+	avg val:                 0.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8123_wing_wake_coords
+	name:                    wing_wake_coords
+	unpromoted name:         wing_wake_coords
+	promoted name:           wing_wake_coords
+	shape:                   (1, 149, 7, 3)
+	avg val:                 1.0
+	graph info:              0 in op / 2 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.wing_wake_coords
+
+v7955_wing_dgammaw_dt
+	name:                    wing_dgammaw_dt
+	unpromoted name:         wing_dgammaw_dt
+	promoted name:           wing_dgammaw_dt
+	shape:                   (1, 149, 6)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8105_wing_gamma_w
+	name:                    wing_gamma_w
+	unpromoted name:         wing_gamma_w
+	promoted name:           wing_gamma_w
+	shape:                   (1, 149, 6)
+	avg val:                 1.0
+	graph info:              0 in op / 2 out op(s)
+	connected to:
+	promoted to:
+	                         combine_gamma_w.wing_gamma_w
+
+v8417_wing_wake_total_vel
+	name:                    wing_wake_total_vel
+	unpromoted name:         ComputeWakeTotalVel.wing_wake_total_vel
+	promoted name:           wing_wake_total_vel
+	shape:                   (1, 149, 7, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         wing_wake_total_vel
+
+v8420_wing_wake_kinematic_vel
+	name:                    wing_wake_kinematic_vel
+	unpromoted name:         ComputeWakeTotalVel.ComputeWakeKinematicVel.wing_wake_kinematic_vel
+	promoted name:           wing_wake_kinematic_vel
+	shape:                   (1, 149, 7, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         ComputeWakeTotalVel.wing_wake_kinematic_vel
+
+v8117_gamma_w
+	name:                    gamma_w
+	unpromoted name:         combine_gamma_w.gamma_w
+	promoted name:           gamma_w
+	shape:                   (1, 149, 6)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.gamma_w
+
+v8415_wing_gamma_b
+	name:                    wing_gamma_b
+	unpromoted name:         seperate_gamma_b.wing_gamma_b
+	promoted name:           wing_gamma_b
+	shape:                   (1, 60)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         wing_gamma_b
+
+v8103_wing_re_span
+	name:                    wing_re_span
+	unpromoted name:         MeshPreprocessing_comp.wing_re_span
+	promoted name:           wing_re_span
+	shape:                   (1, 6, 1)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8055_wing_chord_length
+	name:                    wing_chord_length
+	unpromoted name:         MeshPreprocessing_comp.wing_chord_length
+	promoted name:           wing_chord_length
+	shape:                   (1, 10, 6)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8095_density
+	name:                    density
+	unpromoted name:         MeshPreprocessing_comp.density
+	promoted name:           density
+	shape:                   (1, 1)
+	avg val:                 1.1
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8094_wing_eval_pts_coords
+	name:                    wing_eval_pts_coords
+	unpromoted name:         MeshPreprocessing_comp.wing_eval_pts_coords
+	promoted name:           wing_eval_pts_coords
+	shape:                   (1, 10, 6, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8021_wing
+	name:                    wing
+	unpromoted name:         MeshPreprocessing_comp.wing
+	promoted name:           wing
+	shape:                   (1, 11, 7, 3)
+	avg val:                 1.0
+	graph info:              0 in op / 2 out op(s)
+	connected to:
+	promoted to:
+
+v8075_bd_vec
+	name:                    bd_vec
+	unpromoted name:         MeshPreprocessing_comp.bd_vec
+	promoted name:           bd_vec
+	shape:                   (1, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8074_wing_s_panel
+	name:                    wing_s_panel
+	unpromoted name:         MeshPreprocessing_comp.wing_s_panel
+	promoted name:           wing_s_panel
+	shape:                   (1, 10, 6)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8063_wing_span_length
+	name:                    wing_span_length
+	unpromoted name:         MeshPreprocessing_comp.wing_span_length
+	promoted name:           wing_span_length
+	shape:                   (1, 10, 6)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8294_wing_coll_pts_coords
+	name:                    wing_coll_pts_coords
+	unpromoted name:         MeshPreprocessing_comp.wing_coll_pts_coords
+	promoted name:           wing_coll_pts_coords
+	shape:                   (1, 10, 6, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 3 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.wing_coll_pts_coords
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.wing_coll_pts_coords
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.wing_coll_pts_coords
+
+v8031_fs
+	name:                    fs
+	unpromoted name:         MeshPreprocessing_comp.fs
+	promoted name:           fs
+	shape:                   (1, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8030_w
+	name:                    w
+	unpromoted name:         MeshPreprocessing_comp.w
+	promoted name:           w
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 3 out op(s)
+	connected to:
+	promoted to:
+	                         adapter_comp.w
+
+v8295_wing_bd_vtx_coords
+	name:                    wing_bd_vtx_coords
+	unpromoted name:         MeshPreprocessing_comp.wing_bd_vtx_coords
+	promoted name:           wing_bd_vtx_coords
+	shape:                   (1, 11, 7, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 4 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.wing_bd_vtx_coords
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.ComputeNormal.wing_bd_vtx_coords
+	                         wing_bd_vtx_coords
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.wing_bd_vtx_coords
+
+v8418_frame_vel
+	name:                    frame_vel
+	unpromoted name:         adapter_comp.frame_vel
+	promoted name:           frame_vel
+	shape:                   (1, 3)
+	avg val:                 0.0
+	graph info:              1 in op / 3 out op(s)
+	connected to:
+	promoted to:
+	                         MeshPreprocessing_comp.frame_vel
+	                         ComputeWakeTotalVel.ComputeWakeKinematicVel.frame_vel
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.frame_vel
+
+v8005_alpha
+	name:                    alpha
+	unpromoted name:         adapter_comp.alpha
+	promoted name:           alpha
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              1 in op / 2 out op(s)
+	connected to:
+	promoted to:
+
+v8006_beta
+	name:                    beta
+	unpromoted name:         adapter_comp.beta
+	promoted name:           beta
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              1 in op / 3 out op(s)
+	connected to:
+	promoted to:
+
+v7985_v
+	name:                    v
+	unpromoted name:         adapter_comp.v
+	promoted name:           v
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 2 out op(s)
+	connected to:
+	promoted to:
+
+v7984_u
+	name:                    u
+	unpromoted name:         adapter_comp.u
+	promoted name:           u
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 2 out op(s)
+	connected to:
+	promoted to:
+
+v7991_psi
+	name:                    psi
+	unpromoted name:         adapter_comp.psi
+	promoted name:           psi
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v7993_psiw
+	name:                    psiw
+	unpromoted name:         adapter_comp.psiw
+	promoted name:           psiw
+	shape:                   (1, 1)
+	avg val:                 0.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v7990_theta
+	name:                    theta
+	unpromoted name:         adapter_comp.theta
+	promoted name:           theta
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v7992_gamma
+	name:                    gamma
+	unpromoted name:         adapter_comp.gamma
+	promoted name:           gamma
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8096_v_inf_sq
+	name:                    v_inf_sq
+	unpromoted name:         adapter_comp.v_inf_sq
+	promoted name:           v_inf_sq
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         MeshPreprocessing_comp.v_inf_sq
+
+v8414_gamma_b
+	name:                    gamma_b
+	unpromoted name:         solve_gamma_b_group.gamma_b
+	promoted name:           gamma_b
+	shape:                   (1, 60)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         seperate_gamma_b.gamma_b
+
+v8170_wing_TE_wake_coords
+	name:                    wing_TE_wake_coords
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.wing_TE_wake_coords
+	promoted name:           wing_TE_wake_coords
+	shape:                   (1, 150, 7, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.wing_TE_wake_coords
+
+v8413_aic_bd_proj
+	name:                    aic_bd_proj
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic_bd.aic_bd_proj
+	promoted name:           aic_bd_proj
+	shape:                   (1, 60, 60)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.aic_bd_proj
+
+v8409_normal_concatenated_aic_bd_proj
+	name:                    normal_concatenated_aic_bd_proj
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic_bd.normal_concatenated_aic_bd_proj
+	promoted name:           normal_concatenated_aic_bd_proj
+	shape:                   (1, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8288_M_mat
+	name:                    M_mat
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic.M_mat
+	promoted name:           M_mat
+	shape:                   (1, 60, 894)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.M_mat
+
+v8284_normal_concatenated_M_mat
+	name:                    normal_concatenated_M_mat
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic.normal_concatenated_M_mat
+	promoted name:           normal_concatenated_M_mat
+	shape:                   (1, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8285_aic_M
+	name:                    aic_M
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_M
+	promoted name:           aic_M
+	shape:                   (1, 60, 894, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic.aic_M
+
+v8283_aic_M00
+	name:                    aic_M00
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.aic_M00
+	promoted name:           aic_M00
+	shape:                   (1, 53640, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_M00
+
+v8277_num_03M3
+	name:                    num_03M3
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.num_03M3
+	promoted name:           num_03M3
+	shape:                   (1, 26820)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8261_num_03Ly
+	name:                    num_03Ly
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.num_03Ly
+	promoted name:           num_03Ly
+	shape:                   (1, 26820)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8245_num_03L2
+	name:                    num_03L2
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.num_03L2
+	promoted name:           num_03L2
+	shape:                   (1, 26820)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8229_num_03Kx
+	name:                    num_03Kx
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic.aic_bd_w_seperate.num_03Kx
+	promoted name:           num_03Kx
+	shape:                   (1, 26820)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8410_aic_bd
+	name:                    aic_bd
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd
+	promoted name:           aic_bd
+	shape:                   (1, 60, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic_bd.aic_bd
+
+v8408_aic_bd00
+	name:                    aic_bd00
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.aic_bd00
+	promoted name:           aic_bd00
+	shape:                   (1, 3600, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd00
+
+v8402_num_03PT
+	name:                    num_03PT
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.num_03PT
+	promoted name:           num_03PT
+	shape:                   (1, 1800)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8386_num_03Pn
+	name:                    num_03Pn
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.num_03Pn
+	promoted name:           num_03Pn
+	shape:                   (1, 1800)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8370_num_03OS
+	name:                    num_03OS
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.num_03OS
+	promoted name:           num_03OS
+	shape:                   (1, 1800)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8354_num_03Om
+	name:                    num_03Om
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.AssembleAic_bd.aic_bd_w_seperate.num_03Om
+	promoted name:           num_03Om
+	shape:                   (1, 1800)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8160_wing_kinematic_vel
+	name:                    wing_kinematic_vel
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.wing_kinematic_vel
+	promoted name:           wing_kinematic_vel
+	shape:                   (1, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_k_vel.wing_kinematic_vel
+
+v8141_wing_coll_vel
+	name:                    wing_coll_vel
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.wing_coll_vel
+	promoted name:           wing_coll_vel
+	shape:                   (1, 10, 6, 3)
+	avg val:                 0.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8134_wing_rot_ref
+	name:                    wing_rot_ref
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.wing_rot_ref
+	promoted name:           wing_rot_ref
+	shape:                   (1, 3)
+	avg val:                 0.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8132_ang_vel
+	name:                    ang_vel
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.ang_vel
+	promoted name:           ang_vel
+	shape:                   (1, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8129_p
+	name:                    p
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.p
+	promoted name:           p
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8130_q
+	name:                    q
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.q
+	promoted name:           q
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8131_r
+	name:                    r
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.KinematicVelocityComp.r
+	promoted name:           r
+	shape:                   (1, 1)
+	avg val:                 1.0
+	graph info:              0 in op / 1 out op(s)
+	connected to:
+	promoted to:
+
+v8163_b
+	name:                    b
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_k_vel.b
+	promoted name:           b
+	shape:                   (1, 60)
+	avg val:                 1.0
+	graph info:              1 in op / 1 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.b
+
+v8159_normal_concatenated_b
+	name:                    normal_concatenated_b
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_k_vel.normal_concatenated_b
+	promoted name:           normal_concatenated_b
+	shape:                   (1, 60, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 0 out op(s)
+	connected to:
+	promoted to:
+
+v8411_wing_bd_vtx_normals
+	name:                    wing_bd_vtx_normals
+	unpromoted name:         solve_gamma_b_group.prepossing_before_Solve.RHS_group.ComputeNormal.wing_bd_vtx_normals
+	promoted name:           wing_bd_vtx_normals
+	shape:                   (1, 10, 6, 3)
+	avg val:                 1.0
+	graph info:              1 in op / 3 out op(s)
+	connected to:
+	promoted to:
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic.wing_bd_vtx_normals
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_k_vel.wing_bd_vtx_normals
+	                         solve_gamma_b_group.prepossing_before_Solve.RHS_group.Projection_aic_bd.wing_bd_vtx_normals

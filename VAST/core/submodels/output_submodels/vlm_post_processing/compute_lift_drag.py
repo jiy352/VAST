@@ -304,7 +304,7 @@ class LiftDrag(ModuleCSDL):
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
             drag_area= 1.65 #0*0.08
-            other_viscous_drag = 0.5*rho*b*drag_area
+            other_viscous_drag = 0.5*rho*b*drag_area *0
             self.register_output('other_viscous_drag',other_viscous_drag)
 
             ML = self.parameters['ML']
@@ -315,7 +315,7 @@ class LiftDrag(ModuleCSDL):
                 # compute the total forces ``F`` in body fixed frame as a sum of 
                 # total forces from VLM, viscous drag from the wing, L_0, and other viscous drag
                 F[:, 0] =  -(total_forces_temp[:, 0] + D_0 * csdl.cos(alpha) - L_0_total * csdl.sin(alpha) + other_viscous_drag * csdl.cos(alpha))
-                F[:, 1] = total_forces_temp[:, 1] * 0
+                F[:, 1] = total_forces_temp[:, 1] 
                 F[:, 2] = -(total_forces_temp[:, 2] + D_0 * csdl.sin(alpha) + L_0_total * csdl.cos(alpha) - other_viscous_drag * csdl.sin(alpha))
                 ####################################################
 

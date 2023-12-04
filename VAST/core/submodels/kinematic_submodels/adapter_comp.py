@@ -125,10 +125,7 @@ class AdapterComp(ModuleCSDL):
         ################################################################################
         # create the output: 1. frame_vel (num_nodes,3)
         # TODO:fix this
-        ################################################################################
-
-        # print('frame-----------------', self.parameters['frame'])
-        
+        ################################################################################        
 
         if self.parameters['frame'] == 'wing_fixed':
             frame_vel = self.create_output('frame_vel', shape=(num_nodes, 3),val=0.)

@@ -8,9 +8,8 @@ import resource
 import csdl
 
 # from visualization import run_visualization
-run_optimizaton=0
 
-from VAST.core.submodels.actuation_submodels.eel_actuation_model_simple import EelActuationModel
+from VAST.core.submodels.actuation_submodels.eel_actuation_model_simple import ActuatorActuationModel
 
 from VAST.core.submodels.friction_submodels.eel_viscous_force import EelViscousModel
 from VAST.core.submodels.output_submodels.vlm_post_processing.efficiency import EfficiencyModel
@@ -28,16 +27,12 @@ def run_fish(v_inf,nx=41):
 
     # kinematics variables
     # v_inf = 0.38467351
+
+    lambda_ = 1
     N_period= 2         
-
-    # lambda_ = 1
-    # st = 0.15
-    # A = 0.125
-    # f = 0.48
-
-    lambda_ = 2
-    A = 0.2446
-    f = 0.5111
+    st = 0.15
+    A = 0.125
+    f = 0.48
     surface_properties_dict = {'surface_names':['eel'],
                                 'surface_shapes':[(nx, ny, 3)],
                             'frame':'wing_fixed',}
@@ -56,7 +51,6 @@ def run_fish(v_inf,nx=41):
     }
     t_vec = np.linspace(0,N_period/f,num_nodes)
     h_stepsize = t_vec[1]
-    print('h_stepsize is----------------------------------', h_stepsize)
 
     #####################
     # define the problem
@@ -65,11 +59,8 @@ def run_fish(v_inf,nx=41):
     model = csdl.Model()
     v_x = model.create_input('v_x', val=v_inf)
     #v_x = model.create_input('v_x', val=0.35)
-    tail_amplitude = model.create_input('tail_amplitude', val=A)
     tail_frequency = model.create_input('tail_frequency', val=f)
-    wave_number = model.create_input('wave_number', val=lambda_)
-    linear_relation = model.create_input('linear_relation', val=0.03125)
-
+    # v_x = model.create_input('v_x', val=0.8467351)
     u = model.register_output('u', csdl.expand(v_x,shape=(num_nodes,1)))
     density = model.create_input('density',val=np.ones((num_nodes,1))*997)
 
@@ -97,10 +88,8 @@ def run_fish(v_inf,nx=41):
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes),name='EfficiencyModel')
     model.add_design_variable('v_x',upper=1.11,lower=1.1)
-    model.add_design_variable('tail_amplitude',upper=0.4,lower=0.05)
     model.add_design_variable('tail_frequency',upper=1.3,lower=0.2)
-    model.add_design_variable('wave_number',upper=2,lower=1)
-
+    # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
     thrust = model.declare_variable('thrust',shape=(num_nodes,1))
     C_F = model.declare_variable('C_F')
     area = model.declare_variable('eel_s_panel',shape=(num_nodes,int((nx-1)*(ny-1))))
@@ -111,7 +100,7 @@ def run_fish(v_inf,nx=41):
 
     model.register_output('thrust_coeff_avr', thrust_coeff_avr)
     model.add_constraint('thrust_coeff_avr',equals=0.)
-
+    # model.add_objective('thrust_coeff_avr',scaler=1e3)
     model.add_objective('efficiency',scaler=-1)
 
     sim = python_csdl_backend.Simulator(model)
@@ -121,9 +110,12 @@ def run_fish(v_inf,nx=41):
 
     return sim
 
-v_inf = np.array([0.9])
+# v_inf = np.array([0.274])
+v_inf = np.array([0.415])
 nx = np.array([41])
-
+# nx = np.array([31])
+# nx = np.array([21])
+# nx = np.array([61])
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
 
@@ -144,7 +136,8 @@ print('simulation time is', time.time() - t_start)
 plt.plot(v_inf,efficiency,'.')
 h_stepsize = 0.04208754
 
-run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',filename='fish')
+# exit()
+# run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',filename='fish')
 # run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_04_opt',filename='fish')
 
 sim = sim_list[0]
@@ -154,6 +147,7 @@ thrust = sim['thrust']
 
 
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
+
 
 
 #####################
