@@ -14,7 +14,7 @@ model_1 = csdl.Model()
 ####################################################################
 # 1. add aircraft states
 ####################################################################
-theta = np.deg2rad(np.array([-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10]))  # pitch angles
+theta = np.deg2rad(np.array([-6]))  # pitch angles
 num_nodes=theta.shape[0]
 v_inf = np.ones((num_nodes,1))*248.136
 submodel = CreateACSatesModel(v_inf=v_inf, theta=theta, num_nodes=num_nodes)
@@ -53,7 +53,7 @@ if fluid_problem.solver_option == 'VLM':
 model_1.add(submodel, 'VLMSolverModel')
 ####################################################################
 
-sim = Simulator(model_1) # add simulator
+sim = Simulator(model_1, display_scripts=True) # add simulator
 
 sim.run()
 

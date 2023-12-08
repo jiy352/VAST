@@ -303,7 +303,7 @@ class LiftDrag(ModuleCSDL):
             total_forces_temp = csdl.sum(panel_forces, axes=(1, )) 
             # compute drag for other surfaces (fuselage, etc.)
             #drag_coeff = 9 * (0.092903)
-            drag_area= 1.65 #0*0.08
+            drag_area= 0.  # 1.65 #0*0.08
             other_viscous_drag = 0.5*rho*b*drag_area
             self.register_output('other_viscous_drag',other_viscous_drag)
 
@@ -359,16 +359,16 @@ class LiftDrag(ModuleCSDL):
 
                 total_forces_surface = self.create_output(surface_names[i]+'_total_forces',shape=(num_nodes,delta,3))
                 total_forces_surface[:,:,0] = -panel_forces[:,start:start+delta,0] + forces_x_exp
-                total_forces_surface[:,:,1] = panel_forces[:,start:start+delta,1] * 0
+                total_forces_surface[:,:,1] = -panel_forces[:,start:start+delta,1] #* 0   # NOTE: This multiplication factor `* 0` was originally in here (!)
                 total_forces_surface[:,:,2] = -panel_forces[:,start:start+delta,2] + forces_z_exp
 
                 total_forces_strip = csdl.sum(csdl.reshape(total_forces_surface, new_shape=(num_nodes,nx-1,ny-1,3)),axes=(1,))
                 total_moments_surface_temp = csdl.cross(r_M[:,start:start+delta,:], total_forces_surface, axis=2)
 
                 total_moments_surface = self.create_output(surface_names[i]+'_total_moments_surface',shape=(num_nodes,delta,3))
-                total_moments_surface[:,:,0] = total_moments_surface_temp[:,:,0] * 0 # NOTE: hard coded
+                total_moments_surface[:,:,0] = total_moments_surface_temp[:,:,0] #* 0 # NOTE: hard coded
                 total_moments_surface[:,:,1] = total_moments_surface_temp[:,:,1]
-                total_moments_surface[:,:,2] = total_moments_surface_temp[:,:,2] * 0
+                total_moments_surface[:,:,2] = total_moments_surface_temp[:,:,2] #* 0
 
                 total_moments_panels_list.append(csdl.sum(total_moments_surface,axes=(1,)))
 

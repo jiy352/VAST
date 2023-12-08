@@ -10,6 +10,7 @@ import m3l
 from VAST.core.vlm_llt.NodalMapping import NodalMap,RadialBasisFunctions
 
 import numpy as np
+from copy import deepcopy
 
 class VASTNodelDisplacements(m3l.ExplicitOperation):
     def initialize(self, kwargs):
@@ -25,15 +26,7 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
         initial_meshes = self.parameters['initial_meshes']
         output_names = self.parameters['output_names']
 
-        # nodal_displacements = self.nodal_displacements
         nodal_displacements_mesh = self.nodal_displacements_mesh
-
-        # if not isinstance(self.nodal_displacements, list):
-        #     raise TypeError('nodal_displacements must be a list of m3l.Variable in VASTNodelDisplacements.compute()')
-        # if not isinstance(self.nodal_displacements_mesh, list):
-        #     raise TypeError('nodal_displacements_mesh must be a list of am.MappedArray in VASTNodelDisplacements.compute()')
-
-
         csdl_model = ModuleCSDL()
 
         for i in range(len(surface_names)):
@@ -43,25 +36,14 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
             
             # nodal_displacements_surface = nodal_displacements[i] # nodal displacement on the oml mesh for the current surface
             nodal_displacements_mesh_surface = nodal_displacements_mesh[i] # oml mesh for the current surface on which the displacement is defined
-
             displacements_map = self.disp_map(initial_mesh.reshape((-1,3)), oml=nodal_displacements_mesh_surface.reshape((-1,3)))
-
 
             displacements_map_csdl = csdl_model.create_input(name=surface_name+'_displacements_map', val=displacements_map)
 
             # register an input for the oml nodal displacements
             oml_nodal_displacements_csdl = csdl_model.register_module_input(name='evaluated_' + surface_name, shape=self.arguments['evaluated_' + surface_name].shape)
-            # print('shapes')
-            # print('displacements_map_csdl shape', displacements_map_csdl.shape)
-            # print('nodal_displacements_csdl shape', nodal_displacements_csdl.shape)
-            # print('nodal_displacements_surface', nodal_displacements_surface.shape)
-            # print('nodal_displacements_mesh_surface', nodal_displacements_mesh_surface.shape)
             
             flatenned_vlm_mesh_displacements = csdl.matmat(displacements_map_csdl, oml_nodal_displacements_csdl)
-            # print('nodal_displacements_csdl', nodal_displacements_csdl.shape)
-            # print('displacements_map_csdl', displacements_map_csdl.shape)
-            # print('flatenned_vlm_mesh_displacements', flatenned_vlm_mesh_displacements.shape)
-            # TODO: think about how to vectorize this across num_nodes
 
             vlm_mesh_displacements = csdl.reshape(flatenned_vlm_mesh_displacements, new_shape=surface_shape)
             csdl_model.register_module_output(output_names[i], vlm_mesh_displacements)
@@ -129,8 +111,11 @@ class VASTNodelDisplacements(m3l.ExplicitOperation):
         # print('mesh', type(mesh))
         # print('mesh', mesh)
         # print('oml', type(oml))
-        weights = (NodalMap(oml.reshape((-1,3)), mesh.reshape((-1,3)), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map)
+        weights = (NodalMap(oml.reshape((-1,3)), mesh.reshape((-1,3)), RBF_width_par=8, RBF_func=RadialBasisFunctions.Gaussian).map)
+        # weights_test = deepcopy(weights)
+        # weights_test[weights <= 1e-8] = 0.
 
+        # weights_alt = (NodalMap(oml.reshape((-1,3)), mesh.reshape((-1,3)), RBF_width_par=0.5, RBF_func=RadialBasisFunctions.BumpFunction).map)
 
         return weights
 
@@ -158,17 +143,19 @@ class VASTNodalForces(m3l.ExplicitOperation):
             ny = surface_shape[2]
             outshape = int((nx-1)*(ny-1))
             num_nodes = surface_shape[0]
-            eval_pts_location = 0.25
-            if type(initial_mesh)==np.ndarray: # NOTE: this is just for testing purpose, in the long term, we should raise an error if oml_mesh is not a m3l.MappedArray
-                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3))
-            else:
-                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
+            # eval_pts_location = 0.25
+            # if type(initial_mesh)==np.ndarray: # NOTE: this is just for testing purpose, in the long term, we should raise an error if oml_mesh is not a m3l.MappedArray
+            #     initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3))
+            # else:
+            #     initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
 
-            force_points_vlm = (
-                    (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 0:-1, :] +
-                    (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 1:, :] +
-                    eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 0:-1, :] +
-                    eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 1:, :])
+            # force_points_vlm = (
+            #         (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 0:-1, :] +
+            #         (1 - eval_pts_location) * 0.5 * initial_mesh_reshaped[:, 0:-1, 1:, :] +
+            #         eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 0:-1, :] +
+            #         eval_pts_location * 0.5 * initial_mesh_reshaped[:, 1:, 1:, :])
+
+            force_points_vlm = self.force_points[i]
             if type(initial_mesh)==np.ndarray:
                 force_map = self.disp_map(force_points_vlm.reshape((-1,3)),nodal_force_meshes[i].reshape((-1,3)),save_map=True)   
             else:
@@ -233,6 +220,7 @@ class VASTNodalForces(m3l.ExplicitOperation):
             # self.arguments[vlm_forces[i].name] = vlm_forces[i]
 
         oml_forces = []
+        force_points = []
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             surface_shape = surface_shapes[i]
@@ -241,9 +229,35 @@ class VASTNodalForces(m3l.ExplicitOperation):
             outshape = int((nx-1)*(ny-1))
             num_nodes = surface_shape[0]  
             oml_mesh = nodal_force_meshes[i]
-        
+            initial_mesh = initial_meshes[i]
+
+            eval_pts_location = 0.25
+            if type(initial_mesh)==np.ndarray: # NOTE: this is just for testing purpose, in the long term, we should raise an error if oml_mesh is not a m3l.MappedArray
+                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3))
+                initial_mesh_value = initial_mesh
+            else:
+                initial_mesh_reshaped = initial_mesh.reshape((num_nodes, nx, ny, 3)).value
+                initial_mesh_value = initial_mesh.value
+
+            # NOTE: I've had to rewrite the computation of the force point locations because the above computation seems entirely incorrect
+            # we first isolate the corner points of each panel
+            frontleft_cornerpoints = initial_mesh_value[0, 0:-1, 0:-1, :]
+            frontright_cornerpoints = initial_mesh_value[0, 0:-1, 1:, :]
+            rearleft_cornerpoints = initial_mesh_value[0, 1:, 0:-1, :]
+            rearright_cornerpoints = initial_mesh_value[0, 1:, 1:, :]
+
+            # we use the eval_pts_location weight parameter to add the corner point coordinates together
+            force_points_vlm = (1- eval_pts_location)*0.5*(frontleft_cornerpoints + frontright_cornerpoints) + eval_pts_location*0.5*(rearleft_cornerpoints + rearright_cornerpoints)
+
+            # next we add the first index
+            force_points_vlm = force_points_vlm[None, :]
+
+            force_points += [force_points_vlm]
+
             oml_force = m3l.Variable(name=f'{surface_name}_oml_forces', shape=oml_mesh.shape, operation=self)
             oml_forces.append(oml_force)
+
+        self.force_points = force_points
 
         return oml_forces
 
@@ -256,7 +270,7 @@ class VASTNodalForces(m3l.ExplicitOperation):
         # print('oml', type(oml))
         # print(mesh)
         # print(oml)
-        weights = NodalMap(oml.reshape((-1,3)), mesh.reshape(-1,3), RBF_width_par=2, RBF_func=RadialBasisFunctions.Gaussian).map
+        weights = NodalMap(oml.reshape((-1,3)), mesh.reshape(-1,3), RBF_width_par=8., RBF_func=RadialBasisFunctions.Gaussian).map
         # np.savetxt('weights.txt',weights)
         # print(weights.shape)
         # print((np.sum(weights,axis=0)))
