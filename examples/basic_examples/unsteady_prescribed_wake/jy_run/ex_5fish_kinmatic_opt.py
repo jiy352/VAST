@@ -131,8 +131,8 @@ def run_fish(v_inf):
 
     return sim
 
-v_inf = np.array([4.164472e-01])
-# v_inf = np.array([0.1])
+# v_inf = np.array([4.164472e-01])
+v_inf = np.array([0.7])
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)

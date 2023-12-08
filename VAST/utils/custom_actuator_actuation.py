@@ -98,8 +98,13 @@ class ActuatorActuation(csdl.CustomExplicitOperation):
         R_expanded = jnp.outer(R, np.ones(nx))
 
         x = R_expanded*jnp.sin(alpha)
-        sign_angles_expanded = jnp.outer(jnp.tanh(50*angles), np.ones(nx))
+        sign_angles_expanded = jnp.outer(jnp.sign(50*angles), np.ones(nx))
         y = -sign_angles_expanded*(R_expanded**2 - x**2)**0.5 + R_expanded 
+        vy = np.zeros((num_nodes,nx-1))
+        # dt = 0.00674157
+        dt = 3/frequency/num_nodes
+        vy[1:,:] = (y[1:,1:] - y[:-1,1:])/dt
+        self.vy = vy
 
         x_expand = jnp.einsum('ij,l->ijl',x,np.ones(ny))
         y_expand = jnp.einsum('ij,l->ijl',y,np.ones(ny))
@@ -132,7 +137,7 @@ class ActuatorActuation(csdl.CustomExplicitOperation):
         N_period = 3
         L = 0.065
         t = jnp.linspace(0, N_period/frequency, num_nodes)
-        x_0 = jnp.linspace(0, L, nx)[1:]
+        x_0 = (jnp.linspace(0, L, nx))[1:]
 
         vx = self.jax_expression_vx(L, frequency, t, x_0)
         vy = self.jax_expression_vy(L, frequency, t, x_0)
@@ -157,10 +162,11 @@ class ActuatorActuation(csdl.CustomExplicitOperation):
     def jax_expression_vy(self, L, f, t_actual, x_0_actual):
         t= jnp.outer(t_actual, jnp.ones(x_0_actual.shape))
         x_0 = jnp.outer(jnp.ones(t_actual.shape), x_0_actual)
-        return (4.63499420625724*L*f*jnp.sin(6.28318530717959*f*t)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2
-                + 314.159265358979*f*(1 - jnp.tanh(9.18043186549017*f - 67.7798615011998*jnp.cos(6.28318530717959*f*t))**2)*(-L**2*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2 + L**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)**0.5*jnp.sin(6.28318530717959*f*t)
-                + 0.737682239128136*(-6.28318530717959*L**2*f*jnp.sin(6.28318530717959*f*t)*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**3 + 6.28318530717959*L**2*f*jnp.sin(6.28318530717959*f*t)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**3
-                                    + 8.51746859814012*L*f*x_0*jnp.sin(6.28318530717959*f*t)*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)*jnp.cos(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)*jnp.tanh(9.18043186549017*f - 67.7798615011998*jnp.cos(6.28318530717959*f*t))/(-L**2*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2 + L**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)**0.5)
+        return self.vy
+        # (4.63499420625724*L*f*jnp.sin(6.28318530717959*f*t)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2
+        #         + 314.159265358979*f*(1 - jnp.sign(9.18043186549017*f - 67.7798615011998*jnp.cos(6.28318530717959*f*t))**2)*(-L**2*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2 + L**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)**0.5*jnp.sin(6.28318530717959*f*t)
+        #         + 0.737682239128136*(-6.28318530717959*L**2*f*jnp.sin(6.28318530717959*f*t)*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**3 + 6.28318530717959*L**2*f*jnp.sin(6.28318530717959*f*t)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**3
+        #                             + 8.51746859814012*L*f*x_0*jnp.sin(6.28318530717959*f*t)*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)*jnp.cos(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)*jnp.sign(9.18043186549017*f - 67.7798615011998*jnp.cos(6.28318530717959*f*t))/(-L**2*jnp.sin(x_0*(-0.183608637309803*f + 1.355597230024*jnp.cos(6.28318530717959*f*t))/L)**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2 + L**2/(-0.135444830693962*f + jnp.cos(6.28318530717959*f*t))**2)**0.5)
 
 
     def fd_derivative(self, inputs):

@@ -20,9 +20,9 @@ from VAST.utils.custom_actuator_actuation import ActuatorActuation
 ########################################
 before_mem = resource.getrusage(resource.RUSAGE_SELF).ru_maxrss
 
-def run_fish(v_inf,nx=41):
+def run_fish(v_inf,num_nodes,nx=41):
     # nx = 12; ny = 3
-    num_nodes = 72
+    # num_nodes = 61
     nt = num_nodes
     nx = 11
     ny = 5
@@ -37,7 +37,7 @@ def run_fish(v_inf,nx=41):
     N_period= 3         
     # st = 0.15
     # A = 0.125
-    f = 2.
+    f = 5
     surface_properties_dict = {'surface_names':['eel'],
                                 'surface_shapes':[(nx, ny, 3)],
                             'frame':'wing_fixed',}
@@ -87,7 +87,7 @@ def run_fish(v_inf,nx=41):
     model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
-    model.add_design_variable('frequency',upper=5.,lower=2.)
+    model.add_design_variable('frequency',upper=10.,lower=1.)
 
     # thrust = model.declare_variable('thrust',shape=(num_nodes,1))
     # C_F = model.declare_variable('C_F')
@@ -101,6 +101,7 @@ def run_fish(v_inf,nx=41):
     # model.add_constraint('thrust_coeff_avr',equals=0.)
     # # model.add_objective('thrust_coeff_avr',scaler=1e3)
     model.add_objective('efficiency',scaler=-1)
+    model.print_var(frequency)
 
     sim = python_csdl_backend.Simulator(model)
         
@@ -110,17 +111,46 @@ def run_fish(v_inf,nx=41):
     return sim
 
 # v_inf = np.array([0.274])
-v_inf = np.array([0.4])
+v_inf = np.array([5*0.065])
 nx = np.array([41])
-sim = run_fish(v_inf[0],nx=int(11))
+num_nodes = 72
+sim = run_fish(v_inf[0],num_nodes,nx=int(11))
+
+
+import pyvista as pv
+surface_name = 'eel'
+mesh_array = np.array(sim[surface_name])
+for i in range(num_nodes):
+    
+    x_mesh_i = mesh_array[i,:,:,0]
+    y_mesh_i = mesh_array[i,:,:,1]
+    z_mesh_i = mesh_array[i,:,:,2]
+    mesh_i = pv.StructuredGrid(x_mesh_i,y_mesh_i,z_mesh_i)
+    mesh_i.save(f'mesh_{i}.vtk')
+
+
+
+t = np.linspace(0,3,num_nodes)
 # nx = np.array([31])
 # nx = np.array([21])
 # nx = np.array([61])
-# import matplotlib as mpl
-# mpl.rcParams.update(mpl.rcParamsDefault)
+import matplotlib as mpl
+mpl.rcParams.update(mpl.rcParamsDefault)
 
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
+plt.plot(t, sim['eel_coll_vel'][:,-1,2,1],'.-')
+plt.ylim([-5,5])
 
+plt.figure()
+plt.plot(t, sim['eel_coll_vel'][:,-1,2,0],'.-')
+plt.ylim([-5,5])
+
+plt.figure()
+plt.plot(t, sim['eel'][:,-1,2,1],'.-')
+# plt.plot(t, sim['eel'][:,0,2,1],'.-')
+# plt.plot(t, sim['eel'][:,5,2,1],'.-')
+
+plt.show()
 # import time
 # t_start = time.time()
 # sim_list = [None]*len(v_inf)
@@ -136,7 +166,7 @@ sim = run_fish(v_inf[0],nx=int(11))
 # plt.plot(v_inf,efficiency,'.')
 # h_stepsize = 0.04208754
 
-# exit()
+exit()
 # # run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',filename='fish')
 # # run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_04_opt',filename='fish')
 
@@ -147,7 +177,7 @@ sim = run_fish(v_inf[0],nx=int(11))
 
 
 # print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
-
+# exit()
 
 
 #####################
@@ -165,7 +195,7 @@ prob = CSDLProblem(
 # optimizer = SLSQP(prob, maxiter=1)
 optimizer = SNOPT(
     prob, 
-    Major_iterations=50,
+    Major_iterations=30,
     # Major_optimality=1e-6,
     Major_optimality=1e-6,
     Major_feasibility=1e-3,
