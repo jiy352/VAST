@@ -57,6 +57,7 @@ sim = Simulator(model_1, display_scripts=True) # add simulator
 
 sim.run()
 
+print(sim["wing_C_L"])
 # print('wing_C_L\n',sim['wing_C_L'])
 # print('wing_C_D_i\n',sim['wing_C_D_i'])
 
