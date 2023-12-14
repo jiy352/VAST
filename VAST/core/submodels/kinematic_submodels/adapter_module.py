@@ -1,15 +1,10 @@
-# from csdl_om import Simulator
-from csdl import Model
 import csdl
 import numpy as np
 # from fluids import atmosphere as atmosphere
 # from lsdo_atmos.atmosphere_model import AtmosphereModel
 
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
-# from caddee.caddee_core.system_model.design_scenario.design_condition.mechanics_group.mechanics_model.mechanics_model import MechanicsModel
-# from lsdo_modules.module.module import Module
 
-class AdapterModule(ModuleCSDL):
+class AdapterModule(csdl.Model):
     """
     An adapter component that takes in 15 variables from CADDEE (not all are used), 
     and adaptes in to frame_vel(linear without rotation),

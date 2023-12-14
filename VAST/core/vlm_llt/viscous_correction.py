@@ -1,6 +1,4 @@
 import csdl
-from lsdo_modules.module.module import Module
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel
@@ -33,7 +31,7 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
         surface_shapes = self.parameters['surface_shapes']
         num_nodes = surface_shapes[0][0]
 
-        csdl_model = ModuleCSDL()
+        csdl_model = csdl.Model()
 
         self.F = []
         self.M = []
@@ -43,7 +41,7 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
             surface_names=surface_names,  
             surface_shapes=surface_shapes)
 
-        csdl_model.add_module(submodule,'viscous_correction_ml')
+        csdl_model.add(submodule,'viscous_correction_ml')
     
         return csdl_model      
 
@@ -120,7 +118,7 @@ class ViscousCorrectionModel(m3l.ExplicitOperation):
 
 
 
-class ViscousCorrectionCSDL(ModuleCSDL):
+class ViscousCorrectionCSDL(csdl.Model):
     """
     Computes the viscous correction to the forces and moments.
     """
@@ -135,7 +133,7 @@ class ViscousCorrectionCSDL(ModuleCSDL):
         num_nodes = surface_shapes[0][0] 
 
         submodel = AdapterComp(surface_names=surface_names, surface_shapes=surface_shapes)
-        self.add_module(submodel, 'adapter_comp')
+        self.add(submodel, 'adapter_comp')
 
         rho = self.declare_variable('density', shape=(num_nodes,1))
         v_inf_sq = self.declare_variable('v_inf_sq', shape=(num_nodes,1))
@@ -355,7 +353,7 @@ if __name__ == "__main__":
         surface_names=surface_names,
         surface_shapes=surface_shapes,
     )
-    model_1.add_module(submodel, 'VASTSolverModule')
+    model_1.add(submodel, 'VASTSolverModule')
     sim = Simulator(model_1, analytics=True) # add simulator
 
     

@@ -2,15 +2,13 @@ from VAST.core.vlm_llt.vlm_system import VLMSystem
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_outputs_group import Outputs
 import numpy as np
 import csdl
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
-
 # from VLM_package.VLM_preprocessing.utils.generate_simple_mesh import *
 
 # Here n_wake_pts_chord is just a dummy variable that always equal to 2. since we are using a long wake panel,
 # we can just make n_wake_pts_chord=2 and delta_t a large number.
 
 
-class VLMSolverModel(ModuleCSDL):
+class VLMSolverModel(csdl.Model):
     def initialize(self):
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
@@ -59,7 +57,7 @@ class VLMSolverModel(ModuleCSDL):
 
             frame_vel = self.create_input('frame_vel', val=frame_vel_val)
 
-        self.add_module(
+        self.add(
             VLMSystem(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,

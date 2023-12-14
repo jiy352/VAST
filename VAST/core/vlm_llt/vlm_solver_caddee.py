@@ -5,10 +5,6 @@ from VAST.core.submodels.output_submodels.vlm_post_processing.compute_outputs_gr
 import numpy as np
 import csdl
 
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
-from caddee.caddee_core.system_model.design_scenario.design_condition.mechanics_group.mechanics_model.mechanics_model import MechanicsModel
-from lsdo_modules.module.module import Module
-
 
 class VLM(MechanicsModel):
     def initialize(self, kwargs):
@@ -111,33 +107,33 @@ class VLMSolverModel(ModuleCSDL):
         mesh_unit = self.parameters['mesh_unit']
         
 
-        u_all = self.register_module_input('u', shape=(num_nodes, 1), vectorized=True)
-        v_all = self.register_module_input('v', shape=(num_nodes, 1), vectorized=True)
-        w_all = self.register_module_input('w', shape=(num_nodes, 1), vectorized=True)
-        theta_all = self.register_module_input('theta', shape=(num_nodes, 1), vectorized=True)
-        gamma_all = self.register_module_input('gamma', shape=(num_nodes, 1), vectorized=True)
-        psi_all = self.register_module_input('psi', shape=(num_nodes, 1), vectorized=True)
-        p_all = self.register_module_input('p', shape=(num_nodes, 1), vectorized=True)
-        q_all = self.register_module_input('q', shape=(num_nodes, 1), vectorized=True)
-        r_all = self.register_module_input('r', shape=(num_nodes, 1), vectorized=True)
-        x_all = self.register_module_input('x', shape=(num_nodes, 1), vectorized=True)
-        y_all = self.register_module_input('y', shape=(num_nodes, 1), vectorized=True)
-        z_all = self.register_module_input('z', shape=(num_nodes, 1), vectorized=True)
-        rho_all = self.register_module_input('density', shape=(num_nodes, 1), vectorized=True)
+        u_all = self.declare_variable('u', shape=(num_nodes, 1))
+        v_all = self.declare_variable('v', shape=(num_nodes, 1))
+        w_all = self.declare_variable('w', shape=(num_nodes, 1))
+        theta_all = self.declare_variable('theta', shape=(num_nodes, 1))
+        gamma_all = self.declare_variable('gamma', shape=(num_nodes, 1))
+        psi_all = self.declare_variable('psi', shape=(num_nodes, 1))
+        p_all = self.declare_variable('p', shape=(num_nodes, 1))
+        q_all = self.declare_variable('q', shape=(num_nodes, 1))
+        r_all = self.declare_variable('r', shape=(num_nodes, 1))
+        x_all = self.declare_variable('x', shape=(num_nodes, 1))
+        y_all = self.declare_variable('y', shape=(num_nodes, 1))
+        z_all = self.declare_variable('z', shape=(num_nodes, 1))
+        rho_all = self.declare_variable('density', shape=(num_nodes, 1))
 
-        u = self.register_module_output('u_active_nodes', shape=(num_active_nodes, 1), val=0)
-        v = self.register_module_output('v_active_nodes', shape=(num_active_nodes, 1), val=0)
-        w = self.register_module_output('w_active_nodes', shape=(num_active_nodes, 1), val=0)
-        theta = self.register_module_output('theta_active_nodes', shape=(num_active_nodes, 1), val=0)
-        gamma = self.register_module_output('gamma_active_nodes', shape=(num_active_nodes, 1), val=0)
-        psi  = self.register_module_output('psi_active_nodes', shape=(num_active_nodes, 1), val=0)
-        p = self.register_module_output('p_active_nodes', shape=(num_active_nodes, 1), val=0)
-        q = self.register_module_output('q_active_nodes', shape=(num_active_nodes, 1), val=0)
-        r = self.register_module_output('r_active_nodes', shape=(num_active_nodes, 1), val=0)
-        x = self.register_module_output('x_active_nodes', shape=(num_active_nodes, 1), val=0)
-        y = self.register_module_output('y_active_nodes', shape=(num_active_nodes, 1), val=0)
-        z = self.register_module_output('z_active_nodes', shape=(num_active_nodes, 1), val=0)
-        rho = self.register_module_output('density_active_nodes', shape=(num_active_nodes, 1), val=0)
+        u = self.create_output('u_active_nodes', shape=(num_active_nodes, 1), val=0)
+        v = self.create_output('v_active_nodes', shape=(num_active_nodes, 1), val=0)
+        w = self.create_output('w_active_nodes', shape=(num_active_nodes, 1), val=0)
+        theta = self.create_output('theta_active_nodes', shape=(num_active_nodes, 1), val=0)
+        gamma = self.create_output('gamma_active_nodes', shape=(num_active_nodes, 1), val=0)
+        psi  = self.create_output('psi_active_nodes', shape=(num_active_nodes, 1), val=0)
+        p = self.create_output('p_active_nodes', shape=(num_active_nodes, 1), val=0)
+        q = self.create_output('q_active_nodes', shape=(num_active_nodes, 1), val=0)
+        r = self.create_output('r_active_nodes', shape=(num_active_nodes, 1), val=0)
+        x = self.create_output('x_active_nodes', shape=(num_active_nodes, 1), val=0)
+        y = self.create_output('y_active_nodes', shape=(num_active_nodes, 1), val=0)
+        z = self.create_output('z_active_nodes', shape=(num_active_nodes, 1), val=0)
+        rho = self.create_output('density_active_nodes', shape=(num_active_nodes, 1), val=0)
 
         for i in range(len(active_nodes)):
             index = int(active_nodes[i])
@@ -156,7 +152,7 @@ class VLMSolverModel(ModuleCSDL):
             rho[i, 0] = rho_all[index, 0]
 
 
-        self.add_module(
+        self.add(
             VLMSystem(
                 surface_names=surface_names,
                 surface_shapes=surface_shapes,

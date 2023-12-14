@@ -1,6 +1,4 @@
 import csdl
-from lsdo_modules.module.module import Module
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 from VAST.core.submodels.input_submodels.create_input_model import CreateACSatesModel
 from VAST.core.submodels.input_submodels.create_input_module import CreateACSatesModule
 from VAST.core.vlm_llt.vlm_solver import VLMSolverModel

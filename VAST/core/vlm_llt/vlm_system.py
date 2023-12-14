@@ -7,10 +7,9 @@ from VAST.core.submodels.geometric_submodels.mesh_preprocessing_comp import Mesh
 from VAST.core.submodels.aerodynamic_submodels.seperate_gamma_b import SeperateGammab
 from VAST.core.submodels.implicit_submodels.solve_group import SolveMatrix
 from VAST.core.submodels.implicit_submodels.compute_residual import ComputeResidual
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
 
-class VLMSystem(ModuleCSDL):
+class VLMSystem(csdl.Model):
     '''
     contains
     1. MeshPreprocessing_comp
@@ -60,7 +59,7 @@ class VLMSystem(ModuleCSDL):
         ]
         wake_vel_shapes = [(x[0] * x[1], 3) for x in wake_vortex_pts_shapes]
 
-        self.add_module(MeshPreprocessingComp(surface_names=surface_names,
+        self.add(MeshPreprocessingComp(surface_names=surface_names,
                                        surface_shapes=surface_shapes,
                                        mesh_unit=mesh_unit,
                                        eval_pts_option=eval_pts_option,
@@ -80,7 +79,7 @@ class VLMSystem(ModuleCSDL):
                 surface_shapes=surface_shapes,
             )
             # m.optimize_ir(False)
-            self.add_module(m, name='adapter_comp')
+            self.add(m, name='adapter_comp')
 
         m = WakeCoords(surface_names=surface_names,
                        surface_shapes=surface_shapes,

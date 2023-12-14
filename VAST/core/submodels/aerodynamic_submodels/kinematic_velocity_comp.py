@@ -51,6 +51,7 @@ class KinematicVelocityComp(csdl.Model):
         ang_vel[:, 1] = q
         ang_vel[:, 2] = r
 
+
         for i in range(len(surface_names)):
             surface_name = surface_names[i]
             num_pts_chord = surface_shapes[i][1]
@@ -68,17 +69,31 @@ class KinematicVelocityComp(csdl.Model):
                                                     num_pts_span - 1, 3))
             rot_ref = self.declare_variable(rot_ref_name,
                                              np.zeros((num_nodes, 3)))
+            # self.print_var(rot_ref)
             rot_ref_exp = csdl.expand(rot_ref,shape=(coll_pts.shape),indices='il->ijkl')
             r_vec = coll_pts - rot_ref_exp
             ang_vel_exp = csdl.expand(
                 ang_vel, (num_nodes, num_pts_chord - 1, num_pts_span - 1, 3),
                 indices='il->ijkl')
             rot_vel = csdl.reshape(csdl.cross(ang_vel_exp, r_vec, axis=3),
-                                   out_shape)
+                                   out_shape) * 1
+            
+            scaler_mat_numpy = np.ones((rot_vel.shape))
+            # scaler_mat_numpy[:, :, 0] *= -1
+            # scaler_mat_numpy[:, :, 1] *= -1
+            # scaler_mat_numpy[:, :, 2] *= -1
+            scaler_mat = self.create_input(f'{surface_name}_scaler_mat', shape=rot_vel.shape, val=scaler_mat_numpy)
+
+            # self.print_var((frame_vel*1))
+            # self.print_var(csdl.max(rot_vel))
+            # self.print_var(csdl.min(rot_vel))
             frame_vel_expand = csdl.expand(frame_vel,
                                            out_shape,
                                            indices='ij->ikj')
             coll_vel = self.declare_variable(surface_name+'_coll_vel',val=np.zeros((num_nodes,num_pts_chord-1,num_pts_span-1,3)))
 
-            kinematic_vel = -(rot_vel + frame_vel_expand + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3)))
+            kinematic_vel = -1 * (frame_vel_expand + rot_vel* scaler_mat + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3)))
+            
+            # -(rot_vel*1 + frame_vel_expand*scaler_mat + csdl.reshape(coll_vel,new_shape=(num_nodes,(num_pts_chord-1)*(num_pts_span-1),3))) 
             self.register_output(kinematic_vel_name, kinematic_vel)
+            # self.print_var(kinematic_vel)

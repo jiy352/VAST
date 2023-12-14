@@ -2,10 +2,9 @@ import csdl
 import numpy as np
 
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_effective_aoa_cd_v import AOA_CD
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
 # from VAST.core.submodels.output_submodels.vlm_post_processing.viscous_correction_ml import ViscousCorrection
-class LiftDrag(ModuleCSDL):
+class LiftDrag(csdl.Model):
     """
     L,D,cl,cd
     parameters
@@ -44,7 +43,6 @@ class LiftDrag(ModuleCSDL):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
         cl0 = self.parameters['cl0']
-        print('cl0',cl0)
         if cl0 is None:
             cl0 = [0.0] * len(surface_names)
         num_nodes = surface_shapes[0][0]
@@ -237,11 +235,11 @@ class LiftDrag(ModuleCSDL):
             D_0i = self.create_output('D_0i',shape=(num_nodes,len(v_total_wake_names)))
             s_panels_sum_surface_list = []
             wing_AR = csdl.expand(self.declare_variable('wing_AR', shape=(1, )), shape=(num_nodes, 1))
-            self.print_var(wing_AR)
+            # self.print_var(wing_AR)
             for i in range(len(v_total_wake_names)):
                 CL_name = surface_names[i] + '_C_L'
                 C_L = self.declare_variable(CL_name, shape=(num_nodes, 1))
-                self.print_var(C_L)
+                # self.print_var(C_L)
                 nx = surface_shapes[i][1]
                 ny = surface_shapes[i][2]
                 delta = (nx - 1) * (ny - 1)
@@ -253,13 +251,13 @@ class LiftDrag(ModuleCSDL):
                                                  shape=(num_nodes, nx - 1,
                                                         ny - 1))
                 s_panels_sum_surface = csdl.reshape(csdl.sum(s_panels,axes=(1,2,)),(num_nodes,1))
-                self.register_module_output(f'panel_area_{surface_names[i]}', s_panels_sum_surface)
+                self.register_output(f'panel_area_{surface_names[i]}', s_panels_sum_surface)
                 s_panels_sum_surface_list.append(s_panels_sum_surface)
 
                 D_0i[:, i] = ((2* C_L_0 * C_L + C_L_0**2) / np.pi / wing_AR / 0.75) * 0.5 *rho*b*s_panels_sum_surface
 
                 L_0[:,i] = 0.5 *rho*b*s_panels_sum_surface*C_L_0
-            
+            # self.print_var(D_0i)
             D_0i_total = csdl.reshape((csdl.sum(D_0i, axes=(1, ))), (num_nodes, 1))
             L_0_total = csdl.reshape((csdl.sum(L_0,axes=(1,))),(num_nodes,1))
             ####################################################
@@ -291,7 +289,7 @@ class LiftDrag(ModuleCSDL):
                 # total forces from VLM, viscous drag from the wing, L_0, and other viscous drag
                 F[:, 0] =  -(total_forces_temp[:, 0] + D_0 * csdl.cos(alpha) + D_0i_total * csdl.cos(alpha) - L_0_total * csdl.sin(alpha) + other_viscous_drag * csdl.cos(alpha))
                 F[:, 1] = total_forces_temp[:, 1] * 1
-                F[:, 2] = -(total_forces_temp[:, 2] - D_0 * csdl.sin(alpha) -D_0i_total * csdl.sin(alpha) + L_0_total * csdl.cos(alpha) - other_viscous_drag * csdl.sin(alpha))
+                F[:, 2] = -(total_forces_temp[:, 2] - D_0 * csdl.sin(alpha) + D_0i_total * csdl.sin(alpha) + L_0_total * csdl.cos(alpha) - other_viscous_drag * csdl.sin(alpha))
                 ####################################################
 
 
@@ -299,11 +297,12 @@ class LiftDrag(ModuleCSDL):
             # computing the moment arm r_m relative to the evaluation_pt
             ####################################################
             evaluation_pt = self.declare_variable('evaluation_pt',
-                                                  val=np.zeros(3, ))
+                                                  val=np.zeros((num_nodes, 3)))
+
             evaluation_pt_exp = csdl.expand(
                 evaluation_pt,
                 (eval_pts_all.shape),
-                'i->jki',
+                'ji->jki',
             )          
             r_M = eval_pts_all - evaluation_pt_exp
             ####################################################
@@ -398,9 +397,9 @@ class LiftDrag(ModuleCSDL):
 
 
 
-                M[:, 0] = total_moments_tmp[:, 0] 
-                M[:, 1] = total_moments_tmp[:, 1] 
-                M[:, 2] = total_moments_tmp[:, 2]
+                M[:, 0] = total_moments_tmp[:, 0] * -1
+                M[:, 1] = total_moments_tmp[:, 1] * -1
+                M[:, 2] = total_moments_tmp[:, 2] * -1
 
                 # compute the cl and cd total for each surface
                 for i in range(len(surface_names)):
@@ -410,7 +409,7 @@ class LiftDrag(ModuleCSDL):
                     L_over_D_surface = L_total_surface / D_total_surface
                     C_D_total_surface = D_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
                     C_L_total_surface = L_total_surface/(0.5 *rho*b*s_panels_sum_surface_list[i])
-                    self.print_var(C_L_total_surface)
+                    # self.print_var(C_L_total_surface)
                     self.register_output(surface_names[i]+'_total_drag', D_total_surface)   
                     self.register_output(surface_names[i]+'_total_lift', L_total_surface)
                     self.register_output(surface_names[i]+'_L_over_D', L_over_D_surface)
@@ -423,8 +422,8 @@ class LiftDrag(ModuleCSDL):
                 C_L_total = L_total/(0.5 *rho*b*sum(s_panels_sum_surface_list)) 
                 L_over_D = L_total / D_total
 
-                self.register_module_output('total_drag', D_total)
-                self.register_module_output('total_lift', L_total)
+                self.register_output('total_drag', D_total)
+                self.register_output('total_lift', L_total)
                 self.register_output('total_CD', C_D_total)
                 self.register_output('total_CL', C_L_total)
                 self.register_output('L_over_D', L_over_D)

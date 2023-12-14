@@ -2,9 +2,9 @@ import csdl
 import numpy as np
 
 from VAST.core.submodels.output_submodels.vlm_post_processing.compute_effective_aoa_cd_v import AOA_CD
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-class LiftDrag(ModuleCSDL):
+
+class LiftDrag(csdl.Model):
     """
     L,D,cl,cd
     parameters
@@ -195,8 +195,8 @@ class LiftDrag(ModuleCSDL):
             L_total =  F[:, 0]*csdl.sin(alpha) - F[:, 2]*csdl.cos(alpha)
             C_D_total = D_total/(0.5 *rho*b*s_panels_sum_surface)
             C_L_total = L_total/(0.5 *rho*b*s_panels_sum_surface)           
-            self.register_module_output('total_drag', D_total)
-            self.register_module_output('total_lift', L_total)
+            self.register_output('total_drag', D_total)
+            self.register_output('total_lift', L_total)
             L_over_D = L_total / D_total
             self.register_output('L_over_D', L_over_D)
             self.print_var(L_over_D)
@@ -319,7 +319,7 @@ class LiftDrag(ModuleCSDL):
                                                  shape=(num_nodes, nx - 1,
                                                         ny - 1))
                 s_panels_sum_surface = csdl.reshape(csdl.sum(s_panels,axes=(1,2,)),(num_nodes,1))
-                self.register_module_output(f'panel_area_{surface_names[i]}', s_panels_sum_surface)
+                self.register_output(f'panel_area_{surface_names[i]}', s_panels_sum_surface)
                 L_0[:,i] = 0.5 *rho*b*s_panels_sum_surface*C_L_0
             L_0_total = csdl.reshape((csdl.sum(L_0,axes=(1,))),(num_nodes,1))
             ####################################################
@@ -419,8 +419,8 @@ class LiftDrag(ModuleCSDL):
             L_total =  F[:, 0]*csdl.sin(alpha) - F[:, 2]*csdl.cos(alpha)
             C_D_total = D_total/(0.5 *rho*b*s_panels_sum_surface)
             C_L_total = L_total/(0.5 *rho*b*s_panels_sum_surface)           
-            self.register_module_output('total_drag', D_total)
-            self.register_module_output('total_lift', L_total)
+            self.register_output('total_drag', D_total)
+            self.register_output('total_lift', L_total)
             L_over_D = L_total / D_total
             self.register_output('L_over_D', L_over_D)
             self.print_var(L_over_D)

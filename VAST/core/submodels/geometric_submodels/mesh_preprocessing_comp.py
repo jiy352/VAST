@@ -1,8 +1,8 @@
 import csdl
 import numpy as np
-from lsdo_modules.module_csdl.module_csdl import ModuleCSDL
 
-class MeshPreprocessingComp(ModuleCSDL):
+
+class MeshPreprocessingComp(csdl.Model):
     """
     Compute various geometric properties for VLM analysis.
 
@@ -80,13 +80,16 @@ class MeshPreprocessingComp(ModuleCSDL):
             # this should come from CADDEE geometry if connected,
             # or up to the user to create an input if using the solver alone.
             if mesh_unit == 'm':
-                def_mesh = self.register_module_input(surface_name, shape=surface_shapes[i])
+                def_mesh = self.declare_variable(surface_name, shape=surface_shapes[i])
             elif mesh_unit == 'ft':
-                def_mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i])
+                def_mesh_ft = self.declare_variable(surface_name, shape=surface_shapes[i])
 
                 def_mesh = def_mesh_ft * 0.3048
             
-            
+            deflection_angle = self.declare_variable(f'{surface_name}_flap_deflection', shape=(num_nodes, ), val=0)
+            self.register_output(f'{surface_name}_deflection_angle_test', deflection_angle * 1)
+            # self.print_var(def_mesh)
+            # print('SHAPE', def_mesh.shape)
             ################################################################################
             # create the output: 1. bd_vtx_coords
             ################################################################################
@@ -95,14 +98,15 @@ class MeshPreprocessingComp(ModuleCSDL):
                                                shape=(def_mesh.shape))
             # print(bd_vtx_coords.shape)
             # the 0th until the second last one chordwise is (0.75*left +0.25*right)
+            # print(def_mesh.shape)
             bd_vtx_coords[:, 0:num_pts_chord -
                           1, :, :] = def_mesh[:, 0:num_pts_chord -
                                               1, :, :] * .75 + def_mesh[:, 1:
                                                                         num_pts_chord, :, :] * 0.25
             # the last one chordwise is 1/4 chord offset from the last chordwise def_mesh panel
             if problem_type == 'fixed_wake':
-                print(num_pts_chord)
-                print(def_mesh.shape)
+                # print(num_pts_chord)
+                # print(def_mesh.shape)
                 bd_vtx_coords[:, num_pts_chord -
                             1, :, :] = def_mesh[:, num_pts_chord -
                                                 1, :, :] + 0.25 * (
@@ -205,9 +209,9 @@ class MeshPreprocessingComp(ModuleCSDL):
             for i in range(len(surface_shapes)):
                 surface_name = surface_names[i]
                 if mesh_unit == 'm':
-                    mesh = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                    mesh = self.declare_variable(surface_name, shape=surface_shapes[i])
                 elif mesh_unit == 'ft':
-                    mesh_ft = self.register_module_input(surface_name, shape=surface_shapes[i], promotes=True)
+                    mesh_ft = self.declare_variable(surface_name, shape=surface_shapes[i])
                     mesh = mesh_ft * 0.3048
 
                 eval_pts_coords = (
@@ -227,8 +231,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         ################################################################################
         # create the output: 7. re_span: Reynolds # of each strip
         ################################################################################
-        rho = self.register_module_input('density', shape=(num_nodes, 1), val=1.1)
-        v_inf_sq = self.register_module_input('v_inf_sq', shape=(num_nodes, 1), val=1.1)
+        rho = self.declare_variable('density', shape=(num_nodes, 1), val=1.1)
+        v_inf_sq = self.declare_variable('v_inf_sq', shape=(num_nodes, 1), val=1.1)
 
         mu = 1.8e-5
 
@@ -240,7 +244,7 @@ class MeshPreprocessingComp(ModuleCSDL):
             rho_v_exp = csdl.expand(rho * (v_inf_sq**0.5), (num_nodes,chord_length_span.shape[1],1),'ik->ijk')
 
             re_span = rho_v_exp * chord_length_span / mu
-            self.register_module_output(surface_names[i] + '_re_span', re_span)
+            self.register_output(surface_names[i] + '_re_span', re_span)
 
 
 if __name__ == "__main__":
