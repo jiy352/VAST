@@ -91,13 +91,18 @@ def run_fish(v_inf):
     model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
-    model.add_design_variable('v_x',upper=0.8,lower=0.3)
+    # model.add_design_variable('v_x',upper=0.8,lower=0.5)
+    model.add_design_variable('v_x',upper=0.7,lower=0.7)
     # '''
     if True:
-        model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
-        model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
-        model.add_design_variable('wave_number',upper=2,lower=0.5)
-        model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
+        # model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
+        # model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
+        # model.add_design_variable('wave_number',upper=2,lower=0.5)
+
+        model.add_design_variable('tail_amplitude',upper=0.4,lower=0.1)
+        model.add_design_variable('tail_frequency',upper=0.6,lower=0.4)
+        model.add_design_variable('wave_number',upper=2,lower=1.9)
+        # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
 
         model.print_var(tail_amplitude)
         model.print_var(tail_frequency)
@@ -193,3 +198,11 @@ optimizer = SNOPT(
 optimizer.solve()
 optimizer.print_results(summary_table=True)
 # print('total time is', time.time() - t_start)
+
+print('v_x is',sim['v_x'])
+print('efficiency is',sim['efficiency'])
+print('tail amplitude is',sim['tail_amplitude'])
+print('tail frequency is',sim['tail_frequency'])
+print('wave number is',sim['wave_number'])
+print('strouhal number is',sim['tail_amplitude']*sim['tail_frequency']*2/sim['v_x'])
+print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')

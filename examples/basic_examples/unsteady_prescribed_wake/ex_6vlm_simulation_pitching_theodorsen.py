@@ -101,7 +101,7 @@ if __name__ == '__main__':
 
     import matplotlib.pyplot as plt
 
-    num_nodes = 220
+    num_nodes = 150
     N_period=3
     A=1
 

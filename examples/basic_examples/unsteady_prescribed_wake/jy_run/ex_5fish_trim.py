@@ -183,3 +183,11 @@ optimizer = SNOPT(
 optimizer.solve()
 optimizer.print_results(summary_table=True)
 # print('total time is', time.time() - t_start)
+print('v_x is',sim['v_x'])
+print('efficiency is',sim['efficiency'])
+print('tail amplitude is',sim['tail_amplitude'])
+print('tail frequency is',sim['tail_frequency'])
+print('wave number is',sim['wave_number'])
+print('strouhal number is',sim['tail_frequency']*sim['tail_frequency']*2/sim['v_x'])
+print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
+
