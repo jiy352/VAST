@@ -110,8 +110,7 @@ class BiotSavartComp(csdl.Model):
                 # self.register_output('aic_half', AIC_half)             
                 # model_2 = csdl.Model()
                 AIC = csdl.custom(AIC_half, op = SymmetryFlip(in_name=AIC_half.name, eval_pt_shape=eval_pt_shape, vortex_coords_shape=vortex_coords_shape, out_name=output_name))
-                
-
+            
             self.register_output(output_name, AIC)
 
 

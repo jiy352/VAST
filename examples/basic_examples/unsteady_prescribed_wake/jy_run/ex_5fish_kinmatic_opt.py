@@ -29,7 +29,7 @@ def run_fish(v_inf):
     # kinematics variables
     # v_inf = 0.38467351
 
-    lambda_ = 1
+    lambda_ = 2
     N_period= 2         
     st = 0.15
     A = 0.125
@@ -92,16 +92,16 @@ def run_fish(v_inf):
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
     # model.add_design_variable('v_x',upper=0.8,lower=0.5)
-    model.add_design_variable('v_x',upper=0.7,lower=0.7)
+    model.add_design_variable('v_x',upper=0.2,lower=0.2)
     # '''
     if True:
         # model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
         # model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
         # model.add_design_variable('wave_number',upper=2,lower=0.5)
 
-        model.add_design_variable('tail_amplitude',upper=0.4,lower=0.1)
-        model.add_design_variable('tail_frequency',upper=0.6,lower=0.4)
-        model.add_design_variable('wave_number',upper=2,lower=1.9)
+        model.add_design_variable('tail_amplitude',upper=0.4,lower=0.05)
+        model.add_design_variable('tail_frequency',upper=0.4,lower=0.05)
+        # model.add_design_variable('wave_number',upper=2,lower=1.9)
         # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
 
         model.print_var(tail_amplitude)
@@ -186,7 +186,7 @@ prob = CSDLProblem(
 # optimizer = SLSQP(prob, maxiter=1)
 optimizer = SNOPT(
     prob, 
-    Major_iterations=100,
+    Major_iterations=30,
     # Major_optimality=1e-6,
     Major_optimality=1e-7,
     # Major_feasibility=1e-5,
