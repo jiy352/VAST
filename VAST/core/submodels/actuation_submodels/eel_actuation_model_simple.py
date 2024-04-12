@@ -82,11 +82,15 @@ class EelActuationModel(csdl.Model):
 
             # define the x (length) discretization of the mesh:
             # cos spacing for head
+            '''
             x_1 = (1-np.cos(np.linspace(0, np.pi/2,s_1_ind,endpoint=False)))*s1 
             # linear spacing for body and tail
             x_2 = np.linspace(s1, s2, int(s_2_ind-s_1_ind),endpoint=False) 
             x_3 = np.linspace(s2, L, int(nx-s_2_ind))
             x = np.concatenate((x_1,x_2,x_3)) # size = nx
+            '''
+            start_epsilon = 1e-10
+            x = np.linspace(start_epsilon,1,nx) * L
                         
             # define the x and y coordinates of the mesh
             tensor_x = np.outer(x, np.ones(ny)).reshape(nx,ny,1) # x coordinate
@@ -123,8 +127,6 @@ class EelActuationModel(csdl.Model):
             y = tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1)) * csdl.sin(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)
             y_dot =  tail_amplitude_exp*((x_exp+linear_relation_exp)/(linear_relation_exp+1))*csdl.cos(np.pi*2*x_exp/wave_number_exp - omg_exp*t_exp)*(-omg_exp)
 
-
-
             # velocity of the fish on its collocation points
             coll_vel = self.create_output(name=surface_names[i]+'_coll_vel',val=np.zeros((num_nodes,nx-1,ny-1,3)))
             
@@ -132,9 +134,8 @@ class EelActuationModel(csdl.Model):
             
             mesh = self.create_output(surface_names[i],val=np.zeros((num_nodes,nx,ny,3)))
 
-
             mesh[:,:,:,0] = x_exp    
-            mesh[:,:,:,1] = y
+            mesh[:,:,:,1] = y 
             mesh[:,:,:,2] = tensor_z_csdl * height * 2 
             # this is due to the fact that the original height is from -0.5 to 0.5, need to scale it to the actual height of the fish
 

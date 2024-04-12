@@ -9,7 +9,6 @@ from python_csdl_backend import Simulator
 
 def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
     fluid_problem = FluidProblem(solver_option='VLM', problem_type='fixed_wake')
-
     model_1 = csdl.Model()
     ####################################################################
     # 1. add aircraft states
@@ -42,7 +41,7 @@ def ex1_generate_model_vlm_fixed_wake(num_nodes,nx, ny):
             surface_shapes=surface_shapes,
             num_nodes=num_nodes,
             eval_pts_shapes=eval_pts_shapes,
-            AcStates='dummy',
+            AcStates='acstates',
             cl0=[0.0],
             symmetry=True,
         )
