@@ -128,7 +128,7 @@ class ODEProblemTest(ODEProblem):
         self.add_times(step_vector='h')
 
         # Define ODE and Profile Output systems (Either CSDL Model or Native System)
-        self.set_ode_system(ODESystemModel)
+        self.set_ode_system(ODESystemModel,display_scripts=True)
         # self.set_profile_system(ProfileOpModel)
 
 
@@ -195,6 +195,9 @@ class UVLMSolver(csdl.Model):
             '''2. wing_wake_coords_0'''
             wing_wake_coords_0_val = np.zeros((num_times - 1, ny, 3))
             wing_wake_coords_0 = self.create_input(wake_coords_0_name, wing_wake_coords_0_val)
+            # surface = self.declare_variable(surface_name, shape=(num_times, nx, ny, 3))
+            # wing_wake_coords_0 = csdl.reshape(surface[:-1,-1,:,:],(num_times-1,ny,3))
+            # self.register_output(wake_coords_0_name, wing_wake_coords_0)
 
         ########################################
         # Timestep vector

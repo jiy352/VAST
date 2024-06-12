@@ -99,7 +99,7 @@ class AssembleAic(Model):
             eval_pt_shapes=eval_pt_shapes,
             vortex_coords_shapes=vortex_coords_shapes,
             output_names=output_names,
-            vc=True,
+            vc=self.parameters['vc'],
             symmetry=self.parameters['symmetry'],
         )
         self.add(m, name='aic_bd_w_seperate')

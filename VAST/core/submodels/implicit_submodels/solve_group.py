@@ -193,7 +193,7 @@ class SolveMatrix(Model):
                                                         in_name_2='gamma_w_reshaped',
                                                         in_shape=M_shape,
                                                         out_name='product_w'))    
-
+            # self.print_var(gamma_w)
 
             # gamma_w_reshape = model.declare_variable(gamma_w,shape=(num_nodes,gamma_w.shape[1]*gamma_w.shape[2]))
             y = product + product_w+ b
@@ -206,7 +206,7 @@ class SolveMatrix(Model):
             solve.declare_state('gamma_b', residual='y')
             solve.nonlinear_solver = NewtonSolver(
                 solve_subsystems=False,
-                maxiter=10,
+                maxiter=3,
                 iprint=True,
             )
             solve.linear_solver = ScipyKrylov()
@@ -223,6 +223,10 @@ class SolveMatrix(Model):
             M = self.declare_variable('M_mat', shape=M_shape)
 
             gamma_b = solve(aic_bd_proj,M, gamma_w, b)
+            # self.print_var(aic_bd_proj)
+            # self.print_var(product_w*1)
+
+            # self.print_var(b)
 
  
 

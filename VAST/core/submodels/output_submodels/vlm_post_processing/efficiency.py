@@ -58,7 +58,8 @@ class EfficiencyModel(csdl.Model):
         # panel_thrust_power = csdl.sum(-panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0] - panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
         thrust_power = -csdl.sum(csdl.sum(thrust[n_ignore:-1,:],axes=(0,))*v_x)                                                                       
         # panel_thrust_power = thrust_power + csdl.sum( panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
-        panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2])
+        panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2]) +\
+            csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2]) + thrust_power
         # thrust is negative, -v_x is negative, so thrust_power is positive
 
         self.print_var(panel_thrust_power)

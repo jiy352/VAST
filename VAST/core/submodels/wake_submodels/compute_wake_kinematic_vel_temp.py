@@ -70,4 +70,5 @@ class ComputeWakeKinematicVel(Model):
 
         for i in range(len(surface_names)):
             surface_wake_kinematic_vel = csdl.expand(-frame_vel,(wake_kinematic_vel_shapes[i]),'il->ijkl')
+            # self.print_var(surface_wake_kinematic_vel)
             self.register_output(wake_kinematic_vel_names[i],surface_wake_kinematic_vel)
