@@ -140,16 +140,17 @@ class ODESystemModel(csdl.Model):
             # self.print_var(surface_gamma_b)
             #outputs for state 1
             surface_dgammaw_dt = self.create_output(surface_dgammaw_dt_name,
-                                                    shape=(n, nt - 1, ny - 1))
+                                                    shape=(n, nt - 1, ny - 1),val=0)
 
             gamma_b_last = csdl.reshape(surface_gamma_b[:,(nx - 2) * (ny - 1):],
                                         new_shape=(n, 1, ny - 1))
 
             surface_dgammaw_dt[:, 0, :] = (gamma_b_last -
                                            surface_gamma_w[:, 0, :]) / delta_t
-            surface_dgammaw_dt[:, 1:, :] = (
-                surface_gamma_w[:, :(surface_gamma_w.shape[1] - 1), :] -
-                surface_gamma_w[:, 1:, :]) / delta_t
+            if nt > 2:
+                surface_dgammaw_dt[:, 1:, :] = (
+                    surface_gamma_w[:, :(surface_gamma_w.shape[1] - 1), :] -
+                    surface_gamma_w[:, 1:, :]) / delta_t
 
             # self.print_var(surface_gamma_w)
             # self.print_var(surface_gamma_b)
@@ -200,9 +201,17 @@ class ODESystemModel(csdl.Model):
             # print(surface_dwake_coords_dt.name,surface_dwake_coords_dt.shape)
 
             TE = surface_bd_vtx[:, nx - 1, :, :]
-
-            surface_dwake_coords_dt[:, 0, :, :] = (TE  + wake_total_vel[:, 0, :, :]*delta_t - surface_wake_coords[:, 0, :, :]) / delta_t
-            surface_dwake_coords_dt[:, 1:, :, :] = (surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
+            coeff = 0
+            surface_dwake_coords_dt[:, 0, :, :] = (TE  + wake_total_vel[:, 0, :, :]*delta_t*coeff - surface_wake_coords[:, 0, :, :]) / delta_t
+            if nt > 2:
+                # surface_dwake_coords_dt[:, 1:, :, :] = (surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
+                print('----------------------',csdl.reshape((TE  + wake_total_vel[:, 0, :, :]*delta_t*coeff - surface_wake_coords[:, 0, :, :]),(n,ny,3)).shape)
+                print('surface_dwake_coords_dt[:, 1:, :, :].shape',surface_dwake_coords_dt[:, 1:, :, :].shape)
+                exp  = csdl.expand(csdl.reshape((TE  + wake_total_vel[:, 0, :, :]*delta_t*coeff - surface_wake_coords[:, 0, :, :]),(n,ny,3)),
+                                    surface_dwake_coords_dt[:, 1:, :, :].shape, 'ijl->ikjl')
+                surface_dwake_coords_dt[:, 1:, :, :] = (exp+surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
+                # self.print_var(wake_total_vel[:, 1:, :, :] * delta_t)
+            # self.print_var(surface_wake_coords)
 
 if __name__ == "__main__":
     import enum

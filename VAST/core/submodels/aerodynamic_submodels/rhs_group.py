@@ -107,7 +107,9 @@ class RHS(Model):
                 full_aic_name='aic_M',
                 delta_t=delta_t,  # one line of wake vortex for fix wake,
                 symmetry=self.parameters['symmetry'],
+
             )
+            
 
         elif problem_type=='prescribed_wake':
             TE_wake_coords_names = [x + '_TE_wake_coords' for x in surface_names]
@@ -118,11 +120,24 @@ class RHS(Model):
             for i in range(len(surface_names)):
                 bd_vortex_coords = self.declare_variable(bd_vtx_coords_names[i],shape=bd_vortex_shapes[i])
                 wake_coords = self.declare_variable(wake_coords_names[i],shape=wake_vortex_pts_shapes[i])
-                print(wake_coords_names)
+                # print(wake_coords_names)
                 # self.print_var(wake_coords)
+
+
                 TE_wake_coords=self.create_output(TE_wake_coords_names[i],shape=TE_wake_vortex_pts_shapes[i])
-                TE_wake_coords[:,0,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:]
-                TE_wake_coords[:,1:,:,:] = wake_coords
+                TE_wake_coords[:,:-1,:,:] = wake_coords
+                TE_wake_coords[:,n_wake_pts_chord,:,:] = wake_coords[:,n_wake_pts_chord-1,:,:]*1
+
+                # TE_wake_coords[:,0,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:]
+                # # compute starting point of the wake
+                # frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
+                # coeff  = 1
+                # dx = csdl.expand(-frame_vel*coeff*delta_t, shape=(num_nodes, 1, bd_vortex_shapes[i][2], 3),indices='il->ijkl')
+                # TE_wake_coords[:,1,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:] + dx
+                # # print('TE_wake_coords',TE_wake_coords.shape)
+                # if TE_wake_coords.shape[1]>2:
+                #     TE_wake_coords[:,2:,:,:] = wake_coords[:,1:,:,:]
+                # self.print_var(TE_wake_coords)
             m = AssembleAic(
                 bd_coll_pts_names=coll_pts_coords_names,
                 wake_vortex_pts_names=TE_wake_coords_names,
@@ -130,6 +145,7 @@ class RHS(Model):
                 wake_vortex_pts_shapes=TE_wake_vortex_pts_shapes,
                 full_aic_name='aic_M',
                 symmetry=self.parameters['symmetry'],
+                vc = True,
                 # delta_t=delta_t,  # one line of wake vortex for fix wake
             )
         self.add(m, name='AssembleAic')

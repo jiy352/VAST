@@ -98,6 +98,8 @@ class RHSEND(Model):
             normal_shapes=bd_coll_pts_shapes,
         )
         self.add(m, name='Projection_k_vel')
+        print('kinematic_vel_names',kinematic_vel_names)
+        print('kinematic_vel_shapes',kinematic_vel_shapes)
         '''2. compute M (bk_euler) or M\gamma_w (fw_euler)'''
         if problem_type=='fixed_wake':
             m = AssembleAic(
@@ -122,8 +124,20 @@ class RHSEND(Model):
                 print(wake_coords_names)
                 # self.print_var(wake_coords)
                 TE_wake_coords=self.create_output(TE_wake_coords_names[i],shape=TE_wake_vortex_pts_shapes[i])
-                TE_wake_coords[:,0,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:]
-                TE_wake_coords[:,1:,:,:] = wake_coords
+                TE_wake_coords[:,:-1,:,:] = wake_coords
+                TE_wake_coords[:,n_wake_pts_chord,:,:] = wake_coords[:,n_wake_pts_chord-1,:,:]*1
+                # TE_wake_coords[:,0,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:]
+
+                # frame_vel = self.declare_variable('frame_vel', shape=(num_nodes, 3))
+                # coeff = 0.25
+                # coeff = 1
+                # print('delta_t',delta_t)
+                # dx = csdl.expand(-frame_vel*coeff*delta_t, shape=(num_nodes, 1, bd_vortex_shapes[i][2], 3),indices='il->ijkl')
+                # TE_wake_coords[:,1,:,:] = bd_vortex_coords[:,bd_vortex_shapes[i][1]-1,:,:] + dx
+                # if TE_wake_coords.shape[1]>2:
+                #     TE_wake_coords[:,2:,:,:] = wake_coords[:,1:,:,:]
+                # self.print_var(TE_wake_coords)
+
             m = AssembleAic(
                 bd_coll_pts_names=coll_pts_coords_names,
                 wake_vortex_pts_names=TE_wake_coords_names,
@@ -131,6 +145,7 @@ class RHSEND(Model):
                 wake_vortex_pts_shapes=TE_wake_vortex_pts_shapes,
                 full_aic_name='aic_M',
                 symmetry=self.parameters['symmetry'],
+                vc = False,  
                 # delta_t=delta_t,  # one line of wake vortex for fix wake
             )
         self.add(m, name='AssembleAic')

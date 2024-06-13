@@ -57,6 +57,8 @@ class Projection(csdl.Model):
             # this if for projection of kinematic vel
             output_vel = self.create_output(output_vel_name,
                                             shape=output_shape)
+            # print('output_vel shape', output_vel.shape)
+            # print('output_vel name', output_vel.name)
 
             for i in range(len(input_vel_names)):
 

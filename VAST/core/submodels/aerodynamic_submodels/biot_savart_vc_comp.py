@@ -50,10 +50,11 @@ class BiotSavartComp(csdl.Model):
         vortex_coords_shapes = self.parameters['vortex_coords_shapes']
         output_names = self.parameters['output_names']
         vc = self.parameters['vc']
+        # vc = False
         eps = self.parameters['eps']
         # circulation_names = self.parameters['circulation_names']
         symmetry = self.parameters['symmetry']
-        symmetry = True
+        symmetry = False
         # print('symmetry is---------------------------------------------', symmetry)
 
         for i in range(len(eval_pt_names)):
@@ -80,6 +81,11 @@ class BiotSavartComp(csdl.Model):
             C = vortex_coords[:,:vortex_coords_shape[1] - 1, 1:, :]
             D = vortex_coords[:,1:, 1:, :]
 
+            print('the shape of A is', A.shape)
+            # self.print_var(vortex_coords)
+            # self.print_var(B)
+            # self.print_var(C)
+            # self.print_var(D)
 
             if symmetry == False:
                 self.r_A, self.r_A_norm = self.__compute_expand_vecs(eval_pts, A, vortex_coords_shape,eval_pt_name,vortex_coords_name,output_name,'A')
@@ -91,7 +97,10 @@ class BiotSavartComp(csdl.Model):
                 v_cd = self._induced_vel_line(self.r_C, self.r_D, self.r_C_norm, self.r_D_norm,'CD')
                 v_da = self._induced_vel_line(self.r_D, self.r_A, self.r_D_norm, self.r_A_norm,'DA')
 
-                AIC = v_ab + v_bc + v_cd + v_da           
+                
+
+                AIC = v_ab + v_bc + v_cd + v_da    
+                # self.print_var(AIC)      
             
             else:
                 nx = eval_pt_shape[1]
@@ -159,7 +168,7 @@ class BiotSavartComp(csdl.Model):
     def _induced_vel_line(self, r_1, r_2, r_1_norm, r_2_norm,line_name):
 
         vc = self.parameters['vc']
-        # print('vc is--------------------', vc)
+        print('vc is--------------------', vc)
 
         num_nodes = r_1.shape[0]
 
@@ -176,10 +185,18 @@ class BiotSavartComp(csdl.Model):
             num_expand = csdl.expand(num, (num_nodes, num.shape[1], 3), 'ij->ijl')
             # num_expand = jnp.einsum('ij,l->ijl', num, jnp.ones(3))
             v_induced_line = num_expand * one_over_den
+            # if line_name == 'AB':
+            #     self.print_var(r_1[:,1,:])
+            #     self.print_var((r_2*1)[:,1,:])
+            #     self.print_var(v_induced_line[:,1,:])
+            # self.print_var(r_1)
+            # self.print_var(r_2*1)
+            # self.print_var(v_induced_line)
+
         else:
-            new_vc=False
+            new_vc=True
             if new_vc:
-                core_size = 0.05
+                core_size = 0.005
                 dor_r1_r2 = csdl.sum(r_1*r_2,axes=(2,))
                 r1s = r_1_norm**2
                 r2s = r_2_norm**2
@@ -190,10 +207,18 @@ class BiotSavartComp(csdl.Model):
                 # print('shapes in biot-savart law r_1_norm',r_1_norm.shape)
                 f1 = ( (r1s - dor_r1_r2)/((r1s + eps_s + 1e-10)**0.5) + (r2s - dor_r1_r2)/((r2s + eps_s + 1e-10) **0.5) )/(r1s*r2s - dor_r1_r2**2 + eps_s*(r1s + r2s - 2*r_1_norm*r_2_norm) + 1e-10)
                 f2 = one_over_den
+
+            
                 v_induced_line = csdl.expand(f1,(f2.shape),'ij->ijk') * f2 
                 # self.print_var(v_induced_line)
-
-
+                # if line_name == 'AB':
+                #     self.print_var(r_1)
+                #     self.print_var(r_2*1)
+                #     self.print_var(v_induced_line)
+                # if line_name == 'AB':
+                #     self.print_var(r_1[:,1,:])
+                #     self.print_var((r_2*1)[:,1,:])
+                #     self.print_var(v_induced_line[:,1,:])
             else:
                 # this should be moved out instead of being in here, this is only used for dynamic case to compute the wake induced velocity indead
                 dor_r1_r2 = csdl.sum(r_1*r_2,axes=(2,))
@@ -202,7 +227,8 @@ class BiotSavartComp(csdl.Model):
                 # dino_non_singular = csdl.custom(dino, op=ReplaceZeros(in_name=dino.name,
                 #                                                       in_shape=dino.shape,
                 #                                                       out_name=dino.name + '_non_singular'))
-                dino_non_singular = dino + 1e-4
+                # dino_non_singular = dino + 1e-4
+                dino_non_singular = dino + 1e-10
 
                 # num = (1/dino_non_singular) * (1/r_1_norm + 1/r_2_norm)
                 num = (1/dino_non_singular) * (1/(r_1_norm+1e-3) + 1/(r_2_norm+1e-3))
@@ -214,6 +240,9 @@ class BiotSavartComp(csdl.Model):
                 num_expand = csdl.expand(num, (num_nodes, num.shape[1], 3), 'ij->ijl')
                 # num_expand = jnp.einsum('ij,l->ijl', num, jnp.ones(3))
                 v_induced_line = num_expand * one_over_den
+                # self.print_var(r_1)
+                # self.print_var(r_2*1)
+                # # self.print_var(one_over_den)
                 # self.print_var(v_induced_line)
                 # '''
 

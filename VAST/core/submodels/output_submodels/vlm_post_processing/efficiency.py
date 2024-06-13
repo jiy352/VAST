@@ -47,25 +47,17 @@ class EfficiencyModel(csdl.Model):
         velocities_x[:,:,0] = csdl.expand(v_x,shape=velocities[:,:,0].shape)
         velocities_x[:,:,1] = velocities[:,:,1]
         velocities_x[:,:,2] = velocities[:,:,2] 
-        # velocities_x[:,:,1] = 0
-        # velocities_x[:,:,2] = 0
+        self.print_var(velocities_x)
 
-        thrust_power = csdl.sum(csdl.sum(thrust[n_ignore:-1,:],axes=(0,))*v_x)     
-        # this is energy transfered from fish to water
-        # thrust is positive (magnitude), v_x is positive, so thrust_power is positive
+        # panel_thrust_power = -csdl.sum(csdl.dot(panel_forces_all[n_ignore:,:,:],-velocities_x[n_ignore:,:,:],axis=2))
 
-        panel_thrust_power_x = csdl.sum( panel_forces_all[n_ignore:-1,:,0]*velocities_x[n_ignore:-1,:,0])
-        panel_thrust_power_y = csdl.sum( panel_forces_all[n_ignore:-1,:,1]*velocities_x[n_ignore:-1,:,1])
-        panel_thrust_power_z = csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*velocities_x[n_ignore:-1,:,2])
-
-        # this is energy transferred from fish to water by the panels
-        # panel_forces_all is the force the water exerts on the panels, so the force the panels exert on the water is -panel_forces_all
-
-        self.register_output('panel_thrust_power_x',panel_thrust_power_x)
-        self.register_output('panel_thrust_power_y',panel_thrust_power_y)
-        self.register_output('panel_thrust_power_z',panel_thrust_power_z)
-
-        panel_thrust_power = panel_thrust_power_x + panel_thrust_power_y + panel_thrust_power_z
+        # panel_thrust_power = -csdl.sum((panel_forces_all[n_ignore:,:,0]*0.5))
+        # panel_thrust_power = -csdl.sum((panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0]))
+        # panel_thrust_power = csdl.sum(-panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0] - panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
+        thrust_power = -csdl.sum(csdl.sum(thrust[n_ignore:-1,:],axes=(0,))*v_x)                                                                       
+        # panel_thrust_power = thrust_power + csdl.sum( panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
+        panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2]) +\
+            csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2]) + thrust_power
         # thrust is negative, -v_x is negative, so thrust_power is positive
         # here we use kinematic velocity, this is the velocity of the fluid at the panel
         
