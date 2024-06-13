@@ -31,45 +31,49 @@ class EfficiencyModel(csdl.Model):
         # mesh_unit = self.parameters['mesh_unit']
         # N_period = self.parameters['n_period']
 
-
-
         n_ignore = self.parameters['n_ignore']
         print('n_ignore',n_ignore)
 
         panel_forces_all = self.declare_variable('panel_forces_all',shape=(surface_shapes[0][0],int(surface_shapes[0][1]-1)*int(surface_shapes[0][2]-1),3))
-        velocities = self.declare_variable(surface_name+'_kinematic_vel',shape=panel_forces_all.shape)
+        velocities = self.declare_variable(surface_name+'_coll_vel',shape=panel_forces_all.shape)
         v_x = self.declare_variable('v_x')
         thrust = self.declare_variable('thrust',shape=(num_nodes,1))
         eval_total_vel = self.declare_variable('eval_total_vel',shape=velocities.shape)  
-        panel_forces_all_x = panel_forces_all[:,:,0]
 
         # self.print_var(velocities)
         velocities_x = self.create_output('velocities_x',shape=velocities.shape,val=0)
-        velocities_x[:,:,0] = (velocities[:,:,0] - csdl.expand(v_x,shape=velocities[:,:,0].shape)) 
-        # velocities_x[:,:,0] = (velocities[:,:,0] ) 
-        velocities_x[:,:,1] = velocities[:,:,1] 
+
+        # velocity of the water as if the fish was not moving
+        velocities_x[:,:,0] = csdl.expand(v_x,shape=velocities[:,:,0].shape)
+        velocities_x[:,:,1] = velocities[:,:,1]
         velocities_x[:,:,2] = velocities[:,:,2] 
-        # self.print_var(velocities_x)
+        # velocities_x[:,:,1] = 0
+        # velocities_x[:,:,2] = 0
 
-        # panel_thrust_power = -csdl.sum(csdl.dot(panel_forces_all[n_ignore:,:,:],-velocities_x[n_ignore:,:,:],axis=2))
+        thrust_power = csdl.sum(csdl.sum(thrust[n_ignore:-1,:],axes=(0,))*v_x)     
+        # this is energy transfered from fish to water
+        # thrust is positive (magnitude), v_x is positive, so thrust_power is positive
 
-        # panel_thrust_power = -csdl.sum((panel_forces_all[n_ignore:,:,0]*0.5))
-        # panel_thrust_power = -csdl.sum((panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0]))
-        # panel_thrust_power = csdl.sum(-panel_forces_all[n_ignore:,:,0]*velocities_x[n_ignore:,:,0] - panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
-        thrust_power = -csdl.sum(csdl.sum(thrust[n_ignore:-1,:],axes=(0,))*v_x)                                                                       
-        # panel_thrust_power = thrust_power + csdl.sum( panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2])
-        panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2])
+        panel_thrust_power_x = csdl.sum( panel_forces_all[n_ignore:-1,:,0]*velocities_x[n_ignore:-1,:,0])
+        panel_thrust_power_y = csdl.sum( panel_forces_all[n_ignore:-1,:,1]*velocities_x[n_ignore:-1,:,1])
+        panel_thrust_power_z = csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*velocities_x[n_ignore:-1,:,2])
+
+        # this is energy transferred from fish to water by the panels
+        # panel_forces_all is the force the water exerts on the panels, so the force the panels exert on the water is -panel_forces_all
+
+        self.register_output('panel_thrust_power_x',panel_thrust_power_x)
+        self.register_output('panel_thrust_power_y',panel_thrust_power_y)
+        self.register_output('panel_thrust_power_z',panel_thrust_power_z)
+
+        panel_thrust_power = panel_thrust_power_x + panel_thrust_power_y + panel_thrust_power_z
         # thrust is negative, -v_x is negative, so thrust_power is positive
+        # here we use kinematic velocity, this is the velocity of the fluid at the panel
+        
 
-        # self.print_var(panel_thrust_power)
-        # self.print_var(thrust_power)
-        # self.print_var(csdl.sum(- panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2]))
-        # # self.print_var(velocities_x[n_ignore:,:,0])
-        self.print_var(v_x)
-        # self.print_var(csdl.sum(thrust[n_ignore:,:],axes=(0,)))
 
         # efficiency = thrust_power/(panel_thrust_power+thrust_power)
-        efficiency = thrust_power/(panel_thrust_power)
+        # efficiency = thrust_power/(panel_thrust_power)
+        efficiency = panel_thrust_power_x/panel_thrust_power_y
         self.print_var(efficiency)
         self.register_output('panel_thrust_power',panel_thrust_power)
         self.register_output('thrust_power',thrust_power)
