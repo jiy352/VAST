@@ -168,7 +168,7 @@ class BiotSavartComp(csdl.Model):
     def _induced_vel_line(self, r_1, r_2, r_1_norm, r_2_norm,line_name):
 
         vc = self.parameters['vc']
-        print('vc is--------------------', vc)
+        # print('vc is--------------------', vc)
 
         num_nodes = r_1.shape[0]
 

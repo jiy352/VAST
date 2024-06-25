@@ -37,12 +37,10 @@ num_ts = 4
 ########################################
 # 2. define kinematics
 ########################################
-
-
 chord = 1
 v_inf = 1
 omg = 2*v_inf*k/chord
-t_vec = np.linspace(0, np.pi*9/omg, num_ts) 
+t_vec = np.linspace(0, np.pi*9/omg, num_ts)
 '''figure out these dt'''
 # heaving amplitude
 h = 0.1 * chord
@@ -85,7 +83,7 @@ h_stepsize = delta_t = t_vec[1]
 model_1 = csdl.Model()
 wing = model_1.create_input('wing', val=mesh_val)
 wing_coll_vel = model_1.create_input('wing_coll_vel', val=np.zeros((num_ts, nc-1, ns-1, 3)))
-
+rho = model_1.create_input('density', val=np.ones((num_ts,1)))  
 z_vel = h * np.cos(omg*t_vec)
 
 
@@ -104,6 +102,8 @@ print(sim['wing_C_L'])
 k_list = [k]
 CL = sim['wing_C_L']
 import matplotlib.pyplot as plt
+# turn off tex
+plt.rc('text', usetex=False)
 plt.plot(t_vec/np.pi/2-2, CL)
 
 plt.xlabel('t/T')

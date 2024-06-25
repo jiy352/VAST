@@ -126,8 +126,6 @@ class EvalPtsVel(Model):
                       for x, y in zip(eval_pts_shapes, bdnwake_shapes)]
 
 
-
-
         eval_vel_shapes = [(num_nodes, x[1] * x[2], 3)
                            for x in eval_pts_shapes]
 

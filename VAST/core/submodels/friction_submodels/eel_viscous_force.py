@@ -43,7 +43,6 @@ class EelViscousModel(Model):
     def initialize(self):
         self.parameters.declare('surface_shapes')
         self.parameters.declare('surface_shapes')
-        pass
 
     def define(self):
         v_x = self.declare_variable(name='v_x')
@@ -87,40 +86,3 @@ class EelViscousModel(Model):
         self.register_output('C_F', CF)
 
 
-        # cf = 2νl / (θVe)
-        surface_shapes = self.parameters['surface_shapes']
-        # compute the theta
-        # theta_analytical_laminar = 0.664 * x_vals / np.sqrt(U_inf * x_vals / nu)
-        # L = 1
-        (num_nodes, nx, ny,_) = surface_shapes[0]
-        # x_vals = np.linspace(1e-4, L, nx-1)
-        eel_mesh = self.declare_variable('eel', shape=(num_nodes, nx, ny, 3))
-
-        x_vals = csdl.reshape(eel_mesh[0,1:,0,0], (nx-1,))
-
-
-        v_x_expand = csdl.expand(v_x, x_vals.shape)
-        nu = 1.004e-6 # kinematic viscosity of water
-        theta = 0.664 * x_vals / (v_x_expand * (x_vals/ nu) )**0.5
-        l = 0.22 # for lamba = 0
-        cf = 2 * nu * l / (theta * v_x_expand)
-
-
-        panel_area = self.declare_variable('eel' + '_s_panel',shape=(num_nodes, nx-1,ny-1))
-        panel_area_strip = csdl.reshape(csdl.sum(panel_area[0,:,:], axes=(2,)) , (nx-1,))
-        panel_area_sum = csdl.sum(panel_area[0,:,:])
-        # self.print_var(panel_area)
-        # self.print_var(panel_area_sum)
-        # self.print_var(cf)
-
-        CF = csdl.sum(panel_area_strip * cf) / panel_area_sum * 2
-        # self.register_output('panel_area_strip', panel_area_strip)
-        # self.register_output('panel_area_sum', panel_area_sum)
-        # self.register_output('cf', cf)
-        # self.print_var(panel_area_strip)
-        # self.print_var(panel_area_sum)
-        # self.print_var(cf)
-        self.register_output('C_F', CF)
-
-
-        # cf = 2νl / (θVe)

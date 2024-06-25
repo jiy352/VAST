@@ -162,8 +162,7 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            # gamma_b_repeat = csdl.expand(gamma_b*s_panels_all,(num_nodes, system_size, 3),'ki->kij')   
-            gamma_b_repeat = csdl.expand(gamma_b*s_panels_all,(num_nodes, system_size, 3),'ki->kij')   
+            gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')   
 
 
 
@@ -182,13 +181,13 @@ class ThrustDrag(Model):
             #     dcirculation_repeat_dt[1:num_nodes-1,:,:] = (gamma_b_repeat[2:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-2,:,:])/(delta_t*2)
             # dcirculation_repeat_dt[num_nodes-1,:,:] = (gamma_b_repeat[num_nodes-1,:,:]-gamma_b_repeat[num_nodes-2,:,:])/delta_t
 
-            # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
-            #     velocities, bd_vec, axis=2)
+            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+                velocities, bd_vec, axis=2)
             # self.print_var(gamma_b_repeat[0,:,:])
 
             normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
             # NOTE: this direction needs some verification
-            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
+            # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]
             panel_forces_z = panel_forces[:, :, 2] + panel_forces_dynamic[:, :, 2]
