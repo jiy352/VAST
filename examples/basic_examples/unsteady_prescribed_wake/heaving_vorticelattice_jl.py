@@ -30,7 +30,7 @@ mesh_dict = {"num_y": ns, "num_x": nc, "wing_type": "rect",  "symmetry": False,
                 "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
 mesh = generate_mesh(mesh_dict)
 
-num_ts = 4
+num_ts = 100
 
 # this is the same geometry as the dynamic_simple.ji
 

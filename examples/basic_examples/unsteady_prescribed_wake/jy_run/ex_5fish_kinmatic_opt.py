@@ -79,7 +79,7 @@ def run_fish(v_inf):
         s_2_ind = int(ode_surface_shapes[0][1]-5)
         # s_2_ind = int(ode_surface_shapes[0][1]-3)
 
-    model.add(EelViscousModel(),name='EelViscousModel')
+    model.add(EelViscousModel(surface_shapes=ode_surface_shapes),name='EelViscousModel')
 
     model.add(EelActuationModel(surface_names=surface_names,
                                 surface_shapes=ode_surface_shapes,
@@ -136,8 +136,8 @@ def run_fish(v_inf):
 
     return sim
 
-v_inf = np.array([4.164472e-01])
-# v_inf = np.array([0.1])
+# v_inf = np.array([4.164472e-01])
+v_inf = np.array([0.5])
 
 import matplotlib as mpl
 mpl.rcParams.update(mpl.rcParamsDefault)
@@ -155,6 +155,8 @@ for i in range(len(v_inf)):
     efficiency[i] = sim_list[i]['efficiency']
     thrust_power[i] = sim_list[i]['thrust_power']
     panel_thrust_power[i] = sim_list[i]['panel_thrust_power']
+exit()
+
 print('simulation time is', time.time() - t_start)
 plt.plot(v_inf,efficiency,'.')
 h_stepsize = 0.04208754
@@ -169,7 +171,6 @@ thrust = sim['thrust']
 
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
 
-# exit()
 
 #####################
 # optimizaton
@@ -206,3 +207,19 @@ print('tail frequency is',sim['tail_frequency'])
 print('wave number is',sim['wave_number'])
 print('strouhal number is',sim['tail_amplitude']*sim['tail_frequency']*2/sim['v_x'])
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
+
+#########################################
+# plot the fish mesh and the velocity
+#########################################
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import time
+plt.rcParams['text.usetex'] = False
+from plots import axis_equal,plot3d
+
+plt.ion()  # Turn on interactive mode
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
+
+plot3d(ax, sim_list[0]['eel'], sim_list[0]['eel_coll_vel'], ax)
