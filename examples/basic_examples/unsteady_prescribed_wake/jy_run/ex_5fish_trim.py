@@ -91,10 +91,11 @@ def run_fish(v_inf):
     model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict), 'fish_model')
     model.add(EfficiencyModel(surface_names=surface_names, surface_shapes=ode_surface_shapes,n_ignore=int(num_nodes/N_period)),name='EfficiencyModel')
-    model.add_design_variable('v_x',upper=0.8,lower=0.05)
-    '''
+    # model.add_design_variable('v_x',upper=0.8,lower=0.05)
+    
     model.add_design_variable('tail_amplitude',upper=0.2,lower=0.05)
     model.add_design_variable('tail_frequency',upper=0.6,lower=0.2)
+    '''
     model.add_design_variable('wave_number',upper=2,lower=1)
     model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
     '''
@@ -149,13 +150,13 @@ run_visualization(['eel'], sim_list[0], h_stepsize,folder_name='fish_new_vc',fil
 
 sim = sim_list[0]
 
-total_fx = np.sum(sim['panel_forces_x'], axis=1)
+total_fx = np.sum(sim['panel_forces_all'][:,:,0], axis=1)
 thrust = sim['thrust']
 
 
 print('percentage of thrust C_F\n',(-np.average(sim['eel_C_D_i'])-sim['C_F'])* 100/sim['C_F'],'%')
 
-# exit()
+exit()
 
 #####################
 # optimizaton

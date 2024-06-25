@@ -101,7 +101,7 @@ def run_fish(v_inf):
 
         model.add_design_variable('tail_amplitude',upper=0.4,lower=0.1)
         model.add_design_variable('tail_frequency',upper=0.6,lower=0.4)
-        model.add_design_variable('wave_number',upper=2,lower=1.9)
+        # model.add_design_variable('wave_number',upper=2,lower=1.9)
         # model.add_design_variable('linear_relation',upper=0.03125*3,lower=0.03125*0.5)
 
         model.print_var(tail_amplitude)
