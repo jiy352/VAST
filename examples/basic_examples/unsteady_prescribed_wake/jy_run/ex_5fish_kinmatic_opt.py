@@ -155,7 +155,9 @@ for i in range(len(v_inf)):
     efficiency[i] = sim_list[i]['efficiency']
     thrust_power[i] = sim_list[i]['thrust_power']
     panel_thrust_power[i] = sim_list[i]['panel_thrust_power']
+    print('avg_C_T is',sim_list[i]['avg_C_T'])
 exit()
+
 
 print('simulation time is', time.time() - t_start)
 plt.plot(v_inf,efficiency,'.')
