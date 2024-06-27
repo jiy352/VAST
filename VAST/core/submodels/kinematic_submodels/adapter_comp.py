@@ -138,8 +138,8 @@ class AdapterComp(ModuleCSDL):
 
             # frame_vel[:, 2] = -v_inf * csdl.cos(beta) * csdl.sin(alpha)
 
-            frame_vel[:, 0] = -u
-            frame_vel[:, 2] = -w
+            frame_vel[:, 0] = u
+            frame_vel[:, 2] = w
             # self.print_var(frame_vel)
 
         else:

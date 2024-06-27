@@ -45,10 +45,12 @@ t_vec = np.linspace(0, np.pi*9/omg, num_ts)
 # heaving amplitude
 h = 0.1 * chord
 
-
-u_val = (np.ones(num_ts) * np.cos(alpha)).reshape((num_ts,1)) * v_inf
+# u_val and w_vel are the velocity of the lifting surface in the global frame
+u_val = -(np.ones(num_ts) * np.cos(alpha)).reshape((num_ts,1)) * v_inf
 # w_vel = (np.ones(num_ts) * np.sin(alpha)).reshape((num_ts,1)) * v_inf
-w_vel = np.ones((num_ts,1)) * np.sin(alpha) * v_inf- h* np.cos(omg*t_vec).reshape((num_ts,1))
+w_vel = -(np.ones((num_ts,1)) * np.sin(alpha) * v_inf- h* np.cos(omg*t_vec).reshape((num_ts,1)))
+# the first term in w_vel is possitive, this is saying that the lifting surface is moving up, 
+# which generate a downwash
 
 # TODO: check wake geometry and wake velocity
 
