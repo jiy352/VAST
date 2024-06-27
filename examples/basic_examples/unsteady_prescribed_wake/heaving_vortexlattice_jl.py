@@ -48,7 +48,7 @@ h = 0.1 * chord
 
 u_val = (np.ones(num_ts) * np.cos(alpha)).reshape((num_ts,1)) * v_inf
 # w_vel = (np.ones(num_ts) * np.sin(alpha)).reshape((num_ts,1)) * v_inf
-w_vel = np.ones((num_ts,1)) * np.sin(alpha) * v_inf- h* np.cos(omg*t_vec).reshape((num_ts,1))
+w_vel = np.ones((num_ts,1)) * np.sin(alpha) * v_inf #- h* np.cos(omg*t_vec).reshape((num_ts,1))
 
 # TODO: check wake geometry and wake velocity
 
@@ -82,7 +82,10 @@ h_stepsize = delta_t = t_vec[1]
 
 model_1 = csdl.Model()
 wing = model_1.create_input('wing', val=mesh_val)
-wing_coll_vel = model_1.create_input('wing_coll_vel', val=np.zeros((num_ts, nc-1, ns-1, 3)))
+coll_vel_val = np.zeros((num_ts, nc-1, ns-1, 3))
+coll_vel_val_z = np.einsum('i,jk->ijk', -h* np.cos(omg*t_vec),np.ones((nc-1, ns-1)))
+coll_vel_val[:,:,:,2] = coll_vel_val_z
+wing_coll_vel = model_1.create_input('wing_coll_vel', val=coll_vel_val)
 rho = model_1.create_input('density', val=np.ones((num_ts,1)))  
 z_vel = h * np.cos(omg*t_vec)
 

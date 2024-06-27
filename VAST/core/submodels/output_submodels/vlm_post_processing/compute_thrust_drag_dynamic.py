@@ -160,12 +160,12 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            joukowski =True
+            joukowski = True    
 
             if joukowski:
                 gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')
             else:
-                gamma_b_repeat = csdl.expand(gamma_b* s_panels_all,(num_nodes, system_size, 3),'ki->kij')
+                gamma_b_repeat = csdl.expand(gamma_b * s_panels_all,(num_nodes, system_size, 3),'ki->kij')
 
 
 
