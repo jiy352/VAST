@@ -160,29 +160,28 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            joukowski = True    
+            joukowski = 'normal' 
+            # joukowski = 'VL', 'normal', 'bernoulli'   
 
-            if joukowski:
+            if joukowski=='VL':
                 gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')
-            else:
+            elif joukowski=='normal':
                 gamma_b_repeat = csdl.expand(gamma_b * s_panels_all,(num_nodes, system_size, 3),'ki->kij')
 
-
-
-              
           
             c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,nx-2,0,0]
-            # self.print_var(c_bar)
+            self.register_output('c_bar',c_bar)
+            self.print_var(c_bar)
             c_bar_exp = csdl.reshape(csdl.expand(csdl.reshape(c_bar,(1,)), (num_nodes*system_size*3,1),'i->ji'),(num_nodes,system_size,3))
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
             # print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
             # dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[1,:,:]-gamma_b_repeat[0,:,:])/delta_t
             dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/delta_t
             dcirculation_repeat_dt[1:num_nodes,:,:] = (gamma_b_repeat[1:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-1,:,:])/delta_t
-            if joukowski:
+            if joukowski=='VL':
                 panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
                     velocities, bd_vec, axis=2)
-            else:
+            elif joukowski=='normal':
 
                 normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
                 # NOTE: this direction needs some verification

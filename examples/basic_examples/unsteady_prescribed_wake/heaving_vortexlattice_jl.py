@@ -30,14 +30,13 @@ mesh_dict = {"num_y": ns, "num_x": nc, "wing_type": "rect",  "symmetry": False,
                 "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
 mesh = generate_mesh(mesh_dict)
 
-num_ts = 4
+num_ts = 100
 
 # this is the same geometry as the dynamic_simple.ji
 
 ########################################
 # 2. define kinematics
 ########################################
-chord = 1
 v_inf = 1
 omg = 2*v_inf*k/chord
 t_vec = np.linspace(0, np.pi*9/omg, num_ts)
@@ -83,7 +82,7 @@ h_stepsize = delta_t = t_vec[1]
 model_1 = csdl.Model()
 wing = model_1.create_input('wing', val=mesh_val)
 coll_vel_val = np.zeros((num_ts, nc-1, ns-1, 3))
-coll_vel_val_z = np.einsum('i,jk->ijk', -h* np.cos(omg*t_vec),np.ones((nc-1, ns-1)))
+coll_vel_val_z = np.einsum('i,jk->ijk', h* np.cos(omg*t_vec),np.ones((nc-1, ns-1)))
 coll_vel_val[:,:,:,2] = coll_vel_val_z
 wing_coll_vel = model_1.create_input('wing_coll_vel', val=coll_vel_val)
 rho = model_1.create_input('density', val=np.ones((num_ts,1)))  
