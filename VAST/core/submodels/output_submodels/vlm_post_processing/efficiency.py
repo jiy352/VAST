@@ -34,7 +34,7 @@ class EfficiencyModel(csdl.Model):
 
 
         n_ignore = self.parameters['n_ignore']
-        print('n_ignore',n_ignore)
+        # print('n_ignore',n_ignore)
 
         panel_forces_all = self.declare_variable('panel_forces_all',shape=(surface_shapes[0][0],int(surface_shapes[0][1]-1)*int(surface_shapes[0][2]-1),3))
         velocities = self.declare_variable(surface_name+'_kinematic_vel',shape=panel_forces_all.shape)
@@ -43,13 +43,13 @@ class EfficiencyModel(csdl.Model):
         eval_total_vel = self.declare_variable('eval_total_vel',shape=velocities.shape)  
         panel_forces_all_x = panel_forces_all[:,:,0]
 
-        self.print_var(velocities)
+        # self.print_var(velocities)
         velocities_x = self.create_output('velocities_x',shape=velocities.shape,val=0)
         velocities_x[:,:,0] = (velocities[:,:,0] - csdl.expand(v_x,shape=velocities[:,:,0].shape)) 
         # velocities_x[:,:,0] = (velocities[:,:,0] ) 
         velocities_x[:,:,1] = velocities[:,:,1] 
         velocities_x[:,:,2] = velocities[:,:,2] 
-        self.print_var(velocities_x)
+        # self.print_var(velocities_x)
 
         # panel_thrust_power = -csdl.sum(csdl.dot(panel_forces_all[n_ignore:,:,:],-velocities_x[n_ignore:,:,:],axis=2))
 
@@ -61,11 +61,11 @@ class EfficiencyModel(csdl.Model):
         panel_thrust_power = csdl.sum( -panel_forces_all[n_ignore:-1,:,0]*-velocities_x[n_ignore:-1,:,0]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,1]*-velocities_x[n_ignore:-1,:,1]) + csdl.sum( -panel_forces_all[n_ignore:-1,:,2]*-velocities_x[n_ignore:-1,:,2])
         # thrust is negative, -v_x is negative, so thrust_power is positive
 
-        self.print_var(panel_thrust_power)
-        self.print_var(thrust_power)
-        self.print_var(csdl.sum(- panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2]))
+        # self.print_var(panel_thrust_power)
+        # self.print_var(thrust_power)
+        # self.print_var(csdl.sum(- panel_forces_all[n_ignore:,:,2]*velocities_x[n_ignore:,:,2]))
         # self.print_var(velocities_x[n_ignore:,:,0])
-        self.print_var(v_x)
+        # self.print_var(v_x)
         # self.print_var(csdl.sum(thrust[n_ignore:,:],axes=(0,)))
 
         # efficiency = thrust_power/(panel_thrust_power+thrust_power)
