@@ -24,7 +24,7 @@ class ODESystemModel(csdl.Model):
         self.parameters.declare('num_nodes', default=1)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('surface_shapes', types=list)
-        self.parameters.declare('delta_t')
+        # self.parameters.declare('delta_t')
         self.parameters.declare('nt')
         self.parameters.declare('frame', default='wing_fixed')
         self.parameters.declare('symmetry',default=False)
@@ -36,7 +36,7 @@ class ODESystemModel(csdl.Model):
         n = self.parameters['num_nodes']
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        delta_t = self.parameters['delta_t']
+        # delta_t = self.parameters['delta_t']
         nt = self.parameters['nt']
 
         # set conventional names
@@ -94,7 +94,7 @@ class ODESystemModel(csdl.Model):
                                        surface_shapes=ode_surface_shapes,
                                        eval_pts_location=0.25,
                                        eval_pts_option='auto',
-                                       delta_t=delta_t,
+                                       nt=nt,
                                        problem_type='prescribed_wake',
                                        compressible=self.parameters['compressible'],
                                        Ma=self.parameters['Ma'],),
@@ -107,7 +107,7 @@ class ODESystemModel(csdl.Model):
         self.add(SolveMatrix(n_wake_pts_chord=nt-1,
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
-                                delta_t=delta_t,
+                                # delta_t=delta_t,
                                 problem_type='prescribed_wake',
                                 symmetry=self.parameters['symmetry'],),
                     name='solve_gamma_b_group')
@@ -144,12 +144,17 @@ class ODESystemModel(csdl.Model):
 
             gamma_b_last = csdl.reshape(surface_gamma_b[:,(nx - 2) * (ny - 1):],
                                         new_shape=(n, 1, ny - 1))
+            '''NOTE: this only works for uniform delta_t, need to be modified for non-uniform delta_t'''
+            # h = self.declare_variable('h', shape=(nt-1, 1))
+            # print(h.shape)
+            delta_t =  self.declare_variable('delta_t')
 
+            
             surface_dgammaw_dt[:, 0, :] = (gamma_b_last -
-                                           surface_gamma_w[:, 0, :]) / delta_t
+                                           surface_gamma_w[:, 0, :]) / csdl.expand(delta_t,gamma_b_last.shape)
             surface_dgammaw_dt[:, 1:, :] = (
                 surface_gamma_w[:, :(surface_gamma_w.shape[1] - 1), :] -
-                surface_gamma_w[:, 1:, :]) / delta_t
+                surface_gamma_w[:, 1:, :]) / csdl.expand(delta_t,surface_gamma_w[:, 1:, :].shape)
 
             # self.print_var(surface_gamma_w)
             # self.print_var(surface_gamma_b)
@@ -200,9 +205,10 @@ class ODESystemModel(csdl.Model):
             # print(surface_dwake_coords_dt.name,surface_dwake_coords_dt.shape)
 
             TE = surface_bd_vtx[:, nx - 1, :, :]
-
-            surface_dwake_coords_dt[:, 0, :, :] = (TE  + wake_total_vel[:, 0, :, :]*delta_t - surface_wake_coords[:, 0, :, :]) / delta_t
-            surface_dwake_coords_dt[:, 1:, :, :] = (surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t) / delta_t
+            delta_t_TE_shape = csdl.expand(delta_t,TE.shape)
+            surface_dwake_coords_dt[:, 0, :, :] = (TE  + wake_total_vel[:, 0, :, :]*delta_t_TE_shape - surface_wake_coords[:, 0, :, :]) / delta_t_TE_shape
+            delta_t_surface_shape = csdl.expand(delta_t,surface_wake_coords[:, 1:, :, :].shape)
+            surface_dwake_coords_dt[:, 1:, :, :] = (surface_wake_coords[:, :(surface_wake_coords.shape[1] - 1), :, :] - surface_wake_coords[:, 1:, :, :] + wake_total_vel[:, 1:, :, :] * delta_t_surface_shape) / delta_t_surface_shape
 
 if __name__ == "__main__":
     import enum

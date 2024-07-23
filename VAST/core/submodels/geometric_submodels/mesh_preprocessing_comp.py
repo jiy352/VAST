@@ -36,7 +36,7 @@ class MeshPreprocessingComp(ModuleCSDL):
         self.parameters.declare('mesh_unit', default='m')
         self.parameters.declare('eval_pts_option', default='auto')
         self.parameters.declare('eval_pts_location',default=0.25)
-        self.parameters.declare('delta_t',default=0)
+        self.parameters.declare('nt')
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('compressible',default=False)
         self.parameters.declare('Ma',default=None)
@@ -49,7 +49,8 @@ class MeshPreprocessingComp(ModuleCSDL):
         num_nodes = surface_shapes[0][0]
         eval_pts_option = self.parameters['eval_pts_option']
         eval_pts_location = self.parameters['eval_pts_location']
-        delta_t = self.parameters['delta_t']
+        # delta_t = self.parameters['delta_t']
+        nt = self.parameters['nt']
         problem_type = self.parameters['problem_type']
         compressible = self.parameters['compressible']
         Ma = self.parameters['Ma']
@@ -133,7 +134,9 @@ class MeshPreprocessingComp(ModuleCSDL):
                 # self.print_var(fs)
                 # self.print_var(w)
                 eta = 0.25
-                add_starting_wake = csdl.expand(fs*eta*delta_t,(num_nodes,1,num_pts_span,3),'il->ijkl')
+                delta_t = self.declare_variable('delta_t')
+                delta_t_exp = csdl.expand(delta_t,(num_nodes,3))
+                add_starting_wake = csdl.expand(fs*eta*delta_t_exp,(num_nodes,1,num_pts_span,3),'il->ijkl')
 
                 bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
 

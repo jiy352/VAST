@@ -37,7 +37,7 @@ class SolveMatrix(Model):
         self.parameters.declare('n_wake_pts_chord', types=int)
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('bd_vortex_shapes', types=list)
-        self.parameters.declare('delta_t')
+        # self.parameters.declare('delta_t')
         self.parameters.declare('problem_type',default='fixed_wake')
         self.parameters.declare('end',default=False)
         self.parameters.declare('symmetry',default=False)
@@ -50,7 +50,7 @@ class SolveMatrix(Model):
         num_nodes = bd_vortex_shapes[0][0]
 
         n_wake_pts_chord = self.parameters['n_wake_pts_chord']
-        delta_t = self.parameters['delta_t']
+        # delta_t = self.parameters['delta_t']
         problem_type = self.parameters['problem_type']
 
         bd_coll_pts_shapes = [
@@ -80,7 +80,7 @@ class SolveMatrix(Model):
                     n_wake_pts_chord=n_wake_pts_chord,
                     surface_names=surface_names,
                     bd_vortex_shapes=bd_vortex_shapes,
-                    delta_t=delta_t,
+                    # delta_t=delta_t,
                     problem_type=self.parameters['problem_type'],
                     symmetry=self.parameters['symmetry']
 
@@ -91,7 +91,7 @@ class SolveMatrix(Model):
                     n_wake_pts_chord=n_wake_pts_chord,
                     surface_names=surface_names,
                     bd_vortex_shapes=bd_vortex_shapes,
-                    delta_t=delta_t,
+                    # delta_t=delta_t,
                     problem_type=self.parameters['problem_type'],
                     symmetry=self.parameters['symmetry']
 

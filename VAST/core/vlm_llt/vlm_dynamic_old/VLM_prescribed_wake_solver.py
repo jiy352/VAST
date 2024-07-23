@@ -59,6 +59,8 @@ class ODEProblemTest(ODEProblem):
         self.add_parameter('gamma',dynamic=True, shape=(self.num_times, 1))
         self.add_parameter('psiw',dynamic=True, shape=(self.num_times, 1))
 
+        self.add_parameter('delta_t', dynamic=False)
+
         gamma_w_name_list = []
         wing_wake_coords_name_list = []
 
@@ -139,7 +141,7 @@ class UVLMSolver(csdl.Model):
 
     def initialize(self):
         self.parameters.declare('num_times')
-        self.parameters.declare('h_stepsize')
+        # self.parameters.declare('h_stepsize')
         self.parameters.declare('states_dict')
         self.parameters.declare('surface_properties_dict')
         self.parameters.declare('mesh_val',default=None)
@@ -151,7 +153,7 @@ class UVLMSolver(csdl.Model):
     def define(self):
         num_times = self.parameters['num_times']
 
-        h_stepsize = self.parameters['h_stepsize']
+        # h_stepsize = self.parameters['h_stepsize']
         mesh_val = self.parameters['mesh_val']
 
         AcStates_val_dict = self.parameters['states_dict']
@@ -196,18 +198,14 @@ class UVLMSolver(csdl.Model):
             wing_wake_coords_0_val = np.zeros((num_times - 1, ny, 3))
             wing_wake_coords_0 = self.create_input(wake_coords_0_name, wing_wake_coords_0_val)
 
-        ########################################
-        # Timestep vector
-        ########################################
-        h_vec = np.ones(num_times - 1) * h_stepsize
-        h = self.create_input('h', h_vec)
+
         ########################################
         # params_dict to the init of ODESystem
         ########################################
         params_dict = {
             'surface_names': surface_names,
             'surface_shapes': surface_shapes,
-            'delta_t': h_stepsize,
+            # 'delta_t': h_stepsize,
             'nt': num_times,
             'frame': frame,
              'symmetry': self.parameters['symmetry'],   
@@ -216,7 +214,7 @@ class UVLMSolver(csdl.Model):
         profile_params_dict = {
             'surface_names': surface_names,
             'surface_shapes': surface_shapes,
-            'delta_t': h_stepsize,
+            # 'delta_t': h_stepsize,
             'nt': num_times,
         }
 
@@ -243,7 +241,7 @@ class UVLMSolver(csdl.Model):
                                        surface_shapes=ode_surface_shapes,
                                        eval_pts_location=0.25,
                                        eval_pts_option='auto',
-                                       delta_t=h_stepsize,
+                                       nt=num_times,
                                        problem_type='prescribed_wake',
                                        Ma=self.parameters['Ma'],),
                  name='MeshPreprocessing_comp')
@@ -261,7 +259,7 @@ class UVLMSolver(csdl.Model):
         self.add(SolveMatrix(n_wake_pts_chord=num_times-1,
                                 surface_names=surface_names,
                                 bd_vortex_shapes=ode_surface_shapes,
-                                delta_t=h_stepsize,
+                                # delta_t=h_stepsize,
                                 problem_type='prescribed_wake',
                                 end=True,
                                 symmetry=self.parameters['symmetry'],),
@@ -291,7 +289,7 @@ class UVLMSolver(csdl.Model):
             surface_names=surface_names,
             surface_shapes=ode_surface_shapes,
             n_wake_pts_chord=num_times-1,
-            delta_t=h_stepsize,
+            # delta_t=h_stepsize,
             problem_type='prescribed_wake',
             eps=4e-5,
             symmetry=self.parameters['symmetry'],
@@ -307,7 +305,7 @@ class UVLMSolver(csdl.Model):
             sprs=None,
             coeffs_aoa=None,
             coeffs_cd=None,
-            delta_t=h_stepsize,
+            nt=num_times,
         )
         self.add(submodel, name='ThrustDrag')
 

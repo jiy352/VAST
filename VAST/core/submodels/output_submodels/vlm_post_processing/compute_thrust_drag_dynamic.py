@@ -39,12 +39,12 @@ class ThrustDrag(Model):
 
         self.parameters.declare('coeffs_aoa', default=None)
         self.parameters.declare('coeffs_cd', default=None)
-        self.parameters.declare('delta_t',default=0.5)
+        self.parameters.declare('nt')
 
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        delta_t = self.parameters['delta_t']
+        nt = self.parameters['nt']
         # print('delta_t-------------------------------',delta_t)
 
 
@@ -176,8 +176,11 @@ class ThrustDrag(Model):
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
             # print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
             # dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[1,:,:]-gamma_b_repeat[0,:,:])/delta_t
-            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/delta_t
-            dcirculation_repeat_dt[1:num_nodes,:,:] = (gamma_b_repeat[1:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-1,:,:])/delta_t
+            # h = self.declare_variable('h', shape=(nt-1, 1))
+            delta_t =self.declare_variable('delta_t')      
+            
+            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/csdl.expand(delta_t, gamma_b_repeat[0,:,:].shape)
+            dcirculation_repeat_dt[1:num_nodes,:,:] = (gamma_b_repeat[1:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-1,:,:])/csdl.expand(delta_t, gamma_b_repeat[0:num_nodes-1,:,:].shape)
             if joukowski=='VL':
                 panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
                     velocities, bd_vec, axis=2)

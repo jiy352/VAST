@@ -33,7 +33,7 @@ class RHS(Model):
                                 default='bk_euler')
         self.parameters.declare('surface_names', types=list)
         self.parameters.declare('bd_vortex_shapes', types=list)
-        self.parameters.declare('delta_t')
+        self.parameters.declare('delta_t', default=None)
         self.parameters.declare('problem_type', default='fixed_wake')
         self.parameters.declare('symmetry',default=False)
 
