@@ -160,7 +160,7 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            joukowski = 'normal' 
+            joukowski = 'VL' 
             # joukowski = 'VL', 'normal', 'bernoulli'   
 
             if joukowski=='VL':
@@ -182,8 +182,18 @@ class ThrustDrag(Model):
             dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/csdl.expand(delta_t, gamma_b_repeat[0,:,:].shape)
             dcirculation_repeat_dt[1:num_nodes,:,:] = (gamma_b_repeat[1:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-1,:,:])/csdl.expand(delta_t, gamma_b_repeat[0:num_nodes-1,:,:].shape)
             if joukowski=='VL':
+                # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+                #     velocities, bd_vec, axis=2)
+                bd_vec_normal = csdl.sum(bd_vec**2,axes=(2,))**0.5
+                bd_vec_normal_exp = csdl.expand(bd_vec_normal,(num_nodes,system_size,3),'ij->ijk')
+                dot_product = csdl.sum(bd_vec*velocities,axes=(2,))
+                dot_product_exp = csdl.expand(dot_product,(num_nodes,system_size,3),'ij->ijk')
+                velocities_normal = velocities - dot_product_exp/bd_vec_normal_exp
+                velocities_normal_norm = csdl.sum(velocities_normal**2,axes=(2,))**0.5
+                velocities_normal_norm_exp = csdl.expand(velocities_normal_norm,(num_nodes,system_size,3),'ij->ijk')
                 panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
-                    velocities, bd_vec, axis=2)
+                    velocities, bd_vec, axis=2) / velocities_normal_norm_exp
+                
             elif joukowski=='normal':
 
                 normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
