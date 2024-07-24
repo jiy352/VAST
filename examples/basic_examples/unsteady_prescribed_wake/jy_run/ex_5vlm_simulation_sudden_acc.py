@@ -35,6 +35,7 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
     alpha = np.deg2rad(5) 
     t_vec = np.linspace(0, 9, num_nodes) 
 
+
     u_val = (np.ones(num_nodes) * np.cos(alpha)).reshape((num_nodes,1)) 
     w_vel = np.ones((num_nodes,1)) *np.sin(alpha)
 
@@ -71,10 +72,11 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
     model = csdl.Model()
 
     model.create_input('wing_coll_vel', val = vz)
+    model.create_input('delta_t', val = delta_t)
 
     model.create_input('wing', val = mesh_val)
 
-    model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+    model.add(UVLMSolver(num_times=nt,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val,
                                         symmetry=True), 'uvlm_solver')
     sim = python_csdl_backend.Simulator(model)
@@ -94,8 +96,8 @@ import matplotlib.pyplot as plt
 be = 'python_csdl_backend'
 make_video = 0
 plot_cl = 1
-span = [4, ]
-# span = [4, 8, 12, 20, 1000]
+# span = [4, ]
+span = [4, 8, 12, 20, 1000]
 
 num_nodes = [141] * len(span)
 
@@ -103,7 +105,7 @@ wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
     wing_C_L, t_vec, sim = run_fixed(i,j)
-    plt.plot(t_vec, wing_C_L,label='VAST AR = '+str(i))
+    plt.plot(t_vec, wing_C_L,label='VAST AR = '+str(i), frame='inertia')
     # wing_C_L_, t_vec_ = run_fixed(i,num_nodes=j,frame='inertia')
     # plt.plot(t_vec_, wing_C_L_,'.-')
     plt.ylim([0,0.6])
@@ -113,11 +115,11 @@ for (i,j) in zip(span,num_nodes):
     # wing_C_L_list.append(wing_C_L)
     # t_vec_list.append(t_vec)
 
-katz_4 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_4.txt')
-katz_8 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_8.txt')       
-katz_12 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_12.txt')
-katz_20 = np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_20.txt')
-katz_inf= np.loadtxt('verfication_data/sudden_acc/katz_plotkin/katz_inf.txt')
+katz_4 = np.loadtxt('/home/lsdo/Documents/packages/VAST/examples/basic_examples/unsteady_prescribed_wake/verfication_data/sudden_acc/katz_plotkin/katz_4.txt')
+katz_8 = np.loadtxt('/home/lsdo/Documents/packages/VAST/examples/basic_examples/unsteady_prescribed_wake/verfication_data/sudden_acc/katz_plotkin/katz_8.txt')       
+katz_12 = np.loadtxt('/home/lsdo/Documents/packages/VAST/examples/basic_examples/unsteady_prescribed_wake/verfication_data/sudden_acc/katz_plotkin/katz_12.txt')
+katz_20 = np.loadtxt('/home/lsdo/Documents/packages/VAST/examples/basic_examples/unsteady_prescribed_wake/verfication_data/sudden_acc/katz_plotkin/katz_20.txt')
+katz_inf= np.loadtxt('/home/lsdo/Documents/packages/VAST/examples/basic_examples/unsteady_prescribed_wake/verfication_data/sudden_acc/katz_plotkin/katz_inf.txt')
 
 plt.plot(katz_4[:,0],katz_4[:,1],".",label='Katz&Plotkin AR = 4')
 plt.plot(katz_8[:,0],katz_8[:,1],"^",label='Katz&Plotkin AR = 8')

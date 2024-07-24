@@ -66,7 +66,7 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
         mesh_val[i, :, :, 1] = mesh.copy()[:, :, 1] 
         mesh_val[i, :, :, 2] += z_offset[i]
 
-    h_stepsize = delta_t = t_vec[1] 
+
 
     model = csdl.Model()
 
@@ -74,7 +74,12 @@ def run_fixed(span,num_nodes,frame='wing_fixed'):
 
     model.create_input('wing', val = mesh_val)
 
-    model.add(UVLMSolver(num_times=nt,h_stepsize=h_stepsize,states_dict=states_dict,
+    h_stepsize = delta_t_val = t_vec[1] 
+    delta_t = model.create_input('delta_t', val = delta_t_val)
+    h_vec = csdl.expand(delta_t,shape=(num_nodes-1,1))
+    model.register_output('h', h_vec)
+
+    model.add(UVLMSolver(num_times=nt,  states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=mesh_val,
                                         symmetry=True), 'uvlm_solver')
     sim = python_csdl_backend.Simulator(model)
@@ -101,6 +106,7 @@ num_nodes = [141] * len(span)
 wing_C_L_list = []
 t_vec_list = []
 for (i,j) in zip(span,num_nodes):
+    # wing_C_L, t_vec = run_fixed(i,j, frame='inertia')
     wing_C_L, t_vec = run_fixed(i,j)
     plt.plot(t_vec, wing_C_L,label='VAST AR = '+str(i))
     # wing_C_L_, t_vec_ = run_fixed(i,num_nodes=j,frame='inertia')

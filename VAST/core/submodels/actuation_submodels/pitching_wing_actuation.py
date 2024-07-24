@@ -76,6 +76,7 @@ class PitchingModel(ModuleCSDL):
                             "span": span, "root_chord": chord,"span_cos_spacing": False, "chord_cos_spacing": False}
             mesh = generate_mesh(mesh_dict)
             mesh[:,:,0]  = mesh[:,:,0] + 0.25 # quarter chord pitching axis
+            # mesh[:,:,0]  = mesh[:,:,0] +0.75 # quarter chord pitching axis
             r = R.from_euler('y', f, degrees=True).as_matrix() # num_nodes,3,3
 
             rotated_mesh = np.einsum('ijk,lmk->ilmj', r, mesh)

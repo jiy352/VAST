@@ -61,7 +61,7 @@ def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=F
                             v_inf=v_inf, c_0=chord, N_period=N_period, AR=span/chord)
 
     model.add(Pitching, 'pitching')
-    model.add(UVLMSolver(num_times=num_nodes, h_stepsize=h_stepsize,states_dict=states_dict,
+    model.add(UVLMSolver(num_times=num_nodes,states_dict=states_dict,
                                         surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')
 
     model.add(EfficiencyModel(surface_names=['wing'],surface_shapes=ode_surface_shapes),name='EfficiencyModel')
@@ -105,15 +105,17 @@ if __name__ == '__main__':
     N_period=3
     A=1
 
-    run_pitching_theodorsen_verification(k=0.2,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
-    run_pitching_theodorsen_verification(k=0.6,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    # run_pitching_theodorsen_verification(k=0.2,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    # run_pitching_theodorsen_verification(k=0.6,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
     run_pitching_theodorsen_verification(k=1,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
-    run_pitching_theodorsen_verification(k=3,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
+    # run_pitching_theodorsen_verification(k=3,num_nodes=num_nodes,N_period=N_period,A=A,save_vtk=False)
     alpha_file_name = 'verfication_data/theodorsen/analytical_solution/alpha_1deg0.2.txt'
-    Cl_file_name = ['verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
-                    'verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
+    Cl_file_name = [
+                    # 'verfication_data/theodorsen/analytical_solution/Cl_1deg0.2.txt',
+                    # 'verfication_data/theodorsen/analytical_solution/Cl_1deg0.6.txt',
                     'verfication_data/theodorsen/analytical_solution/Cl_1deg1.txt',
-                    'verfication_data/theodorsen/analytical_solution/Cl_1deg3.txt']
+                    # 'verfication_data/theodorsen/analytical_solution/Cl_1deg3.txt'
+                    ]
 
     def plot_cl(alpha_file_name, Cl_file_name, L_file_name=None):
         for i in range(len(Cl_file_name)):

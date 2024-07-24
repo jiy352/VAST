@@ -139,6 +139,11 @@ class MeshPreprocessingComp(ModuleCSDL):
                 add_starting_wake = csdl.expand(fs*eta*delta_t_exp,(num_nodes,1,num_pts_span,3),'il->ijkl')
 
                 bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + add_starting_wake
+                # bd_vtx_coords[:, num_pts_chord -1, :, :] = def_mesh[:, num_pts_chord - 1, :, :] + 0.25 * (
+                #                                     def_mesh[:, num_pts_chord -
+                #                                             1, :, :] -
+                #                                     def_mesh[:, num_pts_chord -
+                #                                             2, :, :])
 
                 # bd_vtx_coords[:, num_pts_chord -
                 #             1, :, :] = def_mesh[:, num_pts_chord -

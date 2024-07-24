@@ -79,7 +79,9 @@ for i in range(num_ts):
 h_stepsize = delta_t = t_vec[1] 
 
 
+
 model_1 = csdl.Model()
+model_1.create_input('delta_t', val = delta_t)
 wing = model_1.create_input('wing', val=mesh_val)
 coll_vel_val = np.zeros((num_ts, nc-1, ns-1, 3))
 coll_vel_val_z = np.einsum('i,jk->ijk', h* np.cos(omg*t_vec),np.ones((nc-1, ns-1)))
@@ -90,7 +92,7 @@ z_vel = h * np.cos(omg*t_vec)
 
 
 import python_csdl_backend
-submodel = UVLMSolver(num_times=num_ts,h_stepsize=h_stepsize,states_dict=states_dict,
+submodel = UVLMSolver(num_times=num_ts,states_dict=states_dict,
                     surface_properties_dict=surface_properties_dict,mesh_val=mesh_val)
 model_1.add(submodel, 'VLMSolverModel')
 sim = python_csdl_backend.Simulator(model_1) # add simulator
