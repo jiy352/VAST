@@ -307,7 +307,7 @@ class UVLMSolver(csdl.Model):
             sprs=None,
             coeffs_aoa=None,
             coeffs_cd=None,
-            delta_t=h_stepsize,
+            # delta_t=h_stepsize,
         )
         self.add(submodel, name='ThrustDrag')
 

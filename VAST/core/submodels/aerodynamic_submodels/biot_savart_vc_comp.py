@@ -41,7 +41,7 @@ class BiotSavartComp(csdl.Model):
         self.parameters.declare('eps', default=5e-4)
 
         self.parameters.declare('circulation_names', default=None)
-        self.parameters.declare('symmetry',default=False)
+        self.parameters.declare('symmetry',default=True)
 
     def define(self):
         eval_pt_names = self.parameters['eval_pt_names']
@@ -53,6 +53,7 @@ class BiotSavartComp(csdl.Model):
         eps = self.parameters['eps']
         # circulation_names = self.parameters['circulation_names']
         symmetry = self.parameters['symmetry']
+        symmetry = True
         # print('symmetry is---------------------------------------------', symmetry)
 
         for i in range(len(eval_pt_names)):

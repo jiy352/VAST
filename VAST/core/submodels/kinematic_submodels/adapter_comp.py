@@ -160,4 +160,3 @@ class AdapterComp(ModuleCSDL):
 
         # self.create_input('rho', val=(num_nodes, 1))
 
-

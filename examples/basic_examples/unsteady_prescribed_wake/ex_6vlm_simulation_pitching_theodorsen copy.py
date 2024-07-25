@@ -59,7 +59,7 @@ def run_pitching_theodorsen_verification(k,num_nodes,N_period,A=1,save_results=F
 
     Pitching = PitchingModel(surface_names=['wing'], surface_shapes=[(nx,ny)], num_nodes=num_nodes,A=A, k=k,
                             v_inf=v_inf, c_0=chord, N_period=N_period, AR=span/chord)
-    model.create_input('delta_t', delta_t)
+
     model.add(Pitching, 'pitching')
     model.add(UVLMSolver(num_times=num_nodes,states_dict=states_dict,h_stepsize=h_stepsize,
                                         surface_properties_dict=surface_properties_dict,mesh_val=None), 'uvlm_solver')

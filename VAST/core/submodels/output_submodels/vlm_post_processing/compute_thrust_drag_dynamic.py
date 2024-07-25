@@ -39,12 +39,12 @@ class ThrustDrag(Model):
 
         self.parameters.declare('coeffs_aoa', default=None)
         self.parameters.declare('coeffs_cd', default=None)
-        self.parameters.declare('delta_t',default=0.5)
+        self.parameters.declare('nt',default=200)
 
     def define(self):
         surface_names = self.parameters['surface_names']
         surface_shapes = self.parameters['surface_shapes']
-        delta_t = self.parameters['delta_t']
+        nt = self.parameters['nt']
         # print('delta_t-------------------------------',delta_t)
 
 
@@ -160,28 +160,56 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            gamma_b_repeat = csdl.expand(gamma_b* s_panels_all,(num_nodes, system_size, 3),'ki->kij')   
+            joukowski = 'normal' 
+            # joukowski = 'VL', 'normal', 'bernoulli'   
 
+            if joukowski=='VL':
+                gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')
+            elif joukowski=='normal':
+                gamma_b_repeat = csdl.expand(gamma_b * s_panels_all,(num_nodes, system_size, 3),'ki->kij')
 
-
-            # gamma_b_repeat = csdl.expand(gamma_b,(num_nodes, system_size, 3),'ki->kij')  
           
             c_bar = wing_inital[0,nx-1,0,0] - wing_inital[0,nx-2,0,0]
-            # self.print_var(c_bar)
+            self.register_output('c_bar',c_bar)
+            self.print_var(c_bar)
             c_bar_exp = csdl.reshape(csdl.expand(csdl.reshape(c_bar,(1,)), (num_nodes*system_size*3,1),'i->ji'),(num_nodes,system_size,3))
             dcirculation_repeat_dt = self.create_output('dcirculation_repeat_dt',shape=(num_nodes,system_size,3))
             # print('dcirculation_repeat_dt shape is:\n',dcirculation_repeat_dt.shape)
             # dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[1,:,:]-gamma_b_repeat[0,:,:])/delta_t
-            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/delta_t
-            dcirculation_repeat_dt[1:num_nodes-1,:,:] = (gamma_b_repeat[2:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-2,:,:])/(delta_t*2)
-            dcirculation_repeat_dt[num_nodes-1,:,:] = (gamma_b_repeat[num_nodes-1,:,:]-gamma_b_repeat[num_nodes-2,:,:])/delta_t
+            # h = self.declare_variable('h', shape=(nt-1, 1))
+            delta_t =self.declare_variable('delta_t')      
+            
+            ###############################
+            # fd 1st order
+            ###############################
+            # dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/csdl.expand(delta_t, gamma_b_repeat[0,:,:].shape)
+            # dcirculation_repeat_dt[1:num_nodes,:,:] = (gamma_b_repeat[1:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-1,:,:])/csdl.expand(delta_t, gamma_b_repeat[0:num_nodes-1,:,:].shape)
 
-            # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
-                # velocities, bd_vec, axis=2)
+            ###############################
+            # fd 2nd order
+            ###############################
+            dcirculation_repeat_dt[0,:,:] = (gamma_b_repeat[0,:,:])/csdl.expand(delta_t, gamma_b_repeat[0,:,:].shape)
+            dcirculation_repeat_dt[1:num_nodes-1,:,:] = (gamma_b_repeat[2:num_nodes,:,:]-gamma_b_repeat[0:num_nodes-2,:,:])/csdl.expand(delta_t*2, gamma_b_repeat[1:num_nodes-1,:,:].shape)
+            dcirculation_repeat_dt[num_nodes-1,:,:] = (gamma_b_repeat[num_nodes-1,:,:]-gamma_b_repeat[num_nodes-2,:,:])/csdl.expand(delta_t, gamma_b_repeat[0,:,:].shape)
+            
+            if joukowski=='VL':
+                # panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+                #     velocities, bd_vec, axis=2)
+                bd_vec_normal = csdl.sum(bd_vec**2,axes=(2,))**0.5
+                bd_vec_normal_exp = csdl.expand(bd_vec_normal,(num_nodes,system_size,3),'ij->ijk')
+                dot_product = csdl.sum(bd_vec*velocities,axes=(2,))
+                dot_product_exp = csdl.expand(dot_product,(num_nodes,system_size,3),'ij->ijk')
+                velocities_normal = velocities - dot_product_exp/bd_vec_normal_exp
+                velocities_normal_norm = csdl.sum(velocities_normal**2,axes=(2,))**0.5
+                velocities_normal_norm_exp = csdl.expand(velocities_normal_norm,(num_nodes,system_size,3),'ij->ijk')
+                panel_forces_dynamic = rho_expand * dcirculation_repeat_dt* c_bar_exp * csdl.cross(
+                    velocities, bd_vec, axis=2) / velocities_normal_norm_exp
+                
+            elif joukowski=='normal':
 
-            normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
-            # NOTE: this direction needs some verification
-            panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
+                normals = self.declare_variable(surface_names[0] + '_bd_vtx_normals',shape=(num_nodes,system_size,3))
+                # NOTE: this direction needs some verification
+                panel_forces_dynamic = rho_expand * dcirculation_repeat_dt * normals
 
             panel_forces_x = panel_forces[:, :, 0] + panel_forces_dynamic[:, :, 0]
             panel_forces_y = panel_forces[:, :, 1] + panel_forces_dynamic[:, :, 1]
@@ -191,6 +219,7 @@ class ThrustDrag(Model):
             self.register_output('panel_forces_z', panel_forces_z)
             # print('compute lift drag panel_forces', panel_forces.shape)
             b = frame_vel[:, 0]**2 + frame_vel[:, 1]**2 + frame_vel[:, 2]**2
+            self.register_output('b_thrust', b)
 
             L_panel = -panel_forces_x * sina + panel_forces_z * cosa
             D_panel = panel_forces_x * cosa * cosb + panel_forces_z * sina * cosb - panel_forces_y * sinb
@@ -363,6 +392,7 @@ class ThrustDrag(Model):
             CD_v = CD_0 + CD_1 * alpha**2
             s_panels_sum = csdl.reshape(csdl.sum(s_panels_all, axes=(1, )),
                                         (num_nodes, 1))
+            self.register_output('s_panels_sum', s_panels_sum)
             
 
             Drag = 0.5*rho*b*s_panels_sum*CD_0
