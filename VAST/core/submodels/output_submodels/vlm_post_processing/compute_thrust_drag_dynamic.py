@@ -160,7 +160,7 @@ class ThrustDrag(Model):
 
 
             gamma_b = self.declare_variable('gamma_b',shape=(num_nodes, system_size))
-            joukowski = 'VL' 
+            joukowski = 'normal' 
             # joukowski = 'VL', 'normal', 'bernoulli'   
 
             if joukowski=='VL':

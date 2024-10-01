@@ -71,10 +71,10 @@ class EfficiencyModel(csdl.Model):
         # efficiency = thrust_power/(panel_thrust_power+thrust_power)
         efficiency = thrust_power/(panel_thrust_power)
         self.print_var(efficiency)
-        self.register_output('panel_thrust_power',panel_thrust_power)
+        self.register_output('panel_total_power',panel_thrust_power)
         self.register_output('thrust_power',thrust_power)
         self.register_output('efficiency',efficiency)
-
+        self.print_var(panel_thrust_power)
 # panel_forces_all = sim['panel_forces_all']
 # velocities_panel = - sim['eel_kinematic_vel']
 # panel_forces_dynamic = sim['panel_forces_dynamic']
